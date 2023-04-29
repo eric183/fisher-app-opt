@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import OriginURL from "../constants/OriginURL";
-import request from "../utils/request";
+// import request from "../utils/request";
 import { Link, useRouter, useSegments } from "expo-router";
 import axios from "axios";
+import { useAxios } from "../store/axios";
+
 
 export interface IRegister {
   email: string;
@@ -12,6 +14,7 @@ export interface IRegister {
 const useAuth = () => {
   const segments = useSegments();
   const router = useRouter();
+  const  instance  = useAxios(state => state.instance);
   
   const signIn = async({
     email,
@@ -19,11 +22,15 @@ const useAuth = () => {
   }: IRegister) => {
 
     // const signInInfo = await request(`${OriginURL}/auth`)
-    // console.log(signInInfo);
-    const data = await axios.post(`${OriginURL}/auth/login`,  {
+    console.log(instance);
+    const data = await instance?.post(`${OriginURL}/auth/login`, {
       email: email.trim(),
       password: password.trim()
-    })
+    });
+    // const data = await axios.post(`${OriginURL}/auth/login`,  {
+    //   email: email.trim(),
+    //   password: password.trim()
+    // })
     // const { data } = await request(`${OriginURL}/auth/login`, {
     //   method: "POST",
     //   data: {
@@ -41,26 +48,24 @@ const useAuth = () => {
 
   const checkToken = async() => {
     
-    const {
-      data,
-      status
-    } = await request(`${OriginURL}/auth`)
-    
-    if(status === 200) {
-      console.log(data);
-    }
+    // const {
+    //   data,
+    //   status
+    // } = await 
+    instance?.get(`${OriginURL}/auth/profile`)
+    // debugger;
+    // if(status === 200) {
+    //   console.log(data);
+    // }
   }
 
   const register = async({
     email,
     password
   }: IRegister) => {
-    const { data } = await request(`${OriginURL}/register`, {
-      method: "POST",
-      data: {
-        email: email.trim(),
-        password: password.trim()
-      }
+    const data = await instance?.post(`${OriginURL}/register`, {
+      email: email.trim(),
+      password: password.trim()
     })
 
     // console.log("isRegisted:", data)

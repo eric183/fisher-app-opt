@@ -2,6 +2,7 @@ import { Box, Button, FormControl, Input, Stack, WarningOutlineIcon } from "nati
 import { View } from "../components/Themed"
 import useAuth, { IRegister } from "../hooks/auth";
 import { useState } from "react";
+import { useRouter } from "expo-router";
 
 const Sign = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -12,6 +13,8 @@ const Sign = () => {
     email: '',
     password: ''
   });
+
+  const router = useRouter();
   
   const submitForm = async() => {
 
@@ -22,6 +25,7 @@ const Sign = () => {
     setLoading(true);
     const response = await register(formData);
 
+    
     setLoading(false);
 
   }
@@ -35,7 +39,7 @@ const Sign = () => {
     setLoading(true);
     try {
       const response = await signIn(formData);
-      
+      router.back();
     } catch(error) {
       
       setLoading(false);
@@ -45,11 +49,11 @@ const Sign = () => {
   }
 
   return (
-    <Box alignItems="center" className=" bg-white">
+    <Box alignItems="center" justifyItems="center" className="bg-white mt-96">
       <Box w="100%" maxWidth="300px">
         <FormControl isRequired>
           <Stack mx="4">
-            <FormControl.Label>eMail</FormControl.Label>
+            <FormControl.Label>Email</FormControl.Label>
             <Input type="text" placeholder="email" value={formData.email} 
               onChange={(evt)=> {
                 setFormData(state=> ({

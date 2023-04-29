@@ -1,4 +1,7 @@
 export {};
 declare global {
   type TDemandStatus = "IDLE" | "Pending" | "Registed" | "Error";
+  type LoginStatus = "authenticated" | "unauthenticated" | "pendingVerification" | "unknown";
+  declare var AuthorizationToken: string;  
 }
+
