@@ -53,7 +53,7 @@ export async function gptAPI(prompt: string): Promise<OpenAIResponse> {
   const res = await axios.post("https://api.openai.com/v1/chat/completions", payload, {
     headers: {
       "Content-Type": "application/json",
-      'Authorization': `Bearer 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`
+      'Authorization': `Bearer `
       // 'Authorization': `Bearer ${api_configuration.apiKey}`
     }
   })
