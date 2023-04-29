@@ -1,20 +1,31 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { Button, Input } from "native-base";
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ImageBackground, ScrollView, Text, TouchableHighlight, Modal } from "react-native";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { View, StyleSheet, ImageBackground, ScrollView, Text, TouchableHighlight, Modal, TextInput } from "react-native";
 import { gptAPI } from "../../utils/gpt";
 import isJSON from "../../utils/isJSON";
+import useIndexState from "../../store";
+import useDemandState from "../../store/demand";
 
 const ProfileHeader = ({profile}: any) => {
  
   const [status, setStatus] = useState<string>("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [inputVal, setInputVal] = useState<string>("");
   const [fetching, setFetching] = useState<boolean>(false);
+  // const [demandStatus, setDemandStatus] = useState<TDemandStatus>("IDLE")
+  const { demandStatus, setDemandStatus } = useDemandState();
+  const inputRef = useRef<TextInput>();
 
-  
+
+  const handleInputChange = useCallback((evt: any)=> {
+    inputRef.current?.setNativeProps({
+      text: evt.nativeEvent.text
+    })
+  }, [])
+
   useEffect(()=>{
+    console.log(process.env.CHATGPT_PLUS_API_TOKEN, '...')
     // console.log(localStorage)
   },[]); 
   
@@ -74,21 +85,38 @@ const ProfileHeader = ({profile}: any) => {
     console.log(obj.responseItem); // 输出对象的 responseItem 属性
   }
 
-  const postGPTAPI = async() => {
-    if(inputVal.trim().length > 0) {
-      setFetching(true);
+  const postGPTAPI = async({nativeEvent}: any) => {
+    // console.log(inputRef.current?.props);
+    const { text } = nativeEvent;
 
-      const requestData = await callOpenAI(inputVal);
+    // setDemand(text);
+    // setFetching(true);
+    // setModalVisible(false);
 
-      console.log(requestData);
-      setFetching(false);
-      setModalVisible(false);
+    // return;    
+    setDemandStatus("Pending");
 
+  
+    if(text.trim().length > 0) {
+      try {
+      
+        setFetching(true);
+        
+        const requestData = await callOpenAI(text);
+        
+        console.log(requestData);
+        setFetching(false);
+        setModalVisible(false);
+        setDemandStatus("Registed");
+      } catch(error) {
+        setFetching(false);
+        setModalVisible(false);
+        setDemandStatus("Error");
+      }
     }
   }
 
   const embeddingPrompt = (prompt: string) => `[${prompt}],帮我将上面[]里的文本梳理成下面的JSON数据：{ responseItem: { "REQUEST IN CHINESE": "","REQUEST IN English": "","demanType": 0,}}; Additional notes: demanType: wanted(means you want something or to hire someone) | server(means you can give or server something or find job) | common(other demand like find someone to play together or standup with someone)`
-
   
   return (
     <View style={styles.profileHeader}>
@@ -105,10 +133,8 @@ const ProfileHeader = ({profile}: any) => {
       <View className="ml-4">
         <Text style={styles.username}>{status}</Text>
         <Text style={styles.username}>{profile.username}</Text>
-        <Text style={styles.followers}>
-          {profile.followers} followers · {profile.following} following
-        </Text>
-        <Text style={styles.bio}>{inputVal}</Text>
+        
+        <Text style={styles.bio}>{demandStatus}</Text>
       </View>
 
 
@@ -127,8 +153,15 @@ const ProfileHeader = ({profile}: any) => {
           <View style={styles.modalContent}>
 
             <Input 
+              blurOnSubmit
+              keyboardType="phone-pad"
+              ref={inputRef}
+              onSubmitEditing={postGPTAPI}
+              // onChange={handleInputChange}
+              // onEndEditing={postGPTAPI}
               className="p-3"
-              shadow={2} value={inputVal} placeholder="Input your demand" onChange={(evt: any)=> setInputVal(evt.target.value)}
+              shadow={2}  
+              placeholder="Input your demand"
               _light={{
                 bg: "coolGray.100",
                 _hover: {
@@ -148,11 +181,11 @@ const ProfileHeader = ({profile}: any) => {
                 }
               }} 
               />
-            <Button
+            {/* <Button
               className="mt-10"
               isLoading={fetching}
               onPress={postGPTAPI}
-            >Change</Button>
+            >Change</Button> */}
           </View>
         </View>
       </Modal>

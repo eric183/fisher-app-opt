@@ -1,5 +1,5 @@
 import axios from "axios";
-import { OpenAIResponse } from "../typings";
+import { OpenAIResponse } from "../typings/openAI";
 
 export const api_configuration = {
   apiKey: process.env.CHATGPT_PLUS_API_TOKEN,
@@ -53,8 +53,8 @@ export async function gptAPI(prompt: string): Promise<OpenAIResponse> {
   const res = await axios.post("https://api.openai.com/v1/chat/completions", payload, {
     headers: {
       "Content-Type": "application/json",
-      'Authorization': `Bearer `
-      // 'Authorization': `Bearer ${api_configuration.apiKey}`
+      // 'Authorization': `Bearer `
+      'Authorization': `Bearer ${api_configuration.apiKey}`
     }
   })
   console.log(res,'!!!');

@@ -5,6 +5,7 @@ import { SplashScreen, Stack } from 'expo-router';
 import { NativeBaseProvider } from 'native-base';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import useAuth from '../hooks/auth';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -17,11 +18,17 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
+  const { signIn, signOut, checkToken } = useAuth();
+
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
 
+  useEffect(() => {
+    // checkToken();
+    // signIn();
+  }, []);
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
@@ -39,10 +46,11 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
+  const theme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
   return (
     <>
       <NativeBaseProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <ThemeProvider value={DefaultTheme}>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
