@@ -4,6 +4,7 @@ import OriginURL from "../constants/OriginURL";
 import { Link, useRouter, useSegments } from "expo-router";
 import axios from "axios";
 import { useAxios } from "../store/axios";
+import useUser, { TUser } from "../store/user";
 
 
 export interface IRegister {
@@ -15,7 +16,8 @@ const useAuth = () => {
   const segments = useSegments();
   const router = useRouter();
   const  instance  = useAxios(state => state.instance);
-  
+  const { setUser } = useUser();
+
   const signIn = async({
     email,
     password
@@ -23,7 +25,7 @@ const useAuth = () => {
 
     // const signInInfo = await request(`${OriginURL}/auth`)
     console.log(instance);
-    const data = await instance?.post(`${OriginURL}/auth/login`, {
+    const data = await instance?.post(`/auth/login`, {
       email: email.trim(),
       password: password.trim()
     });
@@ -49,26 +51,33 @@ const useAuth = () => {
 
   const checkToken = async() => {
     
-    // const {
-    //   data,
-    //   status
-    // } = await 
-    instance?.get(`${OriginURL}/auth/profile`)
-    // debugger;
-    // if(status === 200) {
-    //   console.log(data);
-    // }
+ 
+    const profileResponse = await instance?.get('/auth/profile')!;
+    if(!profileResponse) return;
+    const demandResponse = await instance?.get(`/demand/${profileResponse.data.id}`)!;
+    // const demandResponse = await instance?.get(`/demand/count/${data.id}`)!;
+    
+    if(profileResponse?.status === 200) {
+      setUser({
+        ...profileResponse.data,
+        demands: demandResponse.data,
+        // demandCount: demandResponse.data.length
+      });
+    }
   }
 
   const register = async({
     email,
     password
   }: IRegister) => {
-    const data = await instance?.post(`${OriginURL}/register`, {
+    const response = await instance?.post(`/register`, {
       email: email.trim(),
       password: password.trim()
     })
 
+    if(response?.data === true) {
+      console.log('ok');
+    }
     // console.log("isRegisted:", data)
   }
 

@@ -1,22 +1,24 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
-import { Button, Input } from "native-base";
+import { Box, Button, CheckIcon, HamburgerIcon, Input, Menu, Select } from "native-base";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { View, StyleSheet, ImageBackground, ScrollView, Text, TouchableHighlight, Modal, TextInput } from "react-native";
+import { View, StyleSheet, ImageBackground, ScrollView, Text, TouchableHighlight, Modal, TextInput, Pressable } from "react-native";
 import { gptAPI } from "../../utils/gpt";
 import isJSON from "../../utils/isJSON";
 import useIndexState from "../../store";
 import useDemandState from "../../store/demand";
+import { useAxios } from "../../store/axios";
+import useUser, { TDemand } from "../../store/user";
 
 const ProfileHeader = ({profile}: any) => {
- 
+  const { user } = useUser();
   const [status, setStatus] = useState<string>("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [fetching, setFetching] = useState<boolean>(false);
   // const [demandStatus, setDemandStatus] = useState<TDemandStatus>("IDLE")
-  const { demandStatus, setDemandStatus } = useDemandState();
+  const { demandStatus, setDemandStatus, setPendingDemand, pendingDemand } = useDemandState();
+  const { instance } = useAxios();
   const inputRef = useRef<TextInput>();
-
 
   const handleInputChange = useCallback((evt: any)=> {
     inputRef.current?.setNativeProps({
@@ -43,6 +45,23 @@ const ProfileHeader = ({profile}: any) => {
 
   }
 
+  const getJSONFormatFromGPT = (str: string) => {
+    
+    if(isJSON(str)) {
+      return JSON.parse(str).responseItem;
+    }
+    const regex = /\{.*\}/; // 匹配 {} 中的内容
+    const match = str.match(regex) // 匹配结果为数组，取第一个元素
+    if(!match) {
+      console.log("error", match);
+      return;
+    }
+    
+    const obj = JSON.parse(match[0]); // 将匹配到的字符串转换为对象
+
+    console.log(obj.responseItem); // 输出对象的 responseItem 属性
+  }
+
   const callOpenAI = async (value: string) => {
     
     const prompt = value.trim();
@@ -60,29 +79,12 @@ const ProfileHeader = ({profile}: any) => {
       
       const context = getJSONFormatFromGPT(choices[0].message.content);
       
-      return JSON.stringify(context);
+      return context;
       
 
     } catch (err) {
       console.log("errrrrrr", err);
     }
-  };
-
-  const getJSONFormatFromGPT = (str: string) => {
-    
-    if(isJSON(str)) {
-      return JSON.parse(str).responseItem;
-    }
-    const regex = /\{.*\}/; // 匹配 {} 中的内容
-    const match = str.match(regex) // 匹配结果为数组，取第一个元素
-    if(!match) {
-      console.log("error", match);
-      return;
-    }
-    
-    const obj = JSON.parse(match[0]); // 将匹配到的字符串转换为对象
-
-    console.log(obj.responseItem); // 输出对象的 responseItem 属性
   }
 
   const postGPTAPI = async({nativeEvent}: any) => {
@@ -104,10 +106,16 @@ const ProfileHeader = ({profile}: any) => {
         
         const requestData = await callOpenAI(text);
         
-        console.log(requestData);
+        console.log(requestData, '.!...!');
         setFetching(false);
+        if(!requestData) return;
         
         setDemandStatus("Registed");
+
+        createDemand({
+          ...requestData,
+          userId: user?.id
+        });
       } catch(error) {
         setFetching(false);
         
@@ -116,8 +124,18 @@ const ProfileHeader = ({profile}: any) => {
     }
   }
 
-  const embeddingPrompt = (prompt: string) => `[${prompt}],帮我将上面[]里的文本梳理成下面的JSON数据：{ responseItem: { "REQUEST IN CHINESE": "","REQUEST IN English": "","demanType": 0,}}; Additional notes: demanType: wanted(means you want something or to hire someone) | server(means you can give or server something or find job) | common(other demand like find someone to play together or standup with someone)`
-  
+  const createDemand = async(demandInfo: string) => {
+    console.log(demandInfo, 'demandInfo');
+    const response = await instance?.post("/demand/create", demandInfo);
+    console.log(response, '!@@@@');
+  }
+
+  const onPendingDemand = (demand: TDemand) => {
+    setPendingDemand(demand)
+  }
+
+  const embeddingPrompt = (prompt: string) => `[${prompt}],帮我将上面[]里的文本梳理成下面的JSON数据：{ responseItem: { "Chinese": "","English": "","demandRole": "",}}; Additional notes: demandRole: NEED(means you want something or to hire someone) | SERVER(means you can give or server something or find job) | FREE(other demand like find someone to play together or standup with someone)`
+  console.log(user?.demands);
   return (
     <View style={styles.profileHeader}>
       <TouchableHighlight onPress={updateDemand}>
@@ -134,10 +152,32 @@ const ProfileHeader = ({profile}: any) => {
         <Text style={styles.username}>{status}</Text>
         <Text style={styles.username}>{profile.username}</Text>
         
-        <Text style={styles.bio}>{demandStatus}</Text>
+        {/* <Text style={styles.bio}>{demandStatus}</Text> */}
+
+        <Box h="80%" w="100%" alignItems="flex-start">
+          <Select 
+            onValueChange={(value)=> { 
+              setPendingDemand(user?.demands?.find(d => d.English === value)!)
+            }}
+            shadow={2}
+            w="250"
+            selectedValue={pendingDemand?.English} 
+            minWidth="200" 
+            accessibilityLabel="Choose Demand" 
+            placeholder="Choose Demand" 
+            _selectedItem={{
+              bg: "teal.600",
+              endIcon: <CheckIcon size="5" /> 
+            }}
+            >
+          {
+            user?.demands?.map((d, index)=> (
+              <Select.Item className="text-gray-600" label={d.English} value={d.English} key={index}></Select.Item>
+            ))
+          }
+          </Select>
+        </Box>
       </View>
-
-
 
       <Modal
         visible={modalVisible}

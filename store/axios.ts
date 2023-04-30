@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios, { AxiosInstance } from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import useUser, { TUser } from "./user";
 
 
 
@@ -28,7 +29,7 @@ export const useAxios = create<IAxiosState>()((set) => ({
           loginStatus: "pendingVerification"
         });
 
-        const bearerToken =await AsyncStorage.getItem("token");
+        const bearerToken = await AsyncStorage.getItem("token");
 
         config.headers.Authorization = `Bearer ${bearerToken}`;
 
@@ -42,6 +43,9 @@ export const useAxios = create<IAxiosState>()((set) => ({
 
     instance.interceptors.response.use(
       (response) => {
+        if(response.request.responseURL.includes("/auth/profile")) {
+          AsyncStorage.setItem("userInfo", JSON.stringify(response.data));
+        }
         if(response.data.access_token) {
           AsyncStorage.setItem("token", response.data.access_token);
           set({
