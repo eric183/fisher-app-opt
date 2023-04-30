@@ -2,11 +2,12 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack, useRouter } from 'expo-router';
-import { NativeBaseProvider } from 'native-base';
-import { useEffect, useLayoutEffect } from 'react';
+import { NativeBaseProvider, Progress } from 'native-base';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import useAuth from '../hooks/auth';
 import { useAxios } from '../store/axios';
+import useDemandState from '../store/demand';
 
 
 export {
@@ -66,12 +67,49 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-
+  const { demandStatus } = useDemandState();
+  const [showProgress, setShowProgress] = useState<boolean>(false);
   const theme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
+  console.log(demandStatus, '...');
+
+  useEffect(() => {
+
+    if(demandStatus === "Pending") {
+      setShowProgress(true);
+    }
+
+    if(demandStatus === "Registed") {
+      setTimeout(()=> {
+        setShowProgress(false);
+      }, 1500);
+    }
+  },[demandStatus])
+
+
+  const progressMove = () => {
+    switch(demandStatus) {
+      case "Pending" : {
+        return 20
+      }
+      case "Registed": {
+        if(showProgress) {
+          return 60;
+        }
+
+        return 100;
+      }
+    }
+  }
+
+
   return (
     <>
       <NativeBaseProvider>
         <ThemeProvider value={DefaultTheme}>
+          {
+           ((demandStatus === "Pending" || demandStatus === "Registed") && showProgress ) && <Progress value={progressMove()}  />
+          }
+
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />

@@ -95,7 +95,7 @@ const ProfileHeader = ({profile}: any) => {
 
     // return;    
     setDemandStatus("Pending");
-
+    setModalVisible(false);
   
     if(text.trim().length > 0) {
       try {
@@ -106,11 +106,11 @@ const ProfileHeader = ({profile}: any) => {
         
         console.log(requestData);
         setFetching(false);
-        setModalVisible(false);
+        
         setDemandStatus("Registed");
       } catch(error) {
         setFetching(false);
-        setModalVisible(false);
+        
         setDemandStatus("Error");
       }
     }
