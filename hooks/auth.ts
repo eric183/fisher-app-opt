@@ -27,6 +27,8 @@ const useAuth = () => {
       email: email.trim(),
       password: password.trim()
     });
+
+    return data;
     // const data = await axios.post(`${OriginURL}/auth/login`,  {
     //   email: email.trim(),
     //   password: password.trim()
@@ -39,7 +41,6 @@ const useAuth = () => {
     //   }
     // })
 
-    console.log("signIn:", data)
   }
 
   const signOut = () => {

@@ -7,7 +7,7 @@ import { useRouter } from "expo-router";
 const Sign = () => {
   const [loading, setLoading] = useState<boolean>(false);
   
-  const { register, signIn } =useAuth();
+  const { register, signIn } = useAuth();
   
   const [formData, setFormData] = useState<IRegister>({
     email: '',
@@ -39,7 +39,10 @@ const Sign = () => {
     setLoading(true);
     try {
       const response = await signIn(formData);
-      router.back();
+      if (response) {
+        router.back();
+      }
+      // if(response)
     } catch(error) {
       
       setLoading(false);
@@ -86,12 +89,12 @@ const Sign = () => {
               Atleast 6 characters are required.
             </FormControl.ErrorMessage>
           </Stack>
-          {/* <Stack mx="4">
+          <Stack mx="4">
             <Button 
             isLoading={loading}
             onPress={submitForm}>Register</Button>
-          </Stack> */}
-          <Stack mx="4">
+          </Stack>
+          <Stack mx="4" my="5">
             <Button 
             // isLoading={loading}
             onPress={LoginForm}>Login</Button>
