@@ -13,8 +13,7 @@ export interface IRegister {
 }
 
 const useAuth = () => {
-  const segments = useSegments();
-  const router = useRouter();
+
   const  instance  = useAxios(state => state.instance);
   const { setUser } = useUser();
 
@@ -23,25 +22,13 @@ const useAuth = () => {
     password
   }: IRegister) => {
 
-    // const signInInfo = await request(`${OriginURL}/auth`)
-    console.log(instance);
     const data = await instance?.post(`/auth/login`, {
       email: email.trim(),
       password: password.trim()
     });
 
     return data;
-    // const data = await axios.post(`${OriginURL}/auth/login`,  {
-    //   email: email.trim(),
-    //   password: password.trim()
-    // })
-    // const { data } = await request(`${OriginURL}/auth/login`, {
-    //   method: "POST",
-    //   data: {
-    //     email: email.trim(),
-    //     password: password.trim()
-    //   }
-    // })
+ 
 
   }
 

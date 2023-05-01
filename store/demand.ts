@@ -9,7 +9,6 @@ export interface TDemand {
   userId:       number;
 }
 
-
 interface IDemandState {
   demandStatus: TDemandStatus;
   setDemandStatus: (status: TDemandStatus) => void;

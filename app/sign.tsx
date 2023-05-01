@@ -52,8 +52,8 @@ const Sign = () => {
   }
 
   return (
-    <Box alignItems="center" justifyItems="center" className="bg-white mt-96">
-      <Box w="100%" maxWidth="300px">
+    <Box alignItems="center" justifyItems="center" className="bg-white">
+      <Box w="100%" maxWidth="300px" h="100%" className="mt-32">
         <FormControl isRequired>
           <Stack mx="4">
             <FormControl.Label>Email</FormControl.Label>

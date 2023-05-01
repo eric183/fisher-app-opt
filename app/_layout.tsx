@@ -2,8 +2,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack, useRouter } from 'expo-router';
-import { NativeBaseProvider, Progress, View } from 'native-base';
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { AlertDialog, NativeBaseProvider, Progress, View, Button } from 'native-base';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import useAuth from '../hooks/auth';
 import { useAxios } from '../store/axios';
@@ -11,6 +11,9 @@ import useDemandState, { TDemand } from '../store/demand';
 import useDemands from '../store/demand';
 import { OpenAIStreamPayload, gptAPI } from '../utils/gpt';
 import { Alert, Text } from "native-base";
+import useUser from '../store/user';
+import useMatch from '../store/match';
+import isJSON from '../utils/isJSON';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -24,7 +27,8 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const { setAllDemands, alldemands, pendingDemand, setDemandStatus } = useDemands();
-  
+  const { user } = useUser();
+  const { setMatchInfo } = useMatch();
   const { signIn, signOut, checkToken } = useAuth();
   const { init, instance, loginStatus } = useAxios();
   const [sliceIndex, setSliceIndex] = useState<number>(0);
@@ -34,6 +38,11 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
+  // remove user Me
+  const currentMatchingDemands = useMemo(() => alldemands.filter((d) => d.userId !== user?.id), [alldemands]);
+  
+  // console.log(currentMatchingDemands, '...aaa');
+  // console.log(user?.id, '...uuu');
   const getAllDemands = async() => {
     const demandReponse = await instance?.get("/demand/all")
     
@@ -46,11 +55,19 @@ export default function RootLayout() {
     promptVal = promptVal.trim();
 
     if (promptVal) {
-      const currentDemands = alldemands.slice(sliceIndex, sliceIndex + 10);
-      console.log(currentDemands, sliceIndex);
-
-      const responseData = await gptAPI(embeddingPropmt(promptVal, currentDemands));
+      const currentDemands = alldemands.filter((d) => d.userId !== user?.id).slice(sliceIndex, sliceIndex + 10);
       
+      const responseData = await gptAPI(embeddingPropmt(promptVal, currentDemands));
+      const reponseJSON = responseData.choices[0].message.content
+      var falseOrJSON = (reponseJSON.toLowerCase() === "false") ? false : reponseJSON;
+
+
+      if(!falseOrJSON) {  
+        if(isJSON(reponseJSON)) {
+          setMatchInfo(JSON.parse(reponseJSON));
+        }
+        return 
+      }
       setSliceIndex(sliceIndex + 5);
 
       if(currentDemands.slice(sliceIndex + 5, sliceIndex + 10).length > 0) {
@@ -88,6 +105,7 @@ export default function RootLayout() {
 
   useEffect(() => {
    
+    console.log(loginStatus, '...');
     if(loginStatus === "unauthenticated") {
       setTimeout(() => {
         router.push('/sign');
@@ -125,8 +143,13 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const { demandStatus } = useDemandState();
+  const { matchInfo, setMatchInfo } = useMatch();
   const [showProgress, setShowProgress] = useState<boolean>(false);
+  const cancelRef = useRef(null);
+  const [alertOpen, setAlertOpen] = useState<boolean>(false);
+
   const theme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
+  
   console.log(demandStatus, '...');
 
   useEffect(() => {
@@ -144,6 +167,10 @@ function RootLayoutNav() {
   
   },[demandStatus])
 
+  const onClose = () => {
+    setMatchInfo(undefined)
+    setAlertOpen(false);
+  }
 
   const progressMove = () => {
     switch(demandStatus) {
@@ -165,10 +192,16 @@ function RootLayoutNav() {
     }
   }
 
-  const AlertInfo = {
-    status: "success",
-    title: "Selection successfully moved!"
-  }
+  useEffect(() => {
+    if(typeof matchInfo === 'boolean') {
+      setAlertOpen(true);
+    }
+    
+    if(typeof matchInfo === 'object') {
+      setAlertOpen(true);
+    }
+  },[matchInfo]);
+
   return (
     <>
       <NativeBaseProvider>
@@ -178,6 +211,22 @@ function RootLayoutNav() {
            showProgress && <Progress value={progressMove()}  />
           }
 
+          <AlertDialog leastDestructiveRef={cancelRef} isOpen={alertOpen} onClose={onClose}>
+            <AlertDialog.Content>
+              <AlertDialog.CloseButton />
+              <AlertDialog.Header>匹配结果</AlertDialog.Header>
+              <AlertDialog.Body textAlign="center">
+                {
+                  matchInfo ? JSON.stringify(matchInfo) : "抱歉没有匹配结果，请返回修改或者下次再来" 
+                }
+              </AlertDialog.Body>
+              <AlertDialog.Footer justifyContent="center">
+                <Button variant="unstyled" colorScheme="coolGray" onPress={onClose} ref={cancelRef}>
+                  Got it!
+                </Button>
+              </AlertDialog.Footer>
+            </AlertDialog.Content>
+          </AlertDialog>
           {/* <Alert {...AlertInfo} >
             <View flexDir="row" alignItems="center">
               <Alert.Icon mx="5" />

@@ -6,9 +6,9 @@ import { View, StyleSheet, ImageBackground, ScrollView, Text, TouchableHighlight
 import { gptAPI } from "../../utils/gpt";
 import isJSON from "../../utils/isJSON";
 import useIndexState from "../../store";
-import useDemandState from "../../store/demand";
+import useDemandState, { TDemand } from "../../store/demand";
 import { useAxios } from "../../store/axios";
-import useUser, { TDemand } from "../../store/user";
+import useUser from "../../store/user";
 
 const ProfileHeader = ({profile}: any) => {
   const { user } = useUser();
@@ -137,7 +137,7 @@ const ProfileHeader = ({profile}: any) => {
   const embeddingPrompt = (prompt: string) => `[${prompt}],帮我将上面[]里的文本梳理成下面的JSON数据：{ responseItem: { "Chinese": "","English": "","demandRole": "",}}; Additional notes: demandRole: NEED(means you want something or to hire someone) | SERVER(means you can give or server something or find job) | FREE(other demand like find someone to play together or standup with someone)`
   console.log(user?.demands);
   return (
-    <View style={styles.profileHeader}>
+    <View style={styles.profileHeader}>   
       <TouchableHighlight onPress={updateDemand}>
         <ImageBackground
           source={{ uri: 'https://picsum.photos/200/300' }}
@@ -151,30 +151,24 @@ const ProfileHeader = ({profile}: any) => {
       <View className="ml-4">
         <Text style={styles.username}>{status}</Text>
         <Text style={styles.username}>{profile.username}</Text>
-        
-        {/* <Text style={styles.bio}>{demandStatus}</Text> */}
-
-        <Box h="80%" w="100%" alignItems="flex-start">
+        <Box maxW="300" className={`${user?.demands?.length! > 0 ? "visible": "hidden"}`}>
           <Select 
-            onValueChange={(value)=> { 
-              setPendingDemand(user?.demands?.find(d => d.English === value)!)
-            }}
-            shadow={2}
-            w="250"
-            selectedValue={pendingDemand?.English} 
-            minWidth="200" 
-            accessibilityLabel="Choose Demand" 
-            placeholder="Choose Demand" 
-            _selectedItem={{
-              bg: "teal.600",
-              endIcon: <CheckIcon size="5" /> 
-            }}
-            >
-          {
+           onValueChange={(value)=> { 
+            setPendingDemand(user?.demands?.find(d => d.English === value)!)
+          }}
+          selectedValue={pendingDemand?.English} 
+          minWidth="200"  
+          accessibilityLabel="Choose Demand" 
+          placeholder="Choose Demand" 
+          _selectedItem={{
+          bg: "teal.600",
+          endIcon: <CheckIcon size="5" />
+        }} mt={1}>
+           {
             user?.demands?.map((d, index)=> (
               <Select.Item className="text-gray-600" label={d.English} value={d.English} key={index}></Select.Item>
             ))
-          }
+            }
           </Select>
         </Box>
       </View>

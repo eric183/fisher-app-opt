@@ -1,14 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
-
-export interface TDemand {
-  id:           number;
-  created_time: string;
-  English:      string;
-  Chinese:      string;
-  demandRole:   string;
-  userId:       number;
-}
+import { TDemand } from './demand';
 
 export type TUser = {
   email: string;
