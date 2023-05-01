@@ -25,7 +25,11 @@ const Sign = () => {
     setLoading(true);
     const response = await register(formData);
 
-    
+    if(response) {
+      await signIn(formData);
+      router.replace('/');
+    }
+
     setLoading(false);
 
   }

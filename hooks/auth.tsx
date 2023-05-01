@@ -40,7 +40,7 @@ const useAuth = () => {
     
  
     const profileResponse = await instance?.get('/auth/profile')!;
-    if(!profileResponse) return;
+    if(!profileResponse || !profileResponse.data.id) return;
     const demandResponse = await instance?.get(`/demand/${profileResponse.data.id}`)!;
     // const demandResponse = await instance?.get(`/demand/count/${data.id}`)!;
     
@@ -64,10 +64,14 @@ const useAuth = () => {
 
     if(response?.data === true) {
       console.log('ok');
+      return true;
     }
     // console.log("isRegisted:", data)
-  }
+  } 
 
+  const getUserInfoByUserId = async(id: number) => {
+    instance?.get('/');
+  }
   // useEffect(() => {
   //   checkToken()
   //   console.log(segments, '...')
