@@ -16,7 +16,7 @@ const ProfileHeader = ({profile}: any) => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [fetching, setFetching] = useState<boolean>(false);
   // const [demandStatus, setDemandStatus] = useState<TDemandStatus>("IDLE")
-  const { demandStatus, setDemandStatus, setPendingDemand, pendingDemand } = useDemandState();
+  const { demandStatus, setDemandStatus, setPendingDemand, pendingDemand, pushDemand } = useDemandState();
   const { instance } = useAxios();
   const inputRef = useRef<TextInput>();
 
@@ -111,11 +111,14 @@ const ProfileHeader = ({profile}: any) => {
         if(!requestData) return;
         
         setDemandStatus("Registed");
-
-        createDemand({
+        const _demand = {
           ...requestData,
           userId: user?.id
-        });
+        };
+
+        createDemand(_demand);
+
+        pushDemand(_demand);
       } catch(error) {
         setFetching(false);
         
