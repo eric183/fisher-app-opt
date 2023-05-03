@@ -14,6 +14,8 @@ import { Alert, Text } from "native-base";
 import useUser from '../store/user';
 import useMatch from '../store/match';
 import isJSON from '../utils/isJSON';
+import { io } from 'socket.io-client';
+import useWS, { useWStore } from '../hooks/ws';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -26,6 +28,8 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
+  const { setWebsocket } = useWStore()
+  const [wsListen] = useWS();
   const { setAllDemands, alldemands, pendingDemand, setDemandStatus } = useDemands();
   const { user } = useUser();
   const { setMatchInfo } = useMatch();
@@ -79,7 +83,6 @@ export default function RootLayout() {
     }
   };
 
-
   const embeddingPropmt = (prompt: string, array: TDemand[]) => {
     return `wantedSerer=${prompt},Image you're the wantedSerer, there's a WANTED list below named "wantedList", pick the wantedItem in the "wantedList", if match, give me the userId, or userIdList, if no, return no, don't bullshit. *give me the JSON or false*. wantedList=${JSON.stringify(
       array
@@ -91,7 +94,7 @@ export default function RootLayout() {
     //   array
     // )}`;
   };
-
+  
   useEffect(() => {
     if(pendingDemand) {
       setDemandStatus("Matching");
@@ -100,6 +103,15 @@ export default function RootLayout() {
   }, [pendingDemand]);
 
   useLayoutEffect(() => {
+    if(!process.env.WEBSOCKET_URL) {
+      console.error('No websocket url dettacted!!!')
+      return;
+    }
+    
+    setWebsocket(io(process.env.WEBSOCKET_URL, {
+      transports: ['websocket'],
+    }));
+
     init();
   },[])
 
