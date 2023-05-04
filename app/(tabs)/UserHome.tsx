@@ -135,7 +135,16 @@ const ProfileHeader = ({profile}: any) => {
     console.log(response, '!@@@@');
   }
 
-  const embeddingPrompt = (prompt: string) => `[${prompt}],帮我将上面[]里的文本梳理成下面的JSON数据：{ responseItem: { "Chinese": "","English": "","demandRole": "",}}; Additional notes: demandRole: NEED(means you want something or to hire someone) | SERVER(means you can give or server something or find job) | FREE(other demand like find someone to play together or standup with someone)`
+  const embeddingPrompt = (prompt: string) => `[${prompt}],帮我将上面[]里的文本梳理成下面的JSON数据：{ responseItem: { "Chinese": "","Chinese": "","demandRole": "", category: ""}}; Additional notes: demandRole: NEED(means you want something or to hire someone) | SERVER(means you can give or server something or find job) | FREE(other demand like find someone to play together or standup with someone); category: Social: including but not limited to finding partners, making friends, dating, social activities, etc.
+  Work: including but not limited to finding jobs, part-time jobs, internships, entrepreneurship, job-seeking, etc.
+  Home: including but not limited to home cleaning services, home repairs, home decoration, moving, etc.
+  Health: including but not limited to medical services, health care product purchases, fitness, physical examinations, etc.
+  Shopping: including but not limited to supermarket shopping, online shopping, second-hand transactions, rental, etc.
+  Travel: including but not limited to travel consultation, scenic spot recommendations, hotel reservations, transportation, etc.
+  Learning: including but not limited to subject tutoring, language training, skills training, exam preparation, etc.
+  Entertainment: including but not limited to movies, music, games, performances, etc.
+  Transportation: including but not limited to public transportation, taxis, designated drivers, self-driving rentals, etc.
+  Finance: including but not limited to banking services, investment management, insurance purchases, tax services, etc.`
   console.log(user?.demands);
   return (
     <View style={styles.profileHeader}>   
@@ -151,13 +160,13 @@ const ProfileHeader = ({profile}: any) => {
       </TouchableHighlight>
       <View className="ml-4">
         <Text style={styles.username}>{status}</Text>
-        <Text style={styles.username}>{profile.username}</Text>
+        <Text style={styles.username}>{user?.id}</Text>
         <Box maxW="300" className={`${user?.demands?.length! > 0 ? "visible": "hidden"}`}>
           <Select 
            onValueChange={(value)=> { 
-            setPendingDemand(user?.demands?.find(d => d.English === value)!)
+            setPendingDemand(user?.demands?.find(d => d.Chinese === value)!)
           }}
-          selectedValue={pendingDemand?.English} 
+          selectedValue={pendingDemand?.Chinese} 
           minWidth="200"  
           accessibilityLabel="Choose Demand" 
           placeholder="Choose Demand" 
@@ -167,7 +176,7 @@ const ProfileHeader = ({profile}: any) => {
         }} mt={1}>
            {
             user?.demands?.map((d, index)=> (
-              <Select.Item className="text-gray-600" label={d.English} value={d.English} key={index}></Select.Item>
+              <Select.Item className="text-gray-600" label={d.Chinese} value={d.Chinese} key={index}></Select.Item>
             ))
             }
           </Select>

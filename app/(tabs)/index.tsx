@@ -13,7 +13,7 @@ export default function TabOneScreen() {
       {
         alldemands.map((demand, index)=> (
           <View key={index}>
-            <Text style={styles.title}>{demand.English}</Text>
+            <Text style={styles.title}>{demand.Chinese}</Text>
             <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
           </View>
         ))
