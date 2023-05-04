@@ -55,23 +55,29 @@ export default function RootLayout() {
     }
   }
 
+
+  // TO FIXED AND TO REFINE LOGIC  -- 需要优化！！！
   const onDemandsMatching = async (promptVal: string) => {
     promptVal = promptVal.trim();
 
     if (promptVal) {
       const currentDemands = alldemands.filter((d) => d.userId !== user?.id).slice(sliceIndex, sliceIndex + 10);
+
+
+      if(currentDemands.length === 0) {
+        setMatchInfo(false);
+        return;
+      } 
       
       const responseData = await gptAPI(embeddingPropmt(promptVal, currentDemands));
       const reponseJSON = responseData.choices[0].message.content
-      var falseOrJSON = (reponseJSON.toLowerCase() === "false") ? false : reponseJSON;
+      var isJSON = (reponseJSON.toLowerCase() === "false") ? false : reponseJSON;
 
-
-      if(!falseOrJSON) {  
-        if(isJSON(reponseJSON)) {
-          setMatchInfo(JSON.parse(reponseJSON));
-        }
+      if(isJSON) {  
+        setMatchInfo(JSON.parse(reponseJSON));
         return 
-      }
+      } 
+
       setSliceIndex(sliceIndex + 5);
 
       if(currentDemands.slice(sliceIndex + 5, sliceIndex + 10).length > 0) {
@@ -96,6 +102,7 @@ export default function RootLayout() {
   };
   
   useEffect(() => {
+
     if(pendingDemand) {
       setDemandStatus("Matching");
       onDemandsMatching(pendingDemand.Chinese);
@@ -214,6 +221,7 @@ function RootLayoutNav() {
     }
   },[matchInfo]);
 
+  console.log('machinfo.....', matchInfo)
   return (
     <>
       <NativeBaseProvider>

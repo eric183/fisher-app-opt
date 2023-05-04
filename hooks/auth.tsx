@@ -57,13 +57,16 @@ const useAuth = () => {
     email,
     password
   }: IRegister) => {
-    const response = await instance?.post(`/register`, {
+    const postUser = {
       email: email.trim(),
       password: password.trim()
-    })
+    }
+
+    const response = await instance?.post(`/register`, postUser)
 
     if(response?.data === true) {
       console.log('ok');
+      signIn(postUser);
     }
     // console.log("isRegisted:", data)
   }

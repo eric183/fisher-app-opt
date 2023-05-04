@@ -1,8 +1,8 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
-import { Box, Button, CheckIcon, HamburgerIcon, Input, Menu, Select } from "native-base";
+import { Box, Button, CheckIcon, HamburgerIcon, Menu, Select } from "native-base";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { View, StyleSheet, ImageBackground, ScrollView, Text, TouchableHighlight, Modal, TextInput, Pressable } from "react-native";
+import { View, StyleSheet, ImageBackground, ScrollView, Text, TouchableHighlight, Modal, TextInput, Pressable, TextInputBase } from "react-native";
 import { gptAPI } from "../../utils/gpt";
 import isJSON from "../../utils/isJSON";
 import useIndexState from "../../store";
@@ -76,8 +76,10 @@ const ProfileHeader = ({profile}: any) => {
         object,
         usage
       } = await gptAPI(embeddingPrompt(prompt))
-      
+
+      console.log(prompt.slice(0,10),'.... pendding to gpt,', );
       const context = getJSONFormatFromGPT(choices[0].message.content);
+      console.log(prompt.slice(0,10),'.... response from gpt,', );
       
       return context;
       
@@ -98,7 +100,7 @@ const ProfileHeader = ({profile}: any) => {
     // return;    
     setDemandStatus("Pending");
     setModalVisible(false);
-  
+    console.log('pedding....')
     if(text.trim().length > 0) {
       try {
       
@@ -116,7 +118,7 @@ const ProfileHeader = ({profile}: any) => {
           userId: user?.id
         };
 
-        createDemand(_demand);
+        await createDemand(_demand);
 
         pushDemand(_demand);
       } catch(error) {
@@ -131,10 +133,6 @@ const ProfileHeader = ({profile}: any) => {
     console.log(demandInfo, 'demandInfo');
     const response = await instance?.post("/demand/create", demandInfo);
     console.log(response, '!@@@@');
-  }
-
-  const onPendingDemand = (demand: TDemand) => {
-    setPendingDemand(demand)
   }
 
   const embeddingPrompt = (prompt: string) => `[${prompt}],帮我将上面[]里的文本梳理成下面的JSON数据：{ responseItem: { "Chinese": "","English": "","demandRole": "",}}; Additional notes: demandRole: NEED(means you want something or to hire someone) | SERVER(means you can give or server something or find job) | FREE(other demand like find someone to play together or standup with someone)`
@@ -188,8 +186,12 @@ const ProfileHeader = ({profile}: any) => {
           </TouchableHighlight>
 
           <View style={styles.modalContent}>
-
-            <Input 
+            <TextInput 
+              // ref={inputRef}
+              onSubmitEditing={postGPTAPI}
+              placeholder="Input your demand" 
+              className="relative z-50 bg-white h-8 pl-3"></TextInput>
+            {/* <Input 
               blurOnSubmit
               keyboardType="phone-pad"
               ref={inputRef}
@@ -217,7 +219,7 @@ const ProfileHeader = ({profile}: any) => {
                   bg: "coolGray.900:alpha.70"
                 }
               }} 
-              />
+              /> */}
             {/* <Button
               className="mt-10"
               isLoading={fetching}

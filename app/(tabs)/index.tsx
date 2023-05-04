@@ -18,7 +18,6 @@ export default function TabOneScreen() {
           </View>
         ))
       }
-     
     </View>
   );
 }

@@ -5,7 +5,8 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 
 const Sign = () => {
-  const [loading, setLoading] = useState<boolean>(false);
+  const [siupLoading, setSignLoading] = useState<boolean>(false);
+  const [loginLoading, setLoginLoading] = useState<boolean>(false);
   
   const { register, signIn } = useAuth();
   
@@ -16,27 +17,27 @@ const Sign = () => {
 
   const router = useRouter();
   
-  const submitForm = async() => {
+  const signUpForm = async() => {
 
-    if(loading) {
+    if(siupLoading) {
       return;
     }
     
-    setLoading(true);
-    const response = await register(formData);
+    setSignLoading(true);
 
-    
-    setLoading(false);
+    await register(formData);
+  
+    setSignLoading(false);
 
   }
  
   const LoginForm = async() => {
 
-    if(loading) {
+    if(loginLoading) {
       return;
     }
     
-    setLoading(true);
+    setLoginLoading(true);
     try {
       const response = await signIn(formData);
       if (response) {
@@ -45,7 +46,7 @@ const Sign = () => {
       // if(response)
     } catch(error) {
       
-      setLoading(false);
+      setLoginLoading(false);
     }
 
 
@@ -91,12 +92,12 @@ const Sign = () => {
           </Stack>
           <Stack mx="4">
             <Button 
-            isLoading={loading}
-            onPress={submitForm}>Register</Button>
+            isLoading={siupLoading}
+            onPress={signUpForm}>Register</Button>
           </Stack>
           <Stack mx="4" my="5">
             <Button 
-            // isLoading={loading}
+            isLoading={loginLoading}
             onPress={LoginForm}>Login</Button>
           </Stack>
         </FormControl>
