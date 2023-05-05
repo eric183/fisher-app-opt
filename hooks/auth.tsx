@@ -65,8 +65,7 @@ const useAuth = () => {
     const response = await instance?.post(`/register`, postUser)
 
     if(response?.data === true) {
-      console.log('ok');
-      signIn(postUser);
+      return signIn(postUser);
     }
     // console.log("isRegisted:", data)
   }

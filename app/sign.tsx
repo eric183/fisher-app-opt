@@ -25,10 +25,13 @@ const Sign = () => {
     
     setSignLoading(true);
 
-    await register(formData);
-  
+    const { data } = await register(formData);
+    
     setSignLoading(false);
 
+    if(data.access_token) {
+      router.replace("/")
+    }
   }
  
   const LoginForm = async() => {

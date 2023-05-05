@@ -30,10 +30,13 @@ const ProfileHeader = ({profile}: any) => {
     console.log(process.env.CHATGPT_PLUS_API_TOKEN, '...')
     // console.log(localStorage)
   },[]); 
-  
+
   const updateDemand = async() => {
     setModalVisible(true);
-    
+    console.log(inputRef);
+    setTimeout(() => {
+      inputRef?.current?.focus();
+    }, 5);
     // const {
     //   data,
     //   status
@@ -135,20 +138,13 @@ const ProfileHeader = ({profile}: any) => {
     console.log(response, '!@@@@');
   }
 
-  const embeddingPrompt = (prompt: string) => `[${prompt}],帮我将上面[]里的文本梳理成下面的JSON数据：{ responseItem: { "Chinese": "","Chinese": "","demandRole": "", category: ""}}; Additional notes: demandRole: NEED(means you want something or to hire someone) | SERVER(means you can give or server something or find job) | FREE(other demand like find someone to play together or standup with someone); category: Social: including but not limited to finding partners, making friends, dating, social activities, etc.
-  Work: including but not limited to finding jobs, part-time jobs, internships, entrepreneurship, job-seeking, etc.
-  Home: including but not limited to home cleaning services, home repairs, home decoration, moving, etc.
-  Health: including but not limited to medical services, health care product purchases, fitness, physical examinations, etc.
-  Shopping: including but not limited to supermarket shopping, online shopping, second-hand transactions, rental, etc.
-  Travel: including but not limited to travel consultation, scenic spot recommendations, hotel reservations, transportation, etc.
-  Learning: including but not limited to subject tutoring, language training, skills training, exam preparation, etc.
-  Entertainment: including but not limited to movies, music, games, performances, etc.
-  Transportation: including but not limited to public transportation, taxis, designated drivers, self-driving rentals, etc.
-  Finance: including but not limited to banking services, investment management, insurance purchases, tax services, etc.`
+  const embeddingPrompt = (prompt: string) => `[${prompt}],帮我将上面[]里的文本梳理成下面的JSON对象：{ responseItem: { "Chinese": string,"English": string, "demandRole": string, categoryType: CategoryType }}; Additionnal notes_1: 该JSON对象的categoryType字段的取值只能为下列枚举类型之一: [ Social, Work, Home, Health, Shopping, Travel, Learning, Entertainment, Transportation, Finance]。请确保您返回的对象中，categoryType 字段的取值严格符合上述规定; Additional notes_2: demandRole: NEED(means you want something or to hire someone) | SERVER(means you can give or server something or find job) | FREE(other demand like find someone to play together or standup with someone)`
+  
+  
   console.log(user?.demands);
   return (
     <View style={styles.profileHeader}>   
-      <TouchableHighlight onPress={updateDemand}>
+      <TouchableHighlight>
         <ImageBackground
           source={{ uri: 'https://picsum.photos/200/300' }}
           style={styles.profileImage}
@@ -161,25 +157,33 @@ const ProfileHeader = ({profile}: any) => {
       <View className="ml-4">
         <Text style={styles.username}>{status}</Text>
         <Text style={styles.username}>{user?.id}</Text>
-        <Box maxW="300" className={`${user?.demands?.length! > 0 ? "visible": "hidden"}`}>
-          <Select 
-           onValueChange={(value)=> { 
-            setPendingDemand(user?.demands?.find(d => d.Chinese === value)!)
-          }}
-          selectedValue={pendingDemand?.Chinese} 
-          minWidth="200"  
-          accessibilityLabel="Choose Demand" 
-          placeholder="Choose Demand" 
-          _selectedItem={{
-          bg: "teal.600",
-          endIcon: <CheckIcon size="5" />
-        }} mt={1}>
-           {
-            user?.demands?.map((d, index)=> (
-              <Select.Item className="text-gray-600" label={d.Chinese} value={d.Chinese} key={index}></Select.Item>
-            ))
-            }
-          </Select>
+        {/* <Center> */}
+
+        {/* </Center> */}
+
+        <Box maxW="300">
+          <Button size="xs" className="my-3 w-20" onPress={updateDemand}>添加需求</Button>
+
+          <View className={`${user?.demands?.length! > 0 ? "visible": "hidden"}`}>
+            <Select 
+            minWidth="200"
+            onValueChange={(value)=> { 
+              setPendingDemand(user?.demands?.find(d => d.Chinese === value)!)
+            }}
+            selectedValue={"pendingDemand?.Chinese"} 
+            accessibilityLabel="Choose Demand" 
+            placeholder="Choose Demand" 
+            _selectedItem={{
+            bg: "teal.600",
+            endIcon: <CheckIcon size="5" />
+            }}>
+            {
+              user?.demands?.map((d, index)=> (
+                <Select.Item className="text-gray-600" label={d.Chinese} value={d.Chinese} key={index}></Select.Item>
+              ))
+              }
+            </Select>
+          </View>
         </Box>
       </View>
 
@@ -196,7 +200,7 @@ const ProfileHeader = ({profile}: any) => {
 
           <View style={styles.modalContent}>
             <TextInput 
-              // ref={inputRef}
+              ref={inputRef}
               onSubmitEditing={postGPTAPI}
               placeholder="Input your demand" 
               className="relative z-50 bg-white h-8 pl-3"></TextInput>
@@ -375,3 +379,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
+
+
+
+`Social: including but not limited to finding partners, making friends, dating, social activities, etc.
+Work: including but not limited to finding jobs, part-time jobs, internships, entrepreneurship, job-seeking, etc.
+Home: including but not limited to home cleaning services, home repairs, home decoration, moving, etc.
+Health: including but not limited to medical services, health care product purchases, fitness, physical examinations, etc.
+Shopping: including but not limited to supermarket shopping, online shopping, second-hand transactions, rental, etc.
+Travel: including but not limited to travel consultation, scenic spot recommendations, hotel reservations, transportation, etc.
+Learning: including but not limited to subject tutoring, language training, skills training, exam preparation, etc.
+Entertainment: including but not limited to movies, music, games, performances, etc.
+Transportation: including but not limited to public transportation, taxis, designated drivers, self-driving rentals, etc.
+Finance: including but not limited to banking services, investment management, insurance purchases, tax services, etc.`
