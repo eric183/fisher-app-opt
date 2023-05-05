@@ -18,7 +18,7 @@ const ProfileHeader = ({profile}: any) => {
   // const [demandStatus, setDemandStatus] = useState<TDemandStatus>("IDLE")
   const { demandStatus, setDemandStatus, setPendingDemand, pendingDemand, pushDemand } = useDemandState();
   const { instance } = useAxios();
-  const inputRef = useRef<TextInput>();
+  const inputRef = useRef<TextInput>(null!);
 
   const handleInputChange = useCallback((evt: any)=> {
     inputRef.current?.setNativeProps({
@@ -27,7 +27,7 @@ const ProfileHeader = ({profile}: any) => {
   }, [])
 
   useEffect(()=>{
-    console.log(process.env.CHATGPT_PLUS_API_TOKEN, '...')
+    // console.log(process.env.CHATGPT_PLUS_API_TOKEN, '...')
     // console.log(localStorage)
   },[]); 
 
