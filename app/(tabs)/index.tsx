@@ -12,9 +12,10 @@ export default function TabOneScreen() {
   const { user } = useUser();
   return (
     <View style={styles.container}>
-      <Text style={styles.title} className='text-red-400 mb-2'>origin: {process.env.APP_ORIGIN_URL}</Text>
+      <Text style={styles.title} className='text-red-400 mb-2'>origin: {process.env?.APP_ORIGIN_URL}</Text>
+      <Text style={styles.title} className='text-red-400 mb-2'>socket_origin: {process.env?.WEBSOCKET_URL}</Text>
       {
-        alldemands.filter((_demand)=> _demand.userId !== user.id).map((demand, index)=> (
+        alldemands.filter((_demand)=> _demand.userId !== user?.id).map((demand, index)=> (
         // alldemands.map((demand, index)=> (
           <View key={index}>
             <Text style={styles.title}>{demand.Chinese}</Text>

@@ -15,7 +15,7 @@ export interface IRegister {
 const useAuth = () => {
 
   const  instance  = useAxios(state => state.instance);
-  const { setUser } = useUser();
+  const { setUser, user } = useUser();
 
   const signIn = async({
     email,
@@ -29,18 +29,29 @@ const useAuth = () => {
 
     return data;
  
-
   }
 
   const signOut = () => {
     console.log(signOut)
   }
 
-  const checkToken = async() => {
+  const resetPassword = async(email:string, password: string) => {
     
+    const data = await instance?.post(`/users/password`, { password, email })
+    if(data?.data) {
+      return await signIn({
+        email,
+        password
+      })
+    }
+  }
+
+  const checkToken = async() => {
  
     const profileResponse = await instance?.get('/auth/profile')!;
+    
     if(!profileResponse) return;
+
     const demandResponse = await instance?.get(`/demand/${profileResponse.data.id}`)!;
     // const demandResponse = await instance?.get(`/demand/count/${data.id}`)!;
     
@@ -62,7 +73,7 @@ const useAuth = () => {
       password: password.trim()
     }
 
-    const response = await instance?.post(`/register`, postUser)
+    const response = await instance?.post(`/auth/register`, postUser)
 
     if(response?.data === true) {
       return signIn(postUser);
@@ -70,22 +81,7 @@ const useAuth = () => {
     // console.log("isRegisted:", data)
   }
 
-  // useEffect(() => {
-  //   checkToken()
-  //   console.log(segments, '...')
-
-  //   const inAuthGroup = segments[0] === "(auth)";
-
-  //   if(!inAuthGroup) {
-  //     setTimeout(() => {
-  //       router.replace("/sign")
-  //     },1000)
-
-  //   }
-    
-  // }, [segments]);
-
-  return { signIn, signOut, checkToken, register };
+  return { signIn, signOut, checkToken, register, resetPassword };
 }
 
 

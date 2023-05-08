@@ -8,7 +8,7 @@ const Sign = () => {
   const [siupLoading, setSignLoading] = useState<boolean>(false);
   const [loginLoading, setLoginLoading] = useState<boolean>(false);
   
-  const { register, signIn } = useAuth();
+  const { register, signIn, resetPassword } = useAuth();
   
   const [formData, setFormData] = useState<IRegister>({
     email: '',
@@ -25,11 +25,11 @@ const Sign = () => {
     
     setSignLoading(true);
 
-    const { data } = await register(formData);
+    const data = await register(formData);
     
     setSignLoading(false);
 
-    if(data.access_token) {
+    if(data?.data.access_token) {
       router.replace("/")
     }
   }
@@ -50,6 +50,16 @@ const Sign = () => {
     } catch(error) {
       
       setLoginLoading(false);
+    }
+
+
+  }
+
+  const resetPWD = async() => {
+    const data = await resetPassword(formData.email, formData.password)
+
+    if(data?.data.access_token) {
+      router.replace('/');
     }
 
 
@@ -93,16 +103,20 @@ const Sign = () => {
               Atleast 6 characters are required.
             </FormControl.ErrorMessage>
           </Stack>
-          <Stack mx="4">
+
+          <View className="flex flex-row justify-around bg-transparent mt-4">
             <Button 
-            isLoading={siupLoading}
-            onPress={signUpForm}>Register</Button>
-          </Stack>
-          <Stack mx="4" my="5">
+              isLoading={siupLoading}
+              onPress={signUpForm}>Register</Button>
+
             <Button 
+              isLoading={loginLoading}
+              onPress={LoginForm}>Login</Button>
+          </View>
+          <Button 
+            className="mt-20"
             isLoading={loginLoading}
-            onPress={LoginForm}>Login</Button>
-          </Stack>
+            onPress={resetPWD}>reset password</Button>
         </FormControl>
       </Box>
     </Box>

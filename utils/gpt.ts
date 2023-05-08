@@ -33,7 +33,8 @@ export async function gptAPI(prompt: string): Promise<OpenAIResponse> {
   const payload = {
       model: "gpt-3.5-turbo",
       stream: false,
-      temperature: 0.7,
+      // temperature: 0.7,
+      temperature: 0,
       max_tokens: 1500,
       // stop: "\n",
       // top_p: 1,

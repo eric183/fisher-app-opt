@@ -9,16 +9,21 @@ import useIndexState from "../../store";
 import useDemandState, { TDemand } from "../../store/demand";
 import { useAxios } from "../../store/axios";
 import useUser from "../../store/user";
+import { TUser } from "../../store/user";
 
 const ProfileHeader = ({profile}: any) => {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const [status, setStatus] = useState<string>("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [fetching, setFetching] = useState<boolean>(false);
   // const [demandStatus, setDemandStatus] = useState<TDemandStatus>("IDLE")
   const { demandStatus, setDemandStatus, setPendingDemand, pendingDemand, pushDemand } = useDemandState();
+
+  const [showTextInput, setShowTextInput] = useState<boolean>(false);
+  
   const { instance } = useAxios();
   const inputRef = useRef<TextInput>(null!);
+  const nameInput = useRef<TextInput>(null!);
 
   const handleInputChange = useCallback((evt: any)=> {
     inputRef.current?.setNativeProps({
@@ -50,19 +55,34 @@ const ProfileHeader = ({profile}: any) => {
 
   const getJSONFormatFromGPT = (str: string) => {
     
-    if(isJSON(str)) {
-      return JSON.parse(str).responseItem;
-    }
-    const regex = /\{.*\}/; // 匹配 {} 中的内容
+    // if(isJSON(str)) {
+    //   return JSON.parse(str).responseItem;
+    // }
+    // debugger
+    // str.match(/{[^{}]*}/g)[0]
+
+    // const regex = /\{.*\}/; // 匹配 {} 中的内容
+    const regex = /{[^{}]*}/g; // 匹配 {} 中的内容
     const match = str.match(regex) // 匹配结果为数组，取第一个元素
     if(!match) {
       console.log("error", match);
       return;
     }
     
-    const obj = JSON.parse(match[0]); // 将匹配到的字符串转换为对象
+    return JSON.parse(match[0]); // 将匹配到的字符串转换为对象
+  }
 
-    console.log(obj.responseItem); // 输出对象的 responseItem 属性
+  const getAllSelfDemands = async() => {
+    
+    const demandResponse = await instance?.get(`/demand/${user!.id}`)!;
+    // const demandResponse = await instance?.get(`/demand/count/${data.id}`)!;
+    
+    if(demandResponse?.status === 200) {
+      setUser({
+        ...user as TUser,
+        demands: demandResponse.data,
+      });
+    }
   }
 
   const callOpenAI = async (value: string) => {
@@ -92,6 +112,13 @@ const ProfileHeader = ({profile}: any) => {
     }
   }
 
+  const usernameBinder = async({nativeEvent}: any)=> {
+    setShowTextInput(false);
+    console.log(nativeEvent.text);
+
+    instance?.patch(`/users/${user?.id}/usename`, { username: nativeEvent.text })
+  }
+
   const postGPTAPI = async({nativeEvent}: any) => {
     // console.log(inputRef.current?.props);
     const { text } = nativeEvent;
@@ -110,21 +137,24 @@ const ProfileHeader = ({profile}: any) => {
         setFetching(true);
         
         const requestData = await callOpenAI(text);
-        
+          
         console.log(requestData, '.!...!');
+
         setFetching(false);
+        
         if(!requestData) return;
         
         setDemandStatus("Registed");
+        
         const _demand = {
           ...requestData,
           userId: user?.id
         };
 
         await createDemand(_demand);
-
-        pushDemand(_demand);
+        
       } catch(error) {
+
         setFetching(false);
         
         setDemandStatus("Error");
@@ -135,10 +165,44 @@ const ProfileHeader = ({profile}: any) => {
   const createDemand = async(demandInfo: string) => {
     console.log(demandInfo, 'demandInfo');
     const response = await instance?.post("/demand/create", demandInfo);
+    await getAllSelfDemands();
     console.log(response, '!@@@@');
   }
 
-  const embeddingPrompt = (prompt: string) => `[${prompt}],帮我将上面[]里的文本梳理成下面的JSON对象：{ responseItem: { "Chinese": string,"English": string, "demandRole": string, categoryType: CategoryType }}; Additionnal notes_1: 该JSON对象的categoryType字段的取值只能为下列枚举类型之一: [ Social, Work, Home, Health, Shopping, Travel, Learning, Entertainment, Transportation, Finance]。请确保您返回的对象中，categoryType 字段的取值严格符合上述规定; Additional notes_2: demandRole: NEED(means you want something or to hire someone) | SERVER(means you can give or server something or find job) | FREE(other demand like find someone to play together or standup with someone)`
+  // const getRandomInt = (min, max) => {
+  //   min = Math.ceil(min);
+  //   max = Math.floor(max);
+  //   return Math.floor(Math.random() * (max - min + 1)) + min;
+  // }
+
+  // const setDmandsToRandomsUser = async()=> {
+  //   const { data } = await instance?.get("/users/test") as any
+  //   const users = data.map((x:any)=> x.id)
+  //   const randomUserId = users[getRandomInt(0, users.length - 1)];
+  //   const _demans = getDemansJSON() as unknown as TDemand[];
+    
+  //   _demans.forEach(async (d)=> {
+  //     const postData = {
+  //       ...d,
+  //       demandRole: "NEED",
+  //       categoryType: "Learning",
+  //       userId: randomUserId
+  //     } as any;
+  //     await createDemand(postData);
+  //   })
+
+  //   console.log('finish')
+  //   console.log(data,' users');
+  // }
+
+  const Tasks = [
+    `上面字段可以放到如下哪个分类里，并赋值给current_category：["Social","Work","Home","Health","Shopping","Travel","Learning","Entertainment","Transportation","Finance"];`,
+    `set demandRole: NEED(means you want something or to hire someone) | SERVER(means you can give or server something or find job) | FREE(other demand like find someone to play together or standup with someone);`,
+    `将上面的数据填充到一下JSON里: { responseItem: { "Chinese": "","English": "", "demandRole": "", "categoryType": current_category }};`,
+    // `fill the context into: { responseItem: { "Chinese": "","English": "", "demandRole": "", categoryType: "" // ["Social","Work","Home","Health","Shopping","Travel","Learning","Entertainment","Transportation","Finance"] *Strict Match* }};`,
+  ];
+
+  const embeddingPrompt = (prompt: string) => `[${prompt}]; ${Tasks.reduce((pre, next, index)=> pre + 'Task_' + (index + 1)+':' + next, "")}`
   
   
   console.log(user?.demands);
@@ -156,7 +220,23 @@ const ProfileHeader = ({profile}: any) => {
       </TouchableHighlight>
       <View className="ml-4">
         <Text style={styles.username}>{status}</Text>
-        <Text style={styles.username}>{user?.id}</Text>
+        <TextInput 
+          ref={nameInput}
+          className={`${showTextInput ? "visible" : "hidden"}`}
+          defaultValue={user?.username ? user.username : user?.id.toString()}
+          onSubmitEditing={usernameBinder} 
+        ></TextInput>
+        
+        <TouchableHighlight onPress={()=> {
+          setTimeout(() => {
+            nameInput?.current?.focus()
+          }, 0)
+          setShowTextInput(true)
+        }}>
+          <Text 
+            className={`${showTextInput ? "hidden" : "visible"}`}
+            style={styles.username}>{user && (user.username ? user.username : user.id)}</Text>
+        </TouchableHighlight>
         {/* <Center> */}
 
         {/* </Center> */}
@@ -204,40 +284,6 @@ const ProfileHeader = ({profile}: any) => {
               onSubmitEditing={postGPTAPI}
               placeholder="Input your demand" 
               className="relative z-50 bg-white h-8 pl-3"></TextInput>
-            {/* <Input 
-              blurOnSubmit
-              keyboardType="phone-pad"
-              ref={inputRef}
-              onSubmitEditing={postGPTAPI}
-              // onChange={handleInputChange}
-              // onEndEditing={postGPTAPI}
-              className="p-3"
-              shadow={2}  
-              placeholder="Input your demand"
-              _light={{
-                bg: "coolGray.100",
-                _hover: {
-                  bg: "coolGray.200"
-                },
-                _focus: {
-                  bg: "coolGray.200:alpha.70"
-                }
-              }} 
-              _dark={{
-                bg: "coolGray.800",
-                _hover: {
-                  bg: "coolGray.900"
-                },
-                _focus: {
-                  bg: "coolGray.900:alpha.70"
-                }
-              }} 
-              /> */}
-            {/* <Button
-              className="mt-10"
-              isLoading={fetching}
-              onPress={postGPTAPI}
-            >Change</Button> */}
           </View>
         </View>
       </Modal>
@@ -380,6 +426,9 @@ const styles = StyleSheet.create({
   },
 });
 
+function getDemansJSON() {
+  return []
+}
 
 
 `Social: including but not limited to finding partners, making friends, dating, social activities, etc.

@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { TDemand } from './demand';
 
 export type TUser = {
+  username?: string;
   email: string;
   password?: string;
   avatar?: string;
