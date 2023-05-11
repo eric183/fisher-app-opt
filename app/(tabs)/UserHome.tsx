@@ -10,6 +10,7 @@ import useDemandState, { TDemand } from "../../store/demand";
 import { useAxios } from "../../store/axios";
 import useUser from "../../store/user";
 import { TUser } from "../../store/user";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const ProfileHeader = ({profile}: any) => {
   const { user, setUser } = useUser();
@@ -279,11 +280,15 @@ const ProfileHeader = ({profile}: any) => {
           </TouchableHighlight>
 
           <View style={styles.modalContent}>
-            <TextInput 
-              ref={inputRef}
-              onSubmitEditing={postGPTAPI}
-              placeholder="Input your demand" 
-              className="relative z-50 bg-white h-8 pl-3"></TextInput>
+            <KeyboardAwareScrollView>
+              <View>
+                <TextInput 
+                  ref={inputRef}
+                  onSubmitEditing={postGPTAPI}
+                  placeholder="Input your demand" 
+                  className="relative z-50 bg-white h-8 pl-3 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"></TextInput>
+              </View>
+            </KeyboardAwareScrollView>
           </View>
         </View>
       </Modal>

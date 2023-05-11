@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
 import EditScreenInfo from '../../components/EditScreenInfo';
 import { Text, View } from '../../components/Themed';
@@ -11,19 +11,17 @@ export default function TabOneScreen() {
   const alldemands = useDemands(state => state.alldemands);
   const { user } = useUser();
   return (
-    <View style={styles.container}>
-      <Text style={styles.title} className='text-red-400 mb-2'>origin: {process.env?.APP_ORIGIN_URL}</Text>
-      <Text style={styles.title} className='text-red-400 mb-2'>socket_origin: {process.env?.WEBSOCKET_URL}</Text>
-      {
+    <ScrollView style={styles.scrollView}> 
+
+          {
         alldemands.filter((_demand)=> _demand.userId !== user?.id).map((demand, index)=> (
-        // alldemands.map((demand, index)=> (
           <View key={index}>
             <Text style={styles.title}>{demand.Chinese}</Text>
             <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
           </View>
         ))
       }
-    </View>
+    </ScrollView>
   );
 }
 
@@ -32,6 +30,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  scrollView: {
+    marginHorizontal: 20,
   },
   title: {
     fontSize: 20,
