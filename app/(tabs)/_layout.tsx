@@ -38,6 +38,13 @@ export default function TabLayout() {
         name="UserHome"
         options={{
           ...common_tab_style,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons
+              name="group"
+              size={20}
+              color="#BABABA"
+            ></MaterialIcons>
+          ),
           headerShown: false,
           headerRight: () => (
             <Link href="/sign" asChild>
