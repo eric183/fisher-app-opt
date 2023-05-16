@@ -5,6 +5,7 @@ import { Text, View } from "react-native";
 import Colors from "../../constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Component } from "react";
+import AddDemandTab from "../../components/AddDemandTab";
 
 /**
  * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -34,6 +35,19 @@ export default function TabLayout() {
           headerShown: false,
         }}
       />
+
+      <Tabs.Screen
+        name="Contact"
+        options={{
+          ...common_tab_style,
+          tabBarButton: (props) => <AddDemandTab {...props} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="add" size={20} color="#fff"></MaterialIcons>
+          ),
+          headerShown: false,
+        }}
+      />
+
       <Tabs.Screen
         name="UserHome"
         options={{

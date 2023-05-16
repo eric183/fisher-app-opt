@@ -9,7 +9,7 @@ import { Box, View } from "native-base";
 import { SplitCardViewBottom } from "../../components/SplitCardView";
 import { AvartarCard, DemandCard } from "../../components/Card";
 
-export default function TabOneScreen() {
+export default function Contact() {
   const demand = useIndexState((state) => state.demand);
   const alldemands = useDemands((state) => state.alldemands);
   const { user } = useUser();
@@ -18,7 +18,6 @@ export default function TabOneScreen() {
       <View className="flex flex-1 bg-[#49809F] justify-center">
         <AvartarCard classname="ml-16" />
       </View>
-      {/* <SplitCardViewBottom classname="bg-[rgb(242, 245, 250)] px-6"> */}
       <SplitCardViewBottom classname="px-6 bg-red">
         <Text className="title" style={styles.taskTitle}>
           任务列表
@@ -45,9 +44,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  // scrollView: {
-  //   marginHorizontal: 20,
-  // },
   taskTitle: {
     marginTop: 32,
     marginLeft: 5,

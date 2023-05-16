@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
-import { TDemand } from './demand';
+import { TDemand } from "./demand";
 
 export type TUser = {
   username?: string;
@@ -10,7 +10,7 @@ export type TUser = {
   id: number;
   demandCount?: number;
   demands?: TDemand[];
-} 
+};
 
 export interface TUserState {
   user: TUser | undefined;
@@ -19,10 +19,10 @@ export interface TUserState {
 // const currentUser = AsyncStorage.getItem("userInfo");
 const useUser = create<TUserState>()((set) => ({
   user: undefined,
-  setUser: (newUser) => set(() => ({
-    user: newUser
-  }))
-}))
-
+  setUser: (newUser) =>
+    set(() => ({
+      user: newUser,
+    })),
+}));
 
 export default useUser;
