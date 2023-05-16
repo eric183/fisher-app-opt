@@ -7,7 +7,7 @@ export type TUser = {
   email: string;
   password?: string;
   avatar?: string;
-  id: number;
+  id: string;
   demandCount?: number;
   demands?: TDemand[];
 };

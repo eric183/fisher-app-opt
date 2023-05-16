@@ -1,11 +1,19 @@
-import { Box, VStack, Image, Center, View, Pressable } from "native-base";
-import { ImageBackground } from "react-native";
+import {
+  Box,
+  VStack,
+  Image,
+  Center,
+  View,
+  Pressable,
+  Stack,
+} from "native-base";
 import { Text } from "./Themed";
 import { FC } from "react";
-import useUser from "../store/user";
-import { TUser } from "../store/user";
-import Sign from "../app/sign";
+import useUser, { TUser } from "../store/user";
 import { useRouter } from "expo-router";
+import { IChat } from "../app/chat";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import isMe from "../utils/isMe";
 
 export interface IDemandCard {
   image: string;
@@ -69,5 +77,40 @@ export const DemandCard: FC<IDemandCard> = ({ title, image, desc }) => {
         <Center>{desc}</Center>
       </VStack>
     </Box>
+  );
+};
+
+export const ChatCard: FC<
+  IChat & {
+    mineUser?: TUser;
+  }
+> = (props) => {
+  if (!props.mineUser) return null;
+  const isMeMySelf = isMe(props.user as TUser, props.mineUser);
+  return (
+    <Stack
+      className="flex-shrink-0 h-20"
+      direction={"row"}
+      alignItems={"center"}
+      reversed={isMeMySelf}
+      justifyContent={isMeMySelf ? "flex-end" : "flex-start"}
+    >
+      <Image
+        // className=""
+        rounded="2xl"
+        className={`flex-shrink-0 w-[72px] h-[72px] ${
+          isMeMySelf ? "ml-4" : "mr-4"
+        }`}
+        source={{
+          uri: props.user.avatar
+            ? props.user.avatar
+            : "https://picsum.photos/200/300",
+        }}
+        alt="left"
+      />
+      <View className="border h-[70%] border-gray-400 px-8 py-2 flex justify-center rounded-3xl">
+        <Text className="text-black">{props.content}</Text>
+      </View>
+    </Stack>
   );
 };

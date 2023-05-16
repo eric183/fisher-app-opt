@@ -29,9 +29,8 @@ export default function Index() {
           {alldemands
             .filter((_demand) => _demand.userId !== user?.id)
             .map((demand, index) => (
-              <Pressable onPress={() => router.push("chat")}>
+              <Pressable key={index} onPress={() => router.push("chat")}>
                 <DemandCard
-                  key={index}
                   desc={demand.Chinese}
                   image={"https://picsum.photos/200/300"}
                 />
