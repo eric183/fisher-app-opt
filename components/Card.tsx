@@ -1,9 +1,11 @@
-import { Box, VStack, Image, Center, View } from "native-base";
+import { Box, VStack, Image, Center, View, Pressable } from "native-base";
 import { ImageBackground } from "react-native";
 import { Text } from "./Themed";
 import { FC } from "react";
 import useUser from "../store/user";
 import { TUser } from "../store/user";
+import Sign from "../app/sign";
+import { useRouter } from "expo-router";
 
 export interface IDemandCard {
   image: string;
@@ -17,10 +19,9 @@ export const AvartarCard: FC<{
   mode?: string;
   classname?: string;
 }> = (props) => {
+  const router = useRouter();
   const { classname } = props;
-  // image={"https://picsum.photos/200/300"}
-  // username="EricKuang"
-  // mode="工作模式"
+
   const { user } = useUser();
 
   const _user = {
@@ -40,12 +41,14 @@ export const AvartarCard: FC<{
         alt="avatar"
       />
       <VStack>
-        <Text className="text-white text-base font-extrabold mb-1">
-          {_user?.username ? _user.username : _user.email}
-        </Text>
-        <Text className="text-white">
-          {props.mode ? props.mode : "工作模式"}
-        </Text>
+        <Pressable onPress={() => router.push("/sign")}>
+          <Text className="text-white text-base font-extrabold mb-1">
+            {_user?.username ? _user.username : _user.id}
+          </Text>
+          <Text className="text-white">
+            {props.mode ? props.mode : "工作模式"}
+          </Text>
+        </Pressable>
       </VStack>
     </Box>
   );

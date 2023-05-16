@@ -6,12 +6,17 @@ import { useRef, useState } from "react";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import useDemandState, { TDemand } from "../store/demand";
 import { gptAPI } from "../utils/gpt";
+import { useAxios } from "../store/axios";
+import useUser, { TUser } from "../store/user";
 
 const AddDemandTab = ({ children, onPress }: any) => {
+  const { user, setUser } = useUser();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const inputRef = useRef<TextInput>(null!);
   const [fetching, setFetching] = useState<boolean>(false);
   // const [demandStatus, setDemandStatus] = useState<TDemandStatus>("IDLE")
+  const { instance } = useAxios();
+
   const {
     demandStatus,
     setDemandStatus,
@@ -19,6 +24,13 @@ const AddDemandTab = ({ children, onPress }: any) => {
     pendingDemand,
     pushDemand,
   } = useDemandState();
+
+  const Tasks = [
+    `上面字段可以放到如下哪个分类里，并赋值给current_category：["Social","Work","Home","Health","Shopping","Travel","Learning","Entertainment","Transportation","Finance"];`,
+    `set demandRole: NEED(means you want something or to hire someone) | SERVER(means you can give or server something or find job) | FREE(other demand like find someone to play together or standup with someone);`,
+    `将上面的数据填充到一下JSON里: { responseItem: { "Chinese": "","English": "", "demandRole": "", "categoryType": current_category }};`,
+    // `fill the context into: { responseItem: { "Chinese": "","English": "", "demandRole": "", categoryType: "" // ["Social","Work","Home","Health","Shopping","Travel","Learning","Entertainment","Transportation","Finance"] *Strict Match* }};`,
+  ];
 
   const getJSONFormatFromGPT = (str: string) => {
     const regex = /{[^{}]*}/g; // 匹配 {} 中的内容
@@ -78,14 +90,34 @@ const AddDemandTab = ({ children, onPress }: any) => {
         const _demand = {
           ...requestData,
           userId: user?.id,
-        };
+        } as TDemand;
 
-        await createDemand(_demand);
+        if (_demand.Chinese.trim() && _demand.English.trim()) {
+          await createDemand(_demand);
+        }
       } catch (error) {
         setFetching(false);
 
         setDemandStatus("Error");
       }
+    }
+  };
+
+  const createDemand = async (demandInfo: TDemand) => {
+    console.log(demandInfo, "demandInfo");
+    const response = await instance?.post("/demand/create", demandInfo);
+    await getAllSelfDemands();
+    console.log(response, "!@@@@");
+  };
+
+  const getAllSelfDemands = async () => {
+    const demandResponse = await instance?.get(`/demand/${user?.id}`);
+
+    if (demandResponse?.status === 200) {
+      setUser({
+        ...(user as TUser),
+        demands: demandResponse.data,
+      });
     }
   };
 
@@ -97,8 +129,7 @@ const AddDemandTab = ({ children, onPress }: any) => {
 
   return (
     <Pressable
-      className="flex w-[64px] h-[64px] rounded-full bg-[#ff904b]"
-      top={-40}
+      className="flex w-[64px] h-[64px] rounded-full bg-[#ff904b] top-[-40]"
       onPress={() => {
         setModalVisible(true);
       }}

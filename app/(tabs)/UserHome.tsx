@@ -48,17 +48,6 @@ const ProfileHeader = ({ profile }: any) => {
     }, 5);
   };
 
-  const getAllSelfDemands = async () => {
-    const demandResponse = await instance?.get(`/demand/${user?.id}`);
-
-    if (demandResponse?.status === 200) {
-      setUser({
-        ...(user as TUser),
-        demands: demandResponse.data,
-      });
-    }
-  };
-
   const usernameBinder = async ({ nativeEvent }: any) => {
     setShowTextInput(false);
     console.log(nativeEvent.text);
@@ -67,20 +56,6 @@ const ProfileHeader = ({ profile }: any) => {
       username: nativeEvent.text,
     });
   };
-
-  const createDemand = async (demandInfo: string) => {
-    console.log(demandInfo, "demandInfo");
-    const response = await instance?.post("/demand/create", demandInfo);
-    await getAllSelfDemands();
-    console.log(response, "!@@@@");
-  };
-
-  const Tasks = [
-    `上面字段可以放到如下哪个分类里，并赋值给current_category：["Social","Work","Home","Health","Shopping","Travel","Learning","Entertainment","Transportation","Finance"];`,
-    `set demandRole: NEED(means you want something or to hire someone) | SERVER(means you can give or server something or find job) | FREE(other demand like find someone to play together or standup with someone);`,
-    `将上面的数据填充到一下JSON里: { responseItem: { "Chinese": "","English": "", "demandRole": "", "categoryType": current_category }};`,
-    // `fill the context into: { responseItem: { "Chinese": "","English": "", "demandRole": "", categoryType: "" // ["Social","Work","Home","Health","Shopping","Travel","Learning","Entertainment","Transportation","Finance"] *Strict Match* }};`,
-  ];
 
   console.log(user?.demands);
   return (

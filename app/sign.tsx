@@ -134,28 +134,3 @@ const Sign = () => {
 };
 
 export default Sign;
-
-// <View>
-// {/* <Input type="text" placeholder="Input email" className="text-white"></Input>
-// <Input type="password" placeholder="Input password" className="text-white"></Input>
-
-// <Button onPress={registerHandler}>Register</Button> */}
-
-// <Box alignItems="center">
-//   <Box w="100%" maxWidth="300px">
-//     <FormControl isRequired>
-//       <Stack mx="4">
-//         <FormControl.Label>Password</FormControl.Label>
-//         <Input type="password" defaultValue="12345" placeholder="password" />
-//         <FormControl.HelperText>
-//           Must be atleast 6 characters.
-//         </FormControl.HelperText>
-//         <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-//           Atleast 6 characters are required.
-//         </FormControl.ErrorMessage>
-//       </Stack>
-//     </FormControl>
-//   </Box>
-// </Box>
-
-// </View>

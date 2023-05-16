@@ -5,33 +5,37 @@ import { Text } from "../../components/Themed";
 import useIndexState from "../../store";
 import useDemands from "../../store/demand";
 import useUser from "../../store/user";
-import { Box, View } from "native-base";
+import { Box, Pressable, View } from "native-base";
 import { SplitCardViewBottom } from "../../components/SplitCardView";
 import { AvartarCard, DemandCard } from "../../components/Card";
+import { useRouter } from "expo-router";
 
-export default function TabOneScreen() {
+export default function Index() {
   const demand = useIndexState((state) => state.demand);
   const alldemands = useDemands((state) => state.alldemands);
   const { user } = useUser();
+  const router = useRouter();
   return (
     <Box safeAreaTop className="h-full">
       <View className="flex flex-1 bg-[#49809F] justify-center">
         <AvartarCard classname="ml-16" />
       </View>
       {/* <SplitCardViewBottom classname="bg-[rgb(242, 245, 250)] px-6"> */}
-      <SplitCardViewBottom classname="px-6 bg-red">
+      <SplitCardViewBottom classname="px-6">
         <Text className="title" style={styles.taskTitle}>
           任务列表
         </Text>
-        <ScrollView className="bg-white">
+        <ScrollView>
           {alldemands
             .filter((_demand) => _demand.userId !== user?.id)
             .map((demand, index) => (
-              <DemandCard
-                key={index}
-                desc={demand.Chinese}
-                image={"https://picsum.photos/200/300"}
-              />
+              <Pressable onPress={() => router.push("chat")}>
+                <DemandCard
+                  key={index}
+                  desc={demand.Chinese}
+                  image={"https://picsum.photos/200/300"}
+                />
+              </Pressable>
             ))}
         </ScrollView>
       </SplitCardViewBottom>

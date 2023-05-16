@@ -69,7 +69,6 @@ const RootLayoutNav = () => {
     }
   }, [matchInfo]);
 
-  console.log("machinfo.....", matchInfo);
   return (
     <>
       <NativeBaseProvider>
