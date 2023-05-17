@@ -21,6 +21,7 @@ import { useWStore } from "../hooks/ws";
 import useCommonStore from "../store/common";
 import { IChat, chatStore } from "../store/chat";
 import { shallow } from "zustand/shallow";
+import useDebounce from "../hooks/debounce";
 
 const Chat = () => {
   const navigation = useNavigation();
@@ -37,6 +38,8 @@ const Chat = () => {
   const { chatInfo } = useCommonStore();
 
   const [chatList, setChatList] = useState<IChat[]>([]);
+
+  const debouncedValue = useDebounce<string>(chatStack, 200);
 
   const getStackIdWidthList = () => {
     let stackId = "";
@@ -89,7 +92,10 @@ const Chat = () => {
     console.log(chatStack, "chatStack");
     console.log(_chatList, "adjasflksjdflJ ");
     setChatList([..._chatList]);
-    scrollViewRef.current.scrollToEnd();
+
+    setTimeout(() => {
+      scrollViewRef.current.scrollToEnd();
+    }, 10);
   }, [chatStack]);
 
   const sendMessage = () => {
@@ -102,7 +108,6 @@ const Chat = () => {
         toUserId: chatInfo?.user.id as string,
         message: context,
       });
-      console.log(chatList, "chatList_1");
 
       setChatList([
         ...chatList,
@@ -119,8 +124,8 @@ const Chat = () => {
           user: user as TUser,
         },
       ]);
-
-      scrollViewRef.current.scrollToEnd();
+      inputRef.current.clear();
+      // scrollViewRef.current.scrollToEnd();
     }
   };
 
