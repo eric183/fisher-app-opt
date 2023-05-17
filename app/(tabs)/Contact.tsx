@@ -22,26 +22,18 @@ export default function Contact() {
       </View>
       <SplitCardViewBottom classname="px-6 bg-red pt-4" height={"75%"}>
         <TextInput
-          className="drop-shadow-lg rounded-3xl bg-[#e3eef0] py-3 px-3 text-[#447592]"
+          className="drop-shadow-xl rounded-3xl bg-[#e3eef0] py-3 px-3 text-[#447592]"
           placeholder="Search for name"
         />
 
         <ScrollView className="pt-4">
-          {requestUsersWithChats.map((_user, index) => (
-            <ContactCard key={index} />
+          {requestUsersWithChats.map((_requestChat, index) => (
+            <ContactCard key={index} {..._requestChat} />
           ))}
 
-          {requestUsersWithChats.map((_user, index) => (
+          {/* {contacts.map((demand, index) => (
             <ContactCard key={index} />
-          ))}
-
-          {requestUsersWithChats.map((_user, index) => (
-            <ContactCard key={index} />
-          ))}
-
-          {contacts.map((demand, index) => (
-            <ContactCard key={index} />
-          ))}
+          ))} */}
         </ScrollView>
       </SplitCardViewBottom>
     </Box>

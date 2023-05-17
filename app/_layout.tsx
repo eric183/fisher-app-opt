@@ -1,42 +1,18 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { SplashScreen, Stack, useRouter } from "expo-router";
-import {
-  AlertDialog,
-  NativeBaseProvider,
-  Progress,
-  View,
-  Button,
-} from "native-base";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { useColorScheme } from "react-native";
+import { SplashScreen, useRouter } from "expo-router";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import useAuth from "../hooks/auth";
 import { useAxios } from "../store/axios";
-import useDemandState, { TDemand } from "../store/demand";
+import { TDemand } from "../store/demand";
 import useDemands from "../store/demand";
-import { OpenAIStreamPayload, gptAPI } from "../utils/gpt";
-import { Alert, Text } from "native-base";
+import { gptAPI } from "../utils/gpt";
 import useUser from "../store/user";
 import useMatch from "../store/match";
-import isJSON from "../utils/isJSON";
 import { io } from "socket.io-client";
 import useWS, { useWStore } from "../hooks/ws";
 import RootLayoutNav from "../components/RootLayoutNav";
-import { createStore } from "zustand";
 
 export {
   // Catch any errors thrown by the Layout component.

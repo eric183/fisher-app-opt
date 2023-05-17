@@ -5,6 +5,7 @@ import { Link, useRouter, useSegments } from "expo-router";
 import axios from "axios";
 import { useAxios } from "../store/axios";
 import useUser, { TUser } from "../store/user";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface IRegister {
   email: string;
@@ -20,7 +21,6 @@ const useAuth = () => {
       email: email.trim(),
       password: password.trim(),
     });
-
     return data;
   };
 

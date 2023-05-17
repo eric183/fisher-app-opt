@@ -11,11 +11,11 @@ import { Text } from "./Themed";
 import { FC } from "react";
 import useUser, { TUser } from "../store/user";
 import { useRouter } from "expo-router";
-import { IChat } from "../app/chat";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import isMe from "../utils/isMe";
 import { MaterialIcons } from "@expo/vector-icons";
-import useCommonStore from "../store/common";
+import useCommonStore, { TRequestChat } from "../store/common";
+import { IChat } from "../store/chat";
 
 export interface IDemandCard {
   image: string;
@@ -64,12 +64,11 @@ export const AvartarCard: FC<{
   );
 };
 
-export const ContactCard: FC<{
-  avatar?: string;
-  username?: string;
-  mode?: string;
-  classname?: string;
-}> = (props) => {
+export const ContactCard: FC<
+  {
+    classname?: string;
+  } & TRequestChat
+> = (props) => {
   const router = useRouter();
   const { classname } = props;
 
@@ -81,7 +80,12 @@ export const ContactCard: FC<{
   };
 
   const goChat = () => {
-    // setChatInfo()
+    setChatInfo({
+      user: props.user,
+      message: props.message,
+      demandId: props.demandId,
+      type: props.type,
+    });
     router.push("chat");
   };
 
@@ -89,8 +93,8 @@ export const ContactCard: FC<{
     <Box
       className={`flex flex-row items-center mb-4 border-b border-gray-300 pb-3 justify-between ${classname}`}
     >
-      <Pressable onPress={goChat}>
-        <VStack alignItems="center" direction="row">
+      <Pressable onPress={goChat} className="flex flex-row items-center">
+        <VStack alignItems="center" direction="row" flex="1">
           <Image
             className="mr-4 rounded-md"
             source={{

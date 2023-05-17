@@ -4,8 +4,8 @@ import { TUser } from "./user";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type TRequestChat = {
-  user: TUser;
+export type TRequestChat = {
+  user: Partial<TUser>;
   message: string;
   demandId?: string;
   type: string;
@@ -14,8 +14,8 @@ type TRequestChat = {
 interface ICommonState {
   contacts: TUser[];
   setContacts: (user: TUser) => void;
-  chatDemand?: TDemand;
-  setChatDemand: (arg: TDemand) => void;
+  chatInfo?: TRequestChat;
+  setChatInfo: (arg: TRequestChat) => void;
   // chattingUser: TUser;
   // pickChatUserWithDemand: (u: any) => void;
   requestUsersWithChats: TRequestChat[];
@@ -30,10 +30,10 @@ const useCommonStore = create<ICommonState>()(
         set(({ contacts }) => ({
           contacts: [...contacts, _user],
         })),
-      chatDemand: undefined,
-      setChatDemand: (_demand) =>
+      chatInfo: undefined,
+      setChatInfo: (_demand) =>
         set(() => ({
-          chatDemand: _demand,
+          chatInfo: _demand,
         })),
       requestUsersWithChats: [],
       setUsersWithChats: (_request) =>

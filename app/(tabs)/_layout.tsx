@@ -29,9 +29,20 @@ export default function TabLayout() {
         name="index"
         options={{
           ...common_tab_style,
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="badge" size={20} color="#000"></MaterialIcons>
-          ),
+          tabBarIcon: ({ color, focused }) =>
+            focused ? (
+              <MaterialIcons
+                name="badge"
+                size={28}
+                color="#447592"
+              ></MaterialIcons>
+            ) : (
+              <MaterialIcons
+                name="badge"
+                size={28}
+                color="#999"
+              ></MaterialIcons>
+            ),
           headerShown: false,
         }}
       />
@@ -41,8 +52,8 @@ export default function TabLayout() {
         options={{
           ...common_tab_style,
           tabBarButton: (props) => <AddDemandTab {...props} />,
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="add" size={20} color="#fff"></MaterialIcons>
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons name="add" size={35} color="#fff"></MaterialIcons>
           ),
           headerShown: false,
         }}
@@ -52,13 +63,20 @@ export default function TabLayout() {
         name="Contact"
         options={{
           ...common_tab_style,
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons
-              name="group"
-              size={20}
-              color="#BABABA"
-            ></MaterialIcons>
-          ),
+          tabBarIcon: ({ color, focused }) =>
+            focused ? (
+              <MaterialIcons
+                name="group"
+                size={28}
+                color="#447592"
+              ></MaterialIcons>
+            ) : (
+              <MaterialIcons
+                name="group"
+                size={28}
+                color="#999"
+              ></MaterialIcons>
+            ),
           headerShown: false,
           headerRight: () => (
             <Link href="/sign" asChild>
@@ -67,8 +85,7 @@ export default function TabLayout() {
                   <FontAwesome
                     name="info-circle"
                     size={25}
-                    // color={Colors[colorScheme ?? 'light'].text}
-                    color="#000"
+                    color="#447592"
                     style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                   />
                 )}
@@ -105,7 +122,7 @@ const TextComponent = () => {
 //         name="index"
 //         options={{
 //           title: '',
-//           tabBarIcon: ({ color }) => <MaterialIcons name="badge" size={20} color="#000"></MaterialIcons>,
+//           tabBarIcon: ({ color }) => <MaterialIcons name="badge" size={20} color="#447592"></MaterialIcons>,
 //           headerRight: () => (
 //             <Link href="/sign" asChild>
 //               <Pressable>
@@ -114,7 +131,7 @@ const TextComponent = () => {
 //                     name="info-circle"
 //                     size={25}
 //                     // color={Colors[colorScheme ?? 'light'].text}
-//                     color="#000"
+//                     color="#447592"
 //                     style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
 //                   />
 //                 )}
@@ -128,7 +145,7 @@ const TextComponent = () => {
 //         name=""
 //         options={{
 //           title:"",
-//           tabBarIcon: ({ color }) => <MaterialIcons name="badge" size={20} color="#000"></MaterialIcons>
+//           tabBarIcon: ({ color }) => <MaterialIcons name="badge" size={20} color="#447592"></MaterialIcons>
 //         }}
 //       />
 

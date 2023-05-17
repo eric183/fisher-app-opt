@@ -10,7 +10,7 @@ import {
 } from "native-base";
 import { AvartarCard, ChatCard } from "../components/Card";
 import { useNavigation, useRouter } from "expo-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SplitCardViewBottom } from "../components/SplitCardView";
 import { MaterialIcons } from "@expo/vector-icons";
 import { create } from "zustand";
@@ -19,45 +19,43 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { InterfaceScrollViewProps } from "native-base/lib/typescript/components/basic/ScrollView/types";
 import { useWStore } from "../hooks/ws";
 import useCommonStore from "../store/common";
-
-export interface IChat {
-  content: string;
-  user: Partial<TUser>;
-}
-
-const chatStore = create<{
-  chatList: IChat[];
-  setChatList: (chat: IChat) => void;
-}>()((set) => ({
-  chatList: [
-    {
-      content: "你好",
-      user: {
-        id: "clhq3ojc40002mc0uya8vg8ry",
-      },
-    },
-  ],
-  setChatList: (_chat) =>
-    set(({ chatList }) => ({
-      chatList: [...chatList, _chat],
-    })),
-}));
+import { IChat, chatStore } from "../store/chat";
 
 const Chat = () => {
   const navigation = useNavigation();
   const inputRef = useRef<TextInput>(null!);
   const scrollViewRef = useRef<any>(null!);
-  const { chatList, setChatList } = chatStore();
-  const { user, toUser } = useUser();
+  const { chatStack, setChatStack } = chatStore();
+  const { user } = useUser();
   const router = useRouter();
   const { ws } = useWStore();
-  const { chatDemand } = useCommonStore();
+  const { chatInfo } = useCommonStore();
+
+  // const [chatList, setChatList] = useState<IChat[]>(null!);
+
+  const getStackIdWidthList = () => {
+    let stackId = "";
+    let chatList: any[] = [];
+
+    if (chatStack[`${user?.id}.${chatInfo?.user.id}`]) {
+      stackId = `${user?.id}.${chatInfo?.user.id}`;
+      chatList = chatStack[`${user?.id}.${chatInfo?.user.id}`];
+    }
+
+    if (chatStack[`${chatInfo?.user.id}.${user?.id}`]) {
+      stackId = `${chatInfo?.user.id}.${user?.id}`;
+      chatList = chatStack[`${chatInfo?.user.id}.${user?.id}`];
+    }
+
+    return [chatList ? stackId : `${user?.id}.${chatInfo?.user.id}`, chatList];
+  };
+
   const requestForChat = () => {
-    if (user && chatDemand?.userId) {
+    if (user && chatInfo?.user.id) {
       ws?.emit("startChat", {
         fromUserId: user?.id,
-        toUserId: chatDemand?.userId,
-        demandId: chatDemand.id,
+        toUserId: chatInfo?.user.id,
+        demandId: chatInfo.demandId,
         message: "请求聊天",
         type: "demand",
       });
@@ -71,24 +69,41 @@ const Chat = () => {
     navigation.setOptions({
       headerShown: false,
     });
+
+    scrollViewRef.current.scrollToEnd();
   }, []);
 
   useEffect(() => {
     requestForChat();
-  }, [toUser]);
+  }, [chatInfo]);
+
+  useEffect(() => {
+    scrollViewRef.current.scrollToEnd();
+  }, [chatStack]);
 
   const sendMessage = () => {
     const context = inputRef.current.context as string;
+    const [stackId, chatList] = getStackIdWidthList();
 
     if (context.trim()) {
-      setChatList({
-        content: context,
-        user: user as TUser,
+      ws?.emit("sendMessage", {
+        fromUserId: user?.id as string,
+        toUserId: chatInfo?.user.id as string,
+        message: context,
       });
 
+      setChatStack(stackId as string, [
+        ...chatList,
+        {
+          content: context,
+          user: user as TUser,
+        },
+      ]);
       scrollViewRef.current.scrollToEnd();
     }
   };
+
+  const [, chatList] = getStackIdWidthList();
 
   return (
     <Box className="flex-1">
@@ -113,7 +128,7 @@ const Chat = () => {
         height={"70%"}
       >
         <ScrollView className="h-full flex flex-col" ref={scrollViewRef}>
-          {chatList.map((chat, index) => (
+          {chatList?.map((chat, index) => (
             <ChatCard {...chat} mineUser={user} key={index} />
           ))}
         </ScrollView>

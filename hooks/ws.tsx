@@ -7,21 +7,24 @@ import useCommonStore from "../store/common";
 import { useAxios } from "../store/axios";
 import useRequest from "./request";
 import { TUser } from "../store/user";
+import { chatStore } from "../store/chat";
 
 interface IChatInfo {
   fromUserId: string;
   toUserId: string;
   message: string;
   demandId?: string;
-  type: "normal" | "demand";
+  type?: "normal" | "demand";
 }
 interface IServerToClientEvents {
   startChat: (arg: IChatInfo) => void;
+  receiveMessage: (arg: IChatInfo) => void;
 }
 
 interface IClientToServerEvents {
   startChat: (arg: IChatInfo) => void;
   joinChat: (arg: Omit<IChatInfo, "message">) => void;
+  sendMessage: (arg: IChatInfo) => void;
 }
 
 export interface ISocketState {
@@ -47,6 +50,9 @@ const useWS = () => {
   const requestUsersWithChats = useCommonStore(
     (state) => state.requestUsersWithChats
   );
+
+  const { setChatStack, chatStack } = chatStore();
+
   const onConnect = () => {
     console.log("hi, socket");
   };
@@ -73,20 +79,48 @@ const useWS = () => {
         user,
         message: data.message,
         demandId: data.demandId as string,
-        type: data.type,
+        type: data.type as string,
       });
     }
+  };
+
+  const receiveMessage = async (data: IChatInfo) => {
+    let stackId = "";
+    let chatList = [];
+
+    if (chatStack[`${data.fromUserId}.${data.toUserId}`]) {
+      stackId = `${data.fromUserId}.${data.toUserId}`;
+      chatList = chatStack[`${data.fromUserId}.${data.toUserId}`];
+    }
+
+    if (chatStack[`${data.toUserId}.${data.fromUserId}`]) {
+      stackId = `${data.toUserId}.${data.fromUserId}`;
+      chatList = chatStack[`${data.toUserId}.${data.fromUserId}`];
+    }
+
+    // console.log()
+    setChatStack(stackId ? stackId : `${data.fromUserId}.${data.toUserId}`, [
+      ...chatList,
+      {
+        content: data.message,
+        user: {
+          id: data.fromUserId,
+        },
+      },
+    ]);
   };
 
   useEffect(() => {
     ws?.on("connect", onConnect);
     ws?.on("disconnect", onDisconnect);
     ws?.on("startChat", startChat);
+    ws?.on("receiveMessage", receiveMessage);
 
     return () => {
       ws?.off("connect", onConnect);
       ws?.off("disconnect", onDisconnect);
       ws?.off("startChat", startChat);
+      ws?.off("receiveMessage", receiveMessage);
     };
   }, [ws, startChat]);
 
