@@ -20,18 +20,23 @@ import { InterfaceScrollViewProps } from "native-base/lib/typescript/components/
 import { useWStore } from "../hooks/ws";
 import useCommonStore from "../store/common";
 import { IChat, chatStore } from "../store/chat";
+import { shallow } from "zustand/shallow";
 
 const Chat = () => {
   const navigation = useNavigation();
   const inputRef = useRef<TextInput>(null!);
   const scrollViewRef = useRef<any>(null!);
-  const { chatStack, setChatStack } = chatStore();
+  const { setChatStack } = chatStore();
+  const { chatStack } = chatStore(
+    (state) => ({ chatStack: state.chatStack }),
+    shallow
+  );
   const { user } = useUser();
   const router = useRouter();
   const { ws } = useWStore();
   const { chatInfo } = useCommonStore();
 
-  // const [chatList, setChatList] = useState<IChat[]>(null!);
+  const [chatList, setChatList] = useState<IChat[]>([]);
 
   const getStackIdWidthList = () => {
     let stackId = "";
@@ -47,10 +52,10 @@ const Chat = () => {
       chatList = chatStack[`${chatInfo?.user.id}.${user?.id}`];
     }
 
-    return [chatList ? stackId : `${user?.id}.${chatInfo?.user.id}`, chatList];
+    return [stackId ? stackId : `${user?.id}.${chatInfo?.user.id}`, chatList];
   };
 
-  const [, chatList] = getStackIdWidthList();
+  // const [, chatList] = getStackIdWidthList();
 
   const requestForChat = () => {
     if (user && chatInfo?.user.id) {
@@ -80,12 +85,16 @@ const Chat = () => {
   }, [chatInfo]);
 
   useEffect(() => {
+    const [stackId, _chatList] = getStackIdWidthList();
+    console.log(chatStack, "chatStack");
+    console.log(_chatList, "adjasflksjdflJ ");
+    setChatList([..._chatList]);
     scrollViewRef.current.scrollToEnd();
   }, [chatStack]);
 
   const sendMessage = () => {
     const context = inputRef.current.context as string;
-    const [stackId, chatList] = getStackIdWidthList();
+    const [stackId] = getStackIdWidthList();
 
     if (context.trim()) {
       ws?.emit("sendMessage", {
@@ -93,6 +102,15 @@ const Chat = () => {
         toUserId: chatInfo?.user.id as string,
         message: context,
       });
+      console.log(chatList, "chatList_1");
+
+      setChatList([
+        ...chatList,
+        {
+          content: context,
+          user: user as TUser,
+        },
+      ]);
 
       setChatStack(stackId as string, [
         ...chatList,
@@ -101,16 +119,11 @@ const Chat = () => {
           user: user as TUser,
         },
       ]);
-      (chatList as any[]).push({
-        content: context,
-        user: user as TUser,
-      });
 
       scrollViewRef.current.scrollToEnd();
     }
   };
 
-  console.log(chatList.length, "length");
   return (
     <Box className="flex-1">
       {/* <Box safeAreaTop className="flex-1"> */}

@@ -20,7 +20,7 @@ export const chatStore = create<{
         set(({ chatStack }) => {
           chatStack[id] = stackList;
           return {
-            chatStack: chatStack,
+            chatStack: { ...chatStack },
           };
         }),
     }),
