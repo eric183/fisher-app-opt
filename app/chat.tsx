@@ -50,6 +50,8 @@ const Chat = () => {
     return [chatList ? stackId : `${user?.id}.${chatInfo?.user.id}`, chatList];
   };
 
+  const [, chatList] = getStackIdWidthList();
+
   const requestForChat = () => {
     if (user && chatInfo?.user.id) {
       ws?.emit("startChat", {
@@ -99,12 +101,16 @@ const Chat = () => {
           user: user as TUser,
         },
       ]);
+      (chatList as any[]).push({
+        content: context,
+        user: user as TUser,
+      });
+
       scrollViewRef.current.scrollToEnd();
     }
   };
 
-  const [, chatList] = getStackIdWidthList();
-
+  console.log(chatList.length, "length");
   return (
     <Box className="flex-1">
       {/* <Box safeAreaTop className="flex-1"> */}
