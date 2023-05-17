@@ -8,9 +8,10 @@ interface IMatchState {
 
 const useMatch = create<IMatchState>()((set) => ({
   matchInfo: undefined,
-  setMatchInfo: (matchData) => set(()=> ({
-    matchInfo: matchData
-  }))
+  setMatchInfo: (matchData) =>
+    set(() => ({
+      matchInfo: matchData,
+    })),
 }));
 
 export default useMatch;

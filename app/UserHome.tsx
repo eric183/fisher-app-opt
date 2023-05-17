@@ -10,10 +10,9 @@ import {
   TouchableHighlight,
   TextInput,
 } from "react-native";
-import useDemandState, { TDemand } from "../../store/demand";
-import { useAxios } from "../../store/axios";
-import useUser from "../../store/user";
-import { TUser } from "../../store/user";
+import { useAxios } from "../store/axios";
+import useDemands, { TDemand } from "../store/demand";
+import useUser from "../store/user";
 
 const ProfileHeader = ({ profile }: any) => {
   const { user, setUser } = useUser();
@@ -26,7 +25,7 @@ const ProfileHeader = ({ profile }: any) => {
     setPendingDemand,
     pendingDemand,
     pushDemand,
-  } = useDemandState();
+  } = useDemands();
 
   const [showTextInput, setShowTextInput] = useState<boolean>(false);
 

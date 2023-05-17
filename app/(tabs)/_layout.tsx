@@ -37,7 +37,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="Contact"
+        name="AddDemand"
         options={{
           ...common_tab_style,
           tabBarButton: (props) => <AddDemandTab {...props} />,
@@ -49,7 +49,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="UserHome"
+        name="Contact"
         options={{
           ...common_tab_style,
           tabBarIcon: ({ color }) => (

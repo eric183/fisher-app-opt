@@ -1,37 +1,47 @@
-import { ScrollView, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet, TextInput } from "react-native";
 
 import EditScreenInfo from "../../components/EditScreenInfo";
 import { Text } from "../../components/Themed";
 import useIndexState from "../../store";
 import useDemands from "../../store/demand";
 import useUser from "../../store/user";
-import { Box, View } from "native-base";
+import { Box, Input, View } from "native-base";
 import { SplitCardViewBottom } from "../../components/SplitCardView";
-import { AvartarCard, DemandCard } from "../../components/Card";
+import { AvartarCard, ContactCard, DemandCard } from "../../components/Card";
+import useCommonStore from "../../store/common";
 
 export default function Contact() {
   const demand = useIndexState((state) => state.demand);
   const alldemands = useDemands((state) => state.alldemands);
   const { user } = useUser();
+  const { contacts, requestUsersWithChats } = useCommonStore();
   return (
-    <Box safeAreaTop className="h-full">
-      <View className="flex flex-1 bg-[#49809F] justify-center">
-        <AvartarCard classname="ml-16" />
+    <Box className="h-full">
+      <View className="flex flex-1 bg-[#49809F] justify-center pt-3">
+        <AvartarCard classname="ml-12" />
       </View>
-      <SplitCardViewBottom classname="px-6 bg-red">
-        <Text className="title" style={styles.taskTitle}>
-          任务列表
-        </Text>
-        <ScrollView className="bg-white">
-          {alldemands
-            .filter((_demand) => _demand.userId !== user?.id)
-            .map((demand, index) => (
-              <DemandCard
-                key={index}
-                desc={demand.Chinese}
-                image={"https://picsum.photos/200/300"}
-              />
-            ))}
+      <SplitCardViewBottom classname="px-6 bg-red pt-4" height={"75%"}>
+        <TextInput
+          className="drop-shadow-lg rounded-3xl bg-[#e3eef0] py-3 px-3 text-[#447592]"
+          placeholder="Search for name"
+        />
+
+        <ScrollView className="pt-4">
+          {requestUsersWithChats.map((_user, index) => (
+            <ContactCard key={index} />
+          ))}
+
+          {requestUsersWithChats.map((_user, index) => (
+            <ContactCard key={index} />
+          ))}
+
+          {requestUsersWithChats.map((_user, index) => (
+            <ContactCard key={index} />
+          ))}
+
+          {contacts.map((demand, index) => (
+            <ContactCard key={index} />
+          ))}
         </ScrollView>
       </SplitCardViewBottom>
     </Box>

@@ -1,12 +1,10 @@
 import { create } from "zustand";
 import axios, { AxiosInstance } from "axios";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import useUser, { TUser } from "./user";
 
-
-
 interface IAxiosState {
-  loginStatus: LoginStatus,
+  loginStatus: LoginStatus;
   instance: AxiosInstance | null;
   init: () => void;
 }
@@ -15,7 +13,6 @@ export const useAxios = create<IAxiosState>()((set) => ({
   loginStatus: "authenticated",
   instance: null,
   init: () => {
-
     const instance = axios.create({
       baseURL: process.env.APP_ORIGIN_URL,
       headers: {
@@ -24,15 +21,14 @@ export const useAxios = create<IAxiosState>()((set) => ({
     });
 
     instance.interceptors.request.use(
-      async(config) => {
+      async (config) => {
         set({
-          loginStatus: "pendingVerification"
+          loginStatus: "pendingVerification",
         });
 
         const bearerToken = await AsyncStorage.getItem("token");
 
         config.headers.Authorization = `Bearer ${bearerToken}`;
-
 
         return config;
       },
@@ -43,41 +39,36 @@ export const useAxios = create<IAxiosState>()((set) => ({
 
     instance.interceptors.response.use(
       (response) => {
-        if(response.request.responseURL.includes("/auth/profile")) {
+        if (response.request.responseURL.includes("/auth/profile")) {
           AsyncStorage.setItem("userInfo", JSON.stringify(response.data));
         }
-        if(response.data.access_token) {
+        if (response.data.access_token) {
           AsyncStorage.setItem("token", response.data.access_token);
           set({
-            loginStatus: "authenticated"
-          })
+            loginStatus: "authenticated",
+          });
         }
         return response;
       },
       (error) => {
-        if(error.code === "ERR_NETWORK") {
+        if (error.code === "ERR_NETWORK") {
           return Promise.reject(error);
         }
-        
+
         if (error?.response?.status === 401) {
           // handle 401 error
           set({
-            loginStatus: "unauthenticated"
-          })
+            loginStatus: "unauthenticated",
+          });
         } else {
           return Promise.reject(error);
         }
-
-        
-
       }
     );
 
     set({ instance });
   },
 }));
-
-
 
 // import axios, { AxiosInstance, CreateAxiosDefaults } from 'axios';
 // import { create } from 'zustand';
@@ -95,7 +86,7 @@ export const useAxios = create<IAxiosState>()((set) => ({
 
 //   setAxiosInstance: (newConfig) => {
 //     const newAxiosInstance = axios.create(newConfig)
-  
+
 //     newAxiosInstance.interceptors.request.use((config) => {
 //       config.headers.common['Authorization'] = `Bearer ${global.AuthorizationToken}`;
 //       return config;
@@ -116,17 +107,15 @@ export const useAxios = create<IAxiosState>()((set) => ({
 //             statusCode: 401
 //           }))
 //         }
-        
+
 //         return Promise.reject(error);
 //       }
 //     );
-    
+
 //     set((state) => ({
 //       axiosInstance: newAxiosInstance,
 //     }))
 //   }
 // }));
-
-
 
 // export default useAxios;

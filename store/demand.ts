@@ -1,12 +1,12 @@
 import { create } from "zustand";
 
 export interface TDemand {
-  id: number;
+  id: string;
   created_time: string;
   English: string;
   Chinese: string;
   demandRole: string;
-  userId: number;
+  userId: string;
 }
 
 interface IDemandState {

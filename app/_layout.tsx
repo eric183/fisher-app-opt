@@ -1,4 +1,6 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import {
   DarkTheme,
   DefaultTheme,
@@ -34,6 +36,7 @@ import isJSON from "../utils/isJSON";
 import { io } from "socket.io-client";
 import useWS, { useWStore } from "../hooks/ws";
 import RootLayoutNav from "../components/RootLayoutNav";
+import { createStore } from "zustand";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -61,6 +64,12 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
+  const createStore = async () => {
+    // const storage = await AsyncStorage.getItem("common-store");
+    // if (!storage) {
+    //   AsyncStorage.setItem("common-store", "");
+    // }
+  };
   // remove user Me
   const currentMatchingDemands = useMemo(
     () => alldemands.filter((d) => d.userId !== user?.id),
@@ -159,16 +168,11 @@ export default function RootLayout() {
   }, [pendingDemand]);
 
   useLayoutEffect(() => {
+    createStore();
     if (!process.env.WEBSOCKET_URL) {
       console.error("No websocket url dettacted!!!");
       return;
     }
-
-    setWebsocket(
-      io(process.env.WEBSOCKET_URL, {
-        transports: ["websocket"],
-      })
-    );
 
     init();
   }, []);
@@ -187,6 +191,19 @@ export default function RootLayout() {
     }
     // signIn();
   }, [loginStatus, instance]);
+
+  useEffect(() => {
+    if (user) {
+      setWebsocket(
+        io(process.env.WEBSOCKET_URL, {
+          transports: ["websocket"],
+          query: {
+            userId: user?.id,
+          },
+        })
+      );
+    }
+  }, [user]);
 
   useEffect(() => {
     if (instance) {

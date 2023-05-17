@@ -15,6 +15,8 @@ export type TUser = {
 export interface TUserState {
   user: TUser | undefined;
   setUser: (u: TUser) => void;
+  toUser: Partial<TUser> | undefined;
+  setToUser: (u: Partial<TUser>) => void;
 }
 // const currentUser = AsyncStorage.getItem("userInfo");
 const useUser = create<TUserState>()((set) => ({
@@ -22,6 +24,13 @@ const useUser = create<TUserState>()((set) => ({
   setUser: (newUser) =>
     set(() => ({
       user: newUser,
+    })),
+
+  // to user
+  toUser: undefined,
+  setToUser: (newUser) =>
+    set(() => ({
+      toUser: newUser,
     })),
 }));
 

@@ -8,13 +8,14 @@ import {
 } from "native-base";
 import { View } from "../components/Themed";
 import useAuth, { IRegister } from "../hooks/auth";
-import { useState } from "react";
-import { useRouter } from "expo-router";
+import { useLayoutEffect, useState } from "react";
+import { useNavigation, useRouter } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const Sign = () => {
   const [siupLoading, setSignLoading] = useState<boolean>(false);
   const [loginLoading, setLoginLoading] = useState<boolean>(false);
-
+  const navigation = useNavigation();
   const { register, signIn, resetPassword } = useAuth();
 
   const [formData, setFormData] = useState<IRegister>({
@@ -65,12 +66,19 @@ const Sign = () => {
     }
   };
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, []);
+
   return (
     <Box alignItems="center" justifyItems="center" className="bg-white">
       <Box w="100%" maxWidth="300px" h="100%" className="mt-32">
         <FormControl isRequired>
-          <Stack mx="4">
-            <FormControl.Label>Email</FormControl.Label>
+          <Box mx="4" flexDir="row" alignItems="center">
+            <MaterialIcons name="mail" size={20} color="#447592" />
+
             <Input
               type="text"
               placeholder="email"
@@ -82,17 +90,14 @@ const Sign = () => {
                 }));
               }}
             />
-            <FormControl.HelperText>
-              Must be atleast 6 characters.
-            </FormControl.HelperText>
-            <FormControl.ErrorMessage
-              leftIcon={<WarningOutlineIcon size="xs" />}
-            >
-              Atleast 6 characters are required.
-            </FormControl.ErrorMessage>
-          </Stack>
-          <Stack mx="4">
-            <FormControl.Label>Password</FormControl.Label>
+          </Box>
+          <Box
+            mx="4"
+            flexDir="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <MaterialIcons name="lock" size={20} color="#447592" />
             <Input
               type="password"
               defaultValue="12345"
@@ -105,15 +110,15 @@ const Sign = () => {
                 }));
               }}
             />
-            <FormControl.HelperText>
+            {/* <FormControl.HelperText>
               Must be atleast 6 characters.
             </FormControl.HelperText>
             <FormControl.ErrorMessage
               leftIcon={<WarningOutlineIcon size="xs" />}
             >
               Atleast 6 characters are required.
-            </FormControl.ErrorMessage>
-          </Stack>
+            </FormControl.ErrorMessage> */}
+          </Box>
 
           <View className="flex flex-row justify-around bg-transparent mt-4">
             <Button isLoading={siupLoading} onPress={signUpForm}>

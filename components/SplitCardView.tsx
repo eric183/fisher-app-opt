@@ -10,7 +10,6 @@ interface ISplitCardViewBottom {
 
 const SplitCardViewBottom: FC<ISplitCardViewBottom> = (props) => {
   const defaultClass = `w-full rounded-t-3xl overflow-hidden p-0 bg-transparent bg-[#F2F5FA] -top-5 ${props.classname}`;
-  // const defaultClass = `w-full rounded-t-3xl overflow-hidden p-0 bg-transparent bg-red ${props.classname}`;
 
   const height = props.height ? props.height : "80%";
   return (

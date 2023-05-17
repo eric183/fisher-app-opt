@@ -16,6 +16,9 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { create } from "zustand";
 import useUser, { TUser } from "../store/user";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { InterfaceScrollViewProps } from "native-base/lib/typescript/components/basic/ScrollView/types";
+import { useWStore } from "../hooks/ws";
+import useCommonStore from "../store/common";
 
 export interface IChat {
   content: string;
@@ -43,14 +46,37 @@ const chatStore = create<{
 const Chat = () => {
   const navigation = useNavigation();
   const inputRef = useRef<TextInput>(null!);
+  const scrollViewRef = useRef<any>(null!);
   const { chatList, setChatList } = chatStore();
-  const { user } = useUser();
+  const { user, toUser } = useUser();
+  const router = useRouter();
+  const { ws } = useWStore();
+  const { chatDemand } = useCommonStore();
+  const requestForChat = () => {
+    if (user && chatDemand?.userId) {
+      ws?.emit("startChat", {
+        fromUserId: user?.id,
+        toUserId: chatDemand?.userId,
+        demandId: chatDemand.id,
+        message: "请求聊天",
+        type: "demand",
+      });
+      return;
+    }
+
+    throw new Error("user not exsit");
+  };
+
   useEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
   }, []);
-  console.log(chatList);
+
+  useEffect(() => {
+    requestForChat();
+  }, [toUser]);
+
   const sendMessage = () => {
     const context = inputRef.current.context as string;
 
@@ -59,16 +85,34 @@ const Chat = () => {
         content: context,
         user: user as TUser,
       });
+
+      scrollViewRef.current.scrollToEnd();
     }
   };
 
   return (
-    <Box safeAreaTop className="flex-1">
-      <View className="flex bg-[#49809F] justify-center h-[20%]">
+    <Box className="flex-1">
+      {/* <Box safeAreaTop className="flex-1"> */}
+
+      <View className="flex bg-[#49809F] justify-center h-[20%] pt-3">
+        <Pressable onPress={() => router.back()}>
+          <View className="left-5 top-18 absolute w-10 h-10">
+            <MaterialIcons
+              // className="left12 top-12 absolute"
+              name="arrow-back-ios"
+              size={33}
+              color="#fff"
+            />
+          </View>
+        </Pressable>
         <AvartarCard classname="ml-16" />
       </View>
-      <SplitCardViewBottom classname="px-6 pt-12 pb-32 bg-[#F2F5FA] overflow-hidden">
-        <ScrollView className="h-full flex-1 flex flex-col">
+      <SplitCardViewBottom
+        classname="px-6 pt-12 pb-2 bg-[#F2F5FA] overflow-hidden"
+        // classname="px-6 pt-12 pb-2 bg-red-800 overflow-hidden"
+        height={"70%"}
+      >
+        <ScrollView className="h-full flex flex-col" ref={scrollViewRef}>
           {chatList.map((chat, index) => (
             <ChatCard {...chat} mineUser={user} key={index} />
           ))}
@@ -85,9 +129,9 @@ const Chat = () => {
           placeholder="Type a message"
           placeholderTextColor="#e3eef0"
           onChangeText={(text) => (inputRef.current.context = text)}
-          className="w-[78%] relative z-50 bg-[#e3eef0] h-14 pl-3 px-4 py-2 rounded-3xl border-none focus:outline-none focus:border-blue-500"
+          className="w-[60%] relative z-50 bg-[#e3eef0] h-10 pl-3 px-4 py-2 rounded-3xl border-none focus:outline-none focus:border-blue-500 mx-5"
         />
-        <Pressable className="-rotate-45 mr-2" onPress={sendMessage}>
+        <Pressable className="-rotate-45 mr-2 -mt-3" onPress={sendMessage}>
           <MaterialIcons name="send" size={35} color="#447592"></MaterialIcons>
         </Pressable>
       </Box>
