@@ -7,6 +7,10 @@ export interface TDemand {
   Chinese: string;
   demandRole: string;
   userId: string;
+  image?: string;
+  title: string;
+  place?: string;
+  status: "CLOSED" | "OPEN" | "PENDING" | "COMPLETED";
 }
 
 interface IDemandState {

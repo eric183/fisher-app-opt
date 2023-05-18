@@ -23,7 +23,7 @@ export default function MatchHistory() {
       <SplitCardViewBottom classname="px-6 bg-red pt-4" height={"75%"}>
         <TextInput
           className="drop-shadow-xl rounded-3xl bg-[#e3eef0] py-3 px-3 text-[#447592]"
-          placeholder="Search for name"
+          placeholder="Search for task"
         />
 
         <ScrollView className="pt-4">

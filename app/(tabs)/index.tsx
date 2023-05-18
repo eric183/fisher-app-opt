@@ -80,10 +80,7 @@ export default function Index() {
             .filter((_demand) => _demand.userId !== user?.id)
             .map((demand, index) => (
               <Pressable key={index} onPress={() => goChat(demand)}>
-                <DemandCard
-                  desc={demand.Chinese}
-                  image={"https://picsum.photos/200/300"}
-                />
+                <DemandCard desc={demand.Chinese} image={demand.image} />
               </Pressable>
             ))}
         </ScrollView>

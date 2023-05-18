@@ -65,7 +65,7 @@ const useWS = () => {
     console.log("coming", data);
 
     const _finder = requestUsersWithChats.some(
-      (c) => c.user.id === data.fromUserId && c.user.id === data.fromUserId
+      (c) => c.user.id === data.fromUserId
     );
 
     // router.push("/chat");

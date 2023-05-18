@@ -8,14 +8,15 @@ import {
   TextInput,
 } from "react-native";
 import Colors from "../constants/Colors";
-import { useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import useDemandState, { TDemand } from "../store/demand";
 import { gptAPI } from "../utils/gpt";
 import { useAxios } from "../store/axios";
 import useUser, { TUser } from "../store/user";
-import { Box, Stack, TextArea, Button } from "native-base";
+import { Box, Stack, TextArea, Button, Image } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
+import uploadPhoto from "../utils/upload";
 
 const AddDemandTab = ({ children, onPress }: any) => {
   const { user, setUser } = useUser();
@@ -69,9 +70,13 @@ const AddDemandTab = ({ children, onPress }: any) => {
     }
   };
 
-  const postGPTAPI = async ({ nativeEvent }: any) => {
+  const postGPTAPI = async (
+    text: string,
+    title: string,
+    image: string
+  ): Promise<TDemand | undefined> => {
     // console.log(inputRef.current?.props);
-    const { text } = nativeEvent;
+    // const { text } = nativeEvent;
 
     // setDemand(text);
     // setFetching(true);
@@ -96,13 +101,15 @@ const AddDemandTab = ({ children, onPress }: any) => {
         setDemandStatus("Registed");
 
         const _demand = {
+          title,
+          image,
+          status: "OPEN",
           ...requestData,
           userId: user?.id,
         } as TDemand;
 
-        if (_demand.Chinese.trim() && _demand.English.trim()) {
-          await createDemand(_demand);
-        }
+        await createDemand(_demand);
+        return _demand;
       } catch (error) {
         setFetching(false);
 
@@ -115,7 +122,7 @@ const AddDemandTab = ({ children, onPress }: any) => {
     console.log(demandInfo, "demandInfo");
     const response = await instance?.post("/demand/create", demandInfo);
     await getAllSelfDemands();
-    console.log(response, "!@@@@");
+    onClose();
   };
 
   const getAllSelfDemands = async () => {
@@ -135,13 +142,19 @@ const AddDemandTab = ({ children, onPress }: any) => {
       ""
     )}`;
 
+  const onClose = () => {
+    setOpen(false);
+  };
+
   const openClass =
     "absolute h-screen w-full top-[-75vh] rounded-t-3xl bg-red-300 z-10";
   const unOpenClass =
     "relative w-[64px] h-[64px] bg-[#ff904b] !rounded-t-none rounded-full top-[-40]";
   return (
     <Pressable
-      className={`flex ${open ? openClass : unOpenClass} transition-all`}
+      className={`flex transition ease-in-out delay-150 ${
+        open ? openClass : unOpenClass
+      }`}
       onPress={() => {
         // setModalVisible(true);
         setOpen(true);
@@ -149,9 +162,16 @@ const AddDemandTab = ({ children, onPress }: any) => {
     >
       {!open ? children : null}
 
-      {open ? <AddDemandForm setOpen={setOpen} /> : null}
+      {open ? (
+        <AddDemandForm
+          setOpen={setOpen}
+          postGPTAPI={postGPTAPI}
+          createDemand={createDemand}
+          onClose={onClose}
+        />
+      ) : null}
 
-      <Modal visible={modalVisible} animationType={"fade"} transparent={true}>
+      {/* <Modal visible={modalVisible} animationType={"fade"} transparent={true}>
         <View style={styles.modal}>
           <TouchableHighlight
             style={styles.modalOverlay}
@@ -171,16 +191,43 @@ const AddDemandTab = ({ children, onPress }: any) => {
             </View>
           </View>
         </View>
-      </Modal>
+      </Modal> */}
     </Pressable>
   );
 };
 
-const AddDemandForm = ({ setOpen }: { setOpen: (arg: boolean) => void }) => {
+const AddDemandForm: FC<{
+  createDemand: (arg: TDemand) => void;
+  postGPTAPI: (
+    demandText: string,
+    title: string,
+    imageUrl: string
+  ) => Promise<TDemand | undefined>;
+  setOpen: (arg: boolean) => void;
+  onClose: () => void;
+}> = ({ setOpen, postGPTAPI, createDemand, onClose }) => {
+  const titleRef = useRef<TextInput>(null!);
+  const textAreaRef = useRef<TextInput>(null!);
+  const [imageUrl, setImageUrl] = useState<string>("");
   const closeAdd = () => {
     setOpen(false);
   };
+  const onUploadImage = async () => {
+    const document = await uploadPhoto();
+    if (document?.url) {
+      setImageUrl(document?.url);
+    }
+  };
 
+  const uploadDemand = async () => {
+    const title = titleRef.current.context as string;
+    const demandText = textAreaRef.current.context as string;
+    await postGPTAPI(demandText, title, imageUrl);
+
+    // if (_demand.Chinese.trim() && _demand.English.trim()) {
+    //   await createDemand(_demand);
+    // }
+  };
   return (
     <Box className="w-full h-full bg-[#f2f5fa] rounded-t-3xl pt-5 px-8">
       <Box className="">
@@ -191,6 +238,8 @@ const AddDemandForm = ({ setOpen }: { setOpen: (arg: boolean) => void }) => {
         <Stack className="mb-6">
           <Text className="text-2xl mb-2">Title</Text>
           <TextInput
+            ref={titleRef}
+            onChangeText={(text) => (titleRef.current.context = text)}
             className="drop-shadow-xl rounded-xl bg-[#fff] py-3 px-3 text-[#447592]"
             placeholder="Input the title"
           ></TextInput>
@@ -201,22 +250,46 @@ const AddDemandForm = ({ setOpen }: { setOpen: (arg: boolean) => void }) => {
         <Stack className="mb-6">
           <Text className="text-2xl mb-2">Task</Text>
           <TextArea
+            ref={textAreaRef}
             bg="#fff"
             autoCompleteType={undefined}
-            placeholder="Describe your task detail "
+            placeholder="Describe your task detail"
+            onChangeText={(text) => (textAreaRef.current.context = text)}
           ></TextArea>
         </Stack>
         <Stack className="mb-6">
           <Text className="text-2xl mb-2">Image</Text>
-          <View className="bg-white border border-gray-400 border-dashed h-20 flex items-center justify-center">
-            <MaterialIcons name="add" size={50} color="gray"></MaterialIcons>
-          </View>
+          <Pressable onPress={onUploadImage}>
+            <View className="bg-white border border-gray-400 border-dashed h-20 flex items-center justify-center">
+              {imageUrl ? (
+                <Image
+                  w="full"
+                  h="full"
+                  source={{
+                    uri: imageUrl,
+                  }}
+                  alt="Demand Image"
+                />
+              ) : (
+                <MaterialIcons
+                  name="add"
+                  size={50}
+                  color="gray"
+                ></MaterialIcons>
+              )}
+            </View>
+          </Pressable>
         </Stack>
       </Box>
 
       <Stack direction="row" justifyContent="space-between">
-        <Button className="w-[45%] py-4 rounded-xl bg-[#44759]">Cancel</Button>
-        <Button className="w-[45%] py-4 rounded-xl bg-[#FF904B]">
+        <Button className="w-[45%] py-4 rounded-xl" onPress={onClose}>
+          Cancel
+        </Button>
+        <Button
+          className="w-[45%] py-4 rounded-xl bg-[#FF904B]"
+          onPress={uploadDemand}
+        >
           Confirm
         </Button>
       </Stack>

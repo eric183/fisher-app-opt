@@ -15,6 +15,7 @@ export default function ChatHistory() {
   const alldemands = useDemands((state) => state.alldemands);
   const { user } = useUser();
   const { contacts, requestUsersWithChats } = useCommonStore();
+  console.log(requestUsersWithChats, "users!!!");
   return (
     <Box className="h-full">
       <View className="flex flex-1 bg-[#49809F] justify-center pt-3">

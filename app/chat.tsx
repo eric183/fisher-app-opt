@@ -128,6 +128,7 @@ const Chat = () => {
       // scrollViewRef.current.scrollToEnd();
     }
   };
+  console.log(JSON.stringify(chatList), "list");
 
   return (
     <Box className="flex-1">

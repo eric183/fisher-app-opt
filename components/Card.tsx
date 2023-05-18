@@ -20,7 +20,7 @@ import { TextInput } from "react-native";
 import useRequest from "../hooks/request";
 
 export interface IDemandCard {
-  image: string;
+  image?: string;
   title?: string;
   desc: string;
 }
@@ -56,15 +56,19 @@ export const AvartarCard: FC<{
   return (
     <Box className={`flex flex-row ${classname}`}>
       <Pressable onPress={props.onUploadPhoto}>
-        <Image
-          className="mr-4 rounded-md"
-          source={{
-            uri: _user?.avatar,
-          }}
-          w={16}
-          h={16}
-          alt="avatar"
-        />
+        {_user?.avatar ? (
+          <Image
+            className="mr-4 rounded-md"
+            source={{
+              uri: _user?.avatar,
+            }}
+            w={16}
+            h={16}
+            alt="avatar"
+          />
+        ) : (
+          <View className="mr-4 w-12 h-12 border border-gray-400 border-dashed rounded-md"></View>
+        )}
       </Pressable>
       <VStack>
         <Pressable
@@ -131,16 +135,16 @@ export const ContactCard: FC<
           <Image
             className="mr-4 rounded-md"
             source={{
-              uri: _user?.avatar
-                ? _user.avatar
-                : "https://picsum.photos/200/300",
+              uri: props.user.avatar,
             }}
             w={12}
             h={12}
             alt="avatar"
           />
           <Text className="text-black text-base font-extrabold mb-1">
-            {(_user?.username ? _user.username : _user.id)?.slice(0, 5)}
+            {props.user?.username
+              ? props.user.username
+              : props.user.id?.slice(0, 5)}
           </Text>
         </VStack>
         <VStack className="flex-shrink-0">
@@ -174,8 +178,14 @@ export const ChatCard: FC<
     mineUser?: TUser;
   }
 > = (props) => {
+  const { requestUsersWithChats } = useCommonStore();
   if (!props.mineUser) return null;
   const isMeMySelf = isMe(props.user as TUser, props.mineUser);
+
+  const toUser = {
+    ...requestUsersWithChats.find((x) => props.user.id === x.user.id),
+  };
+
   return (
     <Stack
       className="flex-shrink-0 h-20 mt-3"
@@ -185,15 +195,12 @@ export const ChatCard: FC<
       justifyContent={isMeMySelf ? "flex-end" : "flex-start"}
     >
       <Image
-        // className=""
         rounded="2xl"
         className={`flex-shrink-0 w-[72px] h-[72px] ${
           isMeMySelf ? "ml-4" : "mr-4"
         }`}
         source={{
-          uri: props.user.avatar
-            ? props.user.avatar
-            : "https://picsum.photos/200/300",
+          uri: isMeMySelf ? props?.user?.avatar : toUser.user?.avatar,
         }}
         alt="left"
       />
