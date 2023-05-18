@@ -17,6 +17,8 @@ declare global {
     interface ProcessEnv {
       API_BASE: string;
       WEBSOCKET_URL: string;
+      SANITY_URL: string;
+      SANITY_TOKEN: string;
     }
   }
 }
