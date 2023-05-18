@@ -89,7 +89,7 @@ const Chat = () => {
 
   useEffect(() => {
     const [stackId, _chatList] = getStackIdWidthList();
-    console.log(chatStack, "chatStack");
+
     console.log(_chatList, "adjasflksjdflJ ");
     setChatList([..._chatList]);
 
