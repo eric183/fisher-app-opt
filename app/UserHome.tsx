@@ -13,6 +13,7 @@ import {
 import { useAxios } from "../store/axios";
 import useDemands, { TDemand } from "../store/demand";
 import useUser from "../store/user";
+import useRequest from "../hooks/request";
 
 const ProfileHeader = ({ profile }: any) => {
   const { user, setUser } = useUser();
@@ -56,7 +57,6 @@ const ProfileHeader = ({ profile }: any) => {
     });
   };
 
-  console.log(user?.demands);
   return (
     <Box style={styles.profileHeader} safeAreaTop>
       <TouchableHighlight>

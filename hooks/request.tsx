@@ -25,7 +25,37 @@ const useRequest = () => {
     await instance?.get(`user/`);
   };
 
-  return { getUser };
+  const updateUsername = async (username: string) => {
+    setUser({
+      ...user,
+      username,
+    } as TUser);
+
+    return await instance?.patch(`/users/${user?.id}/usename`, {
+      username,
+    });
+  };
+
+  const updateUserAvatar = async (avatar: string) => {
+    setUser({
+      ...user,
+      avatar,
+    } as TUser);
+    return await instance?.patch(`/users/${user?.id}/avatar`, {
+      avatar,
+    });
+  };
+
+  // const usernameBinder = async ({ nativeEvent }: any) => {
+  //   setShowTextInput(false);
+  //   console.log(nativeEvent.text);
+
+  //   instance?.patch(`/users/${user?.id}/usename`, {
+  //     username: nativeEvent.text,
+  //   });
+  // };
+
+  return { getUser, updateUsername, updateUserAvatar };
 };
 
 export default useRequest;

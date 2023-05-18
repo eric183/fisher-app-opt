@@ -1,6 +1,12 @@
-import { StyleSheet, TextInput } from "react-native";
-
-import { Modal, Pressable, Text, TouchableHighlight, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  Text,
+  TouchableHighlight,
+  View,
+  StyleSheet,
+  TextInput,
+} from "react-native";
 import Colors from "../constants/Colors";
 import { useRef, useState } from "react";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -8,6 +14,8 @@ import useDemandState, { TDemand } from "../store/demand";
 import { gptAPI } from "../utils/gpt";
 import { useAxios } from "../store/axios";
 import useUser, { TUser } from "../store/user";
+import { Box, Stack, TextArea, Button } from "native-base";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const AddDemandTab = ({ children, onPress }: any) => {
   const { user, setUser } = useUser();
@@ -16,7 +24,7 @@ const AddDemandTab = ({ children, onPress }: any) => {
   const [fetching, setFetching] = useState<boolean>(false);
   // const [demandStatus, setDemandStatus] = useState<TDemandStatus>("IDLE")
   const { instance } = useAxios();
-
+  const [open, setOpen] = useState<boolean>(false);
   const {
     demandStatus,
     setDemandStatus,
@@ -127,14 +135,21 @@ const AddDemandTab = ({ children, onPress }: any) => {
       ""
     )}`;
 
+  const openClass =
+    "absolute h-screen w-full top-[-75vh] rounded-t-3xl bg-red-300 z-10";
+  const unOpenClass =
+    "relative w-[64px] h-[64px] bg-[#ff904b] !rounded-t-none rounded-full top-[-40]";
   return (
     <Pressable
-      className="flex w-[64px] h-[64px] rounded-full bg-[#ff904b] top-[-40]"
+      className={`flex ${open ? openClass : unOpenClass} transition-all`}
       onPress={() => {
-        setModalVisible(true);
+        // setModalVisible(true);
+        setOpen(true);
       }}
     >
-      {children}
+      {!open ? children : null}
+
+      {open ? <AddDemandForm setOpen={setOpen} /> : null}
 
       <Modal visible={modalVisible} animationType={"fade"} transparent={true}>
         <View style={styles.modal}>
@@ -158,6 +173,54 @@ const AddDemandTab = ({ children, onPress }: any) => {
         </View>
       </Modal>
     </Pressable>
+  );
+};
+
+const AddDemandForm = ({ setOpen }: { setOpen: (arg: boolean) => void }) => {
+  const closeAdd = () => {
+    setOpen(false);
+  };
+
+  return (
+    <Box className="w-full h-full bg-[#f2f5fa] rounded-t-3xl pt-5 px-8">
+      <Box className="">
+        <Text className="text-center text-3xl font-extrabold mb-4">
+          New Task
+        </Text>
+
+        <Stack className="mb-6">
+          <Text className="text-2xl mb-2">Title</Text>
+          <TextInput
+            className="drop-shadow-xl rounded-xl bg-[#fff] py-3 px-3 text-[#447592]"
+            placeholder="Input the title"
+          ></TextInput>
+        </Stack>
+        {/* <Stack>
+          <Text>Area</Text>
+        </Stack> */}
+        <Stack className="mb-6">
+          <Text className="text-2xl mb-2">Task</Text>
+          <TextArea
+            bg="#fff"
+            autoCompleteType={undefined}
+            placeholder="Describe your task detail "
+          ></TextArea>
+        </Stack>
+        <Stack className="mb-6">
+          <Text className="text-2xl mb-2">Image</Text>
+          <View className="bg-white border border-gray-400 border-dashed h-20 flex items-center justify-center">
+            <MaterialIcons name="add" size={50} color="gray"></MaterialIcons>
+          </View>
+        </Stack>
+      </Box>
+
+      <Stack direction="row" justifyContent="space-between">
+        <Button className="w-[45%] py-4 rounded-xl bg-[#44759]">Cancel</Button>
+        <Button className="w-[45%] py-4 rounded-xl bg-[#FF904B]">
+          Confirm
+        </Button>
+      </Stack>
+    </Box>
   );
 };
 

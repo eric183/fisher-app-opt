@@ -13,11 +13,9 @@ import useCommonStore from "../../store/common";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SanityUploader } from "sanity-uploader";
 
-import { sanityClient } from "../..";
-import * as FileSystem from "expo-file-system";
 import { useAxios } from "../../store/axios";
-import axios from "axios";
 import uploadPhoto from "../../utils/upload";
+import useRequest from "../../hooks/request";
 
 // import { createReadStream } from "fs";
 
@@ -28,6 +26,7 @@ export default function Index() {
   const { user } = useUser();
   const router = useRouter();
   const { init, instance, loginStatus } = useAxios();
+  const { updateUserAvatar } = useRequest();
 
   const goChat = (_demand: TDemand) => {
     setChatInfo({
@@ -39,28 +38,30 @@ export default function Index() {
     router.push("chat");
   };
 
-  const convertBlobToBase64 = (blob) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = reject;
-      reader.onload = () => {
-        resolve(reader.result);
-      };
-      reader.readAsDataURL(blob);
-    });
-
   const onUploadPhoto = async () => {
     const document = await uploadPhoto();
     console.log(document?.url, "!!!");
+
+    if (document?.url) {
+      await updateUserAvatar(document.url);
+    }
   };
+
   return (
     <Box className="h-full">
       <View className="flex flex-1 bg-[#49809F] justify-center pt-3">
-        <Pressable className="handleChoosePhoto" onPress={onUploadPhoto}>
-          <AvartarCard classname="ml-12" />
-        </Pressable>
+        <AvartarCard classname="ml-12" onUploadPhoto={onUploadPhoto} />
         <Button
-          className="absolute w-30 height-10 right-10 top-20"
+          className="absolute w-30 height-10 right-44 top-32"
+          onPress={() => {
+            router.push("/sign");
+            // alert("clear!!");
+          }}
+        >
+          切换用户 - 调试
+        </Button>
+        <Button
+          className="absolute w-30 height-10 right-10 top-32"
           onPress={() => {
             AsyncStorage.clear();
             Alert.alert("clear!!");

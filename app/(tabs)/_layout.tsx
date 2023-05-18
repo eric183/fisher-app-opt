@@ -46,6 +46,27 @@ export default function TabLayout() {
           headerShown: false,
         }}
       />
+      <Tabs.Screen
+        name="MatchHistory"
+        options={{
+          ...common_tab_style,
+          tabBarIcon: ({ color, focused }) =>
+            focused ? (
+              <MaterialIcons
+                name="source"
+                size={28}
+                color="#447592"
+              ></MaterialIcons>
+            ) : (
+              <MaterialIcons
+                name="source"
+                size={28}
+                color="#999"
+              ></MaterialIcons>
+            ),
+          headerShown: false,
+        }}
+      />
 
       <Tabs.Screen
         name="AddDemand"
@@ -56,6 +77,38 @@ export default function TabLayout() {
             <MaterialIcons name="add" size={35} color="#fff"></MaterialIcons>
           ),
           headerShown: false,
+        }}
+      />
+
+      <Tabs.Screen
+        name="ChatHistory"
+        options={{
+          ...common_tab_style,
+          tabBarIcon: ({ color, focused }) =>
+            focused ? (
+              <MaterialIcons
+                name="chat"
+                size={28}
+                color="#447592"
+              ></MaterialIcons>
+            ) : (
+              <MaterialIcons name="chat" size={28} color="#999"></MaterialIcons>
+            ),
+          headerShown: false,
+          headerRight: () => (
+            <Link href="/sign" asChild>
+              <Pressable>
+                {({ pressed }) => (
+                  <FontAwesome
+                    name="info-circle"
+                    size={25}
+                    color="#447592"
+                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </Link>
+          ),
         }}
       />
 

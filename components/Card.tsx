@@ -8,7 +8,7 @@ import {
   Stack,
 } from "native-base";
 import { Text } from "./Themed";
-import { FC } from "react";
+import { FC, useRef, useState } from "react";
 import useUser, { TUser } from "../store/user";
 import { useRouter } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -16,6 +16,8 @@ import isMe from "../utils/isMe";
 import { MaterialIcons } from "@expo/vector-icons";
 import useCommonStore, { TRequestChat } from "../store/common";
 import { IChat } from "../store/chat";
+import { TextInput } from "react-native";
+import useRequest from "../hooks/request";
 
 export interface IDemandCard {
   image: string;
@@ -28,7 +30,13 @@ export const AvartarCard: FC<{
   username?: string;
   mode?: string;
   classname?: string;
+  onUploadPhoto?: () => void;
+  onChangeName?: () => void;
 }> = (props) => {
+  const inputRef = useRef<TextInput>(null!);
+  const nameInput = useRef<TextInput>(null!);
+  const [showTextInput, setShowTextInput] = useState<boolean>(false);
+  const { updateUsername } = useRequest();
   const router = useRouter();
   const { classname } = props;
 
@@ -39,26 +47,51 @@ export const AvartarCard: FC<{
     ...props,
   };
 
+  const usernameBinder = async ({ nativeEvent }: any) => {
+    setShowTextInput(false);
+
+    updateUsername(nativeEvent.text);
+  };
+
   return (
     <Box className={`flex flex-row ${classname}`}>
-      <Image
-        className="mr-4 rounded-md"
-        source={{
-          uri: _user?.avatar ? _user.avatar : "https://picsum.photos/200/300",
-        }}
-        w={16}
-        h={16}
-        alt="avatar"
-      />
+      <Pressable onPress={props.onUploadPhoto}>
+        <Image
+          className="mr-4 rounded-md"
+          source={{
+            uri: _user?.avatar,
+          }}
+          w={16}
+          h={16}
+          alt="avatar"
+        />
+      </Pressable>
       <VStack>
-        <Pressable onPress={() => router.push("/sign")}>
-          <Text className="text-white text-base font-extrabold mb-1">
+        <Pressable
+          onPress={() => {
+            setTimeout(() => {
+              nameInput?.current?.focus();
+            }, 0);
+            setShowTextInput(true);
+          }}
+        >
+          <Text
+            className={`${
+              showTextInput ? "hidden" : "visible"
+            } text-white text-base font-extrabold mb-1`}
+          >
             {_user?.username ? _user.username : _user.id}
           </Text>
-          <Text className="text-white">
-            {props.mode ? props.mode : "工作模式"}
-          </Text>
         </Pressable>
+        <TextInput
+          ref={nameInput}
+          className={`${showTextInput ? "visible" : "hidden"} text-white`}
+          defaultValue={user?.username ? user.username : user?.id.toString()}
+          onSubmitEditing={usernameBinder}
+        ></TextInput>
+        <Text className="text-white">
+          {props.mode ? props.mode : "工作模式"}
+        </Text>
       </VStack>
     </Box>
   );
