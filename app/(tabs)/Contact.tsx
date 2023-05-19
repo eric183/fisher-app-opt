@@ -30,10 +30,6 @@ export default function Contact() {
           {requestUsersWithChats.map((_requestChat, index) => (
             <ContactCard key={index} {..._requestChat} />
           ))}
-
-          {/* {contacts.map((demand, index) => (
-            <ContactCard key={index} />
-          ))} */}
         </ScrollView>
       </SplitCardViewBottom>
     </Box>

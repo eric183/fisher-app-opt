@@ -22,19 +22,14 @@ import useRequest from "../../hooks/request";
 export default function Index() {
   const demand = useIndexState((state) => state.demand);
   const alldemands = useDemands((state) => state.alldemands);
-  const { setChatInfo } = useCommonStore();
+
   const { user } = useUser();
   const router = useRouter();
   const { init, instance, loginStatus } = useAxios();
-  const { updateUserAvatar } = useRequest();
+  const { updateUserAvatar, startChat } = useRequest();
 
-  const goChat = (_demand: TDemand) => {
-    setChatInfo({
-      user: { id: _demand.userId },
-      message: "string",
-      demandId: _demand.id,
-      type: "demand",
-    });
+  const goChat = async (_demand: TDemand) => {
+    await startChat(_demand, "请求聊天");
     router.push("chat");
   };
 
@@ -73,11 +68,11 @@ export default function Index() {
       </View>
       <SplitCardViewBottom classname="px-6" height={"75%"}>
         <Text className="title" style={styles.taskTitle}>
-          任务列表
+          Task List
         </Text>
         <ScrollView>
           {alldemands
-            .filter((_demand) => _demand.userId !== user?.id)
+            .filter((_demand) => _demand.userId === user?.id)
             .map((demand, index) => (
               <Pressable key={index} onPress={() => goChat(demand)}>
                 <DemandCard desc={demand.Chinese} image={demand.image} />

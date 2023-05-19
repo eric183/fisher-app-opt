@@ -4,18 +4,26 @@ import EditScreenInfo from "../../components/EditScreenInfo";
 import { Text } from "../../components/Themed";
 import useIndexState from "../../store";
 import useDemands from "../../store/demand";
-import useUser from "../../store/user";
+import useUser, { TUser } from "../../store/user";
 import { Box, Input, View } from "native-base";
 import { SplitCardViewBottom } from "../../components/SplitCardView";
 import { AvartarCard, ContactCard, DemandCard } from "../../components/Card";
 import useCommonStore from "../../store/common";
+import { chatStore } from "../../store/chat";
 
 export default function ChatHistory() {
   const demand = useIndexState((state) => state.demand);
   const alldemands = useDemands((state) => state.alldemands);
   const { user } = useUser();
   const { contacts, requestUsersWithChats } = useCommonStore();
-  console.log(requestUsersWithChats, "users!!!");
+
+  const { chatStack } = chatStore();
+
+  console.log(requestUsersWithChats);
+  // console.log(chatStack);
+
+  // Object.entries(chatStack)
+
   return (
     <Box className="h-full">
       <View className="flex flex-1 bg-[#49809F] justify-center pt-3">
@@ -28,9 +36,26 @@ export default function ChatHistory() {
         />
 
         <ScrollView className="pt-4">
-          {requestUsersWithChats.map((_requestChat, index) => (
-            <ContactCard key={index} {..._requestChat} />
-          ))}
+          {/* {requestUsersWithChats.map((_requestChat, index) => { */}
+          {Object.entries(chatStack).map((_requestChat: any, index) => {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const historyUser = requestUsersWithChats.find((_c) =>
+              _requestChat[0].includes(_c.user.id as string)
+            )!;
+            const toUserChats = _requestChat[1].filter(
+              (u: any) => u.user.id === historyUser.user.id
+            );
+
+            const lastestContent = toUserChats[toUserChats.length - 1];
+
+            const _user = {
+              ...historyUser,
+              content: lastestContent.content,
+            };
+
+            // _requestChat[0].find((chat: string)=> chat.includes())
+            return <ContactCard key={index} {..._user} isChat />;
+          })}
 
           {/* {contacts.map((demand, index) => (
             <ContactCard key={index} />

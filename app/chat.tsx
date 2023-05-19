@@ -60,21 +60,6 @@ const Chat = () => {
 
   // const [, chatList] = getStackIdWidthList();
 
-  const requestForChat = () => {
-    if (user && chatInfo?.user.id) {
-      ws?.emit("startChat", {
-        fromUserId: user?.id,
-        toUserId: chatInfo?.user.id,
-        demandId: chatInfo.demandId,
-        message: "请求聊天",
-        type: "demand",
-      });
-      return;
-    }
-
-    throw new Error("user not exsit");
-  };
-
   useEffect(() => {
     navigation.setOptions({
       headerShown: false,
@@ -84,7 +69,7 @@ const Chat = () => {
   }, []);
 
   useEffect(() => {
-    requestForChat();
+    // requestForChat();
   }, [chatInfo]);
 
   useEffect(() => {
@@ -128,7 +113,6 @@ const Chat = () => {
       // scrollViewRef.current.scrollToEnd();
     }
   };
-  console.log(JSON.stringify(chatList), "list");
 
   return (
     <Box className="flex-1">

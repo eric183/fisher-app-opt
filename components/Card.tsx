@@ -93,9 +93,9 @@ export const AvartarCard: FC<{
           defaultValue={user?.username ? user.username : user?.id.toString()}
           onSubmitEditing={usernameBinder}
         ></TextInput>
-        <Text className="text-white">
+        {/* <Text className="text-white">
           {props.mode ? props.mode : "工作模式"}
-        </Text>
+        </Text> */}
       </VStack>
     </Box>
   );
@@ -104,6 +104,8 @@ export const AvartarCard: FC<{
 export const ContactCard: FC<
   {
     classname?: string;
+    isChat?: boolean;
+    content?: string;
   } & TRequestChat
 > = (props) => {
   const router = useRouter();
@@ -126,6 +128,7 @@ export const ContactCard: FC<
     router.push("chat");
   };
 
+  console.log(props);
   return (
     <Box
       className={`flex flex-row items-center mb-4 border-b border-gray-300 pb-3 justify-between ${classname}`}
@@ -135,17 +138,24 @@ export const ContactCard: FC<
           <Image
             className="mr-4 rounded-md"
             source={{
-              uri: props.user.avatar,
+              uri: props?.user?.avatar,
             }}
             w={12}
             h={12}
             alt="avatar"
           />
-          <Text className="text-black text-base font-extrabold mb-1">
-            {props.user?.username
-              ? props.user.username
-              : props.user.id?.slice(0, 5)}
-          </Text>
+          <View>
+            <Text className="text-black text-base font-extrabold mb-1">
+              {props.user?.username
+                ? props.user.username
+                : props.user.id?.slice(0, 5)}
+            </Text>
+            {props.isChat && (
+              <Text className="text-gray-400 text-sm font-extrabold mb-1">
+                {props.content}
+              </Text>
+            )}
+          </View>
         </VStack>
         <VStack className="flex-shrink-0">
           <MaterialIcons name="sms" color="#447592" size={20}></MaterialIcons>
@@ -167,7 +177,7 @@ export const DemandCard: FC<IDemandCard> = ({ title, image, desc }) => {
       />
       <VStack>
         <Center>{title}</Center>
-        <Center>{desc}</Center>
+        <Text>{desc}</Text>
       </VStack>
     </Box>
   );
