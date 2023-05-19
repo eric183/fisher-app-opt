@@ -173,7 +173,7 @@ export const DemandCard: FC<IDemandCard> = ({ title, image, desc }) => {
         source={{ uri: image }}
         w={62}
         h={62}
-        alt="task image"
+        alt="placeImage"
       />
       <VStack>
         <Center>{title}</Center>

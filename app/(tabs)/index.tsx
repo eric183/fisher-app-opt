@@ -42,6 +42,7 @@ export default function Index() {
     }
   };
 
+  console.log(alldemands);
   return (
     <Box className="h-full">
       <View className="flex flex-1 bg-[#49809F] justify-center pt-3">
@@ -75,7 +76,10 @@ export default function Index() {
             .filter((_demand) => _demand.userId === user?.id)
             .map((demand, index) => (
               <Pressable key={index} onPress={() => goChat(demand)}>
-                <DemandCard desc={demand.Chinese} image={demand.image} />
+                <DemandCard
+                  desc={demand.English.trim() ? demand.English : demand.Chinese}
+                  image={demand.image}
+                />
               </Pressable>
             ))}
         </ScrollView>

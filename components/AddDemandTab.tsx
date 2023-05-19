@@ -6,6 +6,7 @@ import {
   View,
   StyleSheet,
   TextInput,
+  Alert,
 } from "react-native";
 import Colors from "../constants/Colors";
 import { FC, useRef, useState } from "react";
@@ -98,8 +99,6 @@ const AddDemandTab = ({ children, onPress }: any) => {
 
         if (!requestData) return;
 
-        setDemandStatus("Registed");
-
         const _demand = {
           title,
           image,
@@ -109,6 +108,8 @@ const AddDemandTab = ({ children, onPress }: any) => {
         } as TDemand;
 
         await createDemand(_demand);
+        setDemandStatus("Registed");
+        onClose();
         return _demand;
       } catch (error) {
         setFetching(false);
@@ -122,7 +123,6 @@ const AddDemandTab = ({ children, onPress }: any) => {
     console.log(demandInfo, "demandInfo");
     const response = await instance?.post("/demand/create", demandInfo);
     await getAllSelfDemands();
-    onClose();
   };
 
   const getAllSelfDemands = async () => {
@@ -168,6 +168,7 @@ const AddDemandTab = ({ children, onPress }: any) => {
           postGPTAPI={postGPTAPI}
           createDemand={createDemand}
           onClose={onClose}
+          demandStatus={demandStatus}
         />
       ) : null}
 
@@ -198,6 +199,7 @@ const AddDemandTab = ({ children, onPress }: any) => {
 
 const AddDemandForm: FC<{
   createDemand: (arg: TDemand) => void;
+  demandStatus: TDemandStatus;
   postGPTAPI: (
     demandText: string,
     title: string,
@@ -205,7 +207,7 @@ const AddDemandForm: FC<{
   ) => Promise<TDemand | undefined>;
   setOpen: (arg: boolean) => void;
   onClose: () => void;
-}> = ({ setOpen, postGPTAPI, createDemand, onClose }) => {
+}> = ({ setOpen, postGPTAPI, createDemand, onClose, demandStatus }) => {
   const titleRef = useRef<TextInput>(null!);
   const textAreaRef = useRef<TextInput>(null!);
   const [imageUrl, setImageUrl] = useState<string>("");
@@ -220,13 +222,25 @@ const AddDemandForm: FC<{
   };
 
   const uploadDemand = async () => {
+    if (demandStatus === "Pending") {
+      Alert.alert("Please hold on~");
+      return;
+    }
+
     const title = titleRef.current.context as string;
     const demandText = textAreaRef.current.context as string;
-    await postGPTAPI(demandText, title, imageUrl);
 
-    // if (_demand.Chinese.trim() && _demand.English.trim()) {
-    //   await createDemand(_demand);
-    // }
+    if (!title || !title.trim()) {
+      Alert.alert("Please input the title");
+      return;
+    }
+
+    if (!demandText || !demandText.trim()) {
+      Alert.alert("Please input the demand");
+      return;
+    }
+
+    await postGPTAPI(demandText, title, imageUrl);
   };
   return (
     <Box className="w-full h-full bg-[#f2f5fa] rounded-t-3xl pt-5 px-8">
@@ -287,10 +301,19 @@ const AddDemandForm: FC<{
           Cancel
         </Button>
         <Button
-          className="w-[45%] py-4 rounded-xl bg-[#FF904B]"
+          className="w-[45%] py-4 rounded-xl bg-[#FF904B] animate-spin"
           onPress={uploadDemand}
         >
-          Confirm
+          {demandStatus === "Pending" ? (
+            <MaterialIcons
+              className="animate-spin"
+              name="rotate-right"
+              size={35}
+              color={"#fff"}
+            ></MaterialIcons>
+          ) : (
+            "Confirm"
+          )}
         </Button>
       </Stack>
     </Box>
