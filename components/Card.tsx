@@ -167,18 +167,25 @@ export const ContactCard: FC<
 
 export const DemandCard: FC<IDemandCard> = ({ title, image, desc }) => {
   return (
-    <Box className="w-full flex flex-row pt-10 pb-6 border-b-2 border-gray-300 bg-[#F2F5FA]">
+    <Box className="w-full flex flex-row pt-10 pb-6 border-b-2 border-gray-300 bg-[#F2F5FA] relative">
       <Image
-        className="mr-2 rounded-md"
+        className="mr-4 rounded-md"
         source={{ uri: image }}
-        w={62}
-        h={62}
+        w={42}
+        h={42}
         alt="placeImage"
       />
       <VStack>
-        <Center>{title}</Center>
-        <Text>{desc}</Text>
+        <Text className="font-extrabold text-base">{title}</Text>
+        <Text className="font-sm text-gray-500">{desc}</Text>
       </VStack>
+      <View className="absolute right-2 top-0 bg-red-400 h-full">
+        <MaterialIcons
+          name="play-circle-fill"
+          color="rgb(107 114 128)"
+          size={22}
+        ></MaterialIcons>
+      </View>
     </Box>
   );
 };

@@ -77,6 +77,7 @@ export default function Index() {
             .map((demand, index) => (
               <Pressable key={index} onPress={() => goChat(demand)}>
                 <DemandCard
+                  title={demand.title}
                   desc={demand.English.trim() ? demand.English : demand.Chinese}
                   image={demand.image}
                 />
