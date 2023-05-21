@@ -88,12 +88,27 @@ const useRequest = () => {
     });
   };
 
+  const updateDemandStatus = async (
+    demandId: string,
+    status: TDemand["status"]
+  ): Promise<TDemand | undefined> => {
+    const response = await instance?.patch<TDemand>(
+      `/demand/${demandId}/status`,
+      {
+        status,
+      }
+    );
+
+    return response?.data;
+  };
+
   return {
     getUser,
     startChat,
     updateUsername,
     updateUserAvatar,
     updateUserContact,
+    updateDemandStatus,
   };
 };
 

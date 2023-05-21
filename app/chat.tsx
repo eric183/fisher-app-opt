@@ -7,6 +7,7 @@ import {
   Stack,
   Input,
   Pressable,
+  KeyboardAvoidingView,
 } from "native-base";
 import { AvartarCard, ChatCard } from "../components/Card";
 import { useNavigation, useRouter } from "expo-router";
@@ -75,7 +76,6 @@ const Chat = () => {
   useEffect(() => {
     const [stackId, _chatList] = getStackIdWidthList();
 
-    console.log(_chatList, "adjasflksjdflJ ");
     setChatList([..._chatList]);
 
     setTimeout(() => {
@@ -143,7 +143,28 @@ const Chat = () => {
         </ScrollView>
       </SplitCardViewBottom>
 
-      <Box className="w-full h-[12%] bg-white rounded-t-3xl absolute bottom-0 flex flex-row items-center justify-between px-[28px]">
+      <KeyboardAvoidingView
+        // h={{
+        //   base: "880px",
+        //   lg: "880px",
+        // }}
+        contentContainerStyle={{
+          display: "flex",
+          width: "100%",
+          backgroundColor: "#fff",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          paddingLeft: 28,
+          paddingRight: 28,
+          // position: "absolute",
+          // bottom: 0,
+          height: "100%",
+        }}
+        className="w-full h-[12%] bg-white rounded-t-3xl absolute bottom-0 flex flex-row items-center justify-between"
+        behavior={"position"}
+      >
+        {/* <View className="w-full h-[12%] bg-white rounded-t-3xl absolute bottom-0 flex flex-row items-center justify-between px-[28px]"> */}
         <View className="bg-[#447592] rounded-full w-[48px] h-[48px] flex justify-center items-center">
           <MaterialIcons name="add" size={35} color="#fff"></MaterialIcons>
         </View>
@@ -158,7 +179,8 @@ const Chat = () => {
         <Pressable className="-rotate-45 mr-2 -mt-3" onPress={sendMessage}>
           <MaterialIcons name="send" size={35} color="#447592"></MaterialIcons>
         </Pressable>
-      </Box>
+        {/* </View> */}
+      </KeyboardAvoidingView>
     </Box>
   );
 };

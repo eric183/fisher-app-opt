@@ -15,9 +15,10 @@ import useDemandState, { TDemand } from "../store/demand";
 import { gptAPI } from "../utils/gpt";
 import { useAxios } from "../store/axios";
 import useUser, { TUser } from "../store/user";
-import { Box, Stack, TextArea, Button, Image } from "native-base";
+import { Box, Stack, TextArea, Button, Image, Spinner } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import uploadPhoto from "../utils/upload";
+import useRequest from "../hooks/request";
 
 const AddDemandTab = ({ children, onPress }: any) => {
   const { user, setUser } = useUser();
@@ -25,7 +26,7 @@ const AddDemandTab = ({ children, onPress }: any) => {
   const inputRef = useRef<TextInput>(null!);
   const [fetching, setFetching] = useState<boolean>(false);
   // const [demandStatus, setDemandStatus] = useState<TDemandStatus>("IDLE")
-  const { instance } = useAxios();
+  const { createDemand } = useRequest();
   const [open, setOpen] = useState<boolean>(false);
   const {
     demandStatus,
@@ -38,9 +39,13 @@ const AddDemandTab = ({ children, onPress }: any) => {
   const Tasks = [
     `上面字段可以放到如下哪个分类里，并赋值给current_category：["Social","Work","Home","Health","Shopping","Travel","Learning","Entertainment","Transportation","Finance"];`,
     `set demandRole: NEED(means you want something or to hire someone) | SERVER(means you can give or server something or find job) | FREE(other demand like find someone to play together or standup with someone);`,
-    `将上面的数据填充到一下JSON里: { responseItem: { "Chinese": "","English": "", "demandRole": "", "categoryType": current_category }};`,
+    `将上面的数据填充到一下JSON里: { responseItem: { "Chinese": "","English": "", "demandRole": "", "categoryType": current_category }}; 注意*：顶部[]里的字段分别填充在 Chinese 和 English`,
     // `fill the context into: { responseItem: { "Chinese": "","English": "", "demandRole": "", categoryType: "" // ["Social","Work","Home","Health","Shopping","Travel","Learning","Entertainment","Transportation","Finance"] *Strict Match* }};`,
   ];
+
+  const onClose = () => {
+    setOpen(false);
+  };
 
   const getJSONFormatFromGPT = (str: string) => {
     const regex = /{[^{}]*}/g; // 匹配 {} 中的内容
@@ -71,19 +76,11 @@ const AddDemandTab = ({ children, onPress }: any) => {
     }
   };
 
-  const postGPTAPI = async (
+  const addDemandBinder = async (
     text: string,
     title: string,
     image: string
   ): Promise<TDemand | undefined> => {
-    // console.log(inputRef.current?.props);
-    // const { text } = nativeEvent;
-
-    // setDemand(text);
-    // setFetching(true);
-    // setModalVisible(false);
-
-    // return;
     setDemandStatus("Pending");
     setModalVisible(false);
     console.log("pedding....");
@@ -119,32 +116,11 @@ const AddDemandTab = ({ children, onPress }: any) => {
     }
   };
 
-  const createDemand = async (demandInfo: TDemand) => {
-    console.log(demandInfo, "demandInfo");
-    const response = await instance?.post("/demand/create", demandInfo);
-    await getAllSelfDemands();
-  };
-
-  const getAllSelfDemands = async () => {
-    const demandResponse = await instance?.get(`/demand/${user?.id}`);
-
-    if (demandResponse?.status === 200) {
-      setUser({
-        ...(user as TUser),
-        demands: demandResponse.data,
-      });
-    }
-  };
-
   const embeddingPrompt = (prompt: string) =>
     `[${prompt}]; ${Tasks.reduce(
       (pre, next, index) => pre + "Task_" + (index + 1) + ":" + next,
       ""
     )}`;
-
-  const onClose = () => {
-    setOpen(false);
-  };
 
   const openClass =
     "absolute h-screen w-full top-[-75vh] rounded-t-3xl bg-red-300 z-10";
@@ -165,49 +141,25 @@ const AddDemandTab = ({ children, onPress }: any) => {
       {open ? (
         <AddDemandForm
           setOpen={setOpen}
-          postGPTAPI={postGPTAPI}
-          createDemand={createDemand}
+          addDemandBinder={addDemandBinder}
           onClose={onClose}
           demandStatus={demandStatus}
         />
       ) : null}
-
-      {/* <Modal visible={modalVisible} animationType={"fade"} transparent={true}>
-        <View style={styles.modal}>
-          <TouchableHighlight
-            style={styles.modalOverlay}
-            onPress={() => setModalVisible(false)}
-          >
-            <View></View>
-          </TouchableHighlight>
-
-          <View style={styles.modalContent}>
-            <View>
-              <TextInput
-                ref={inputRef}
-                onSubmitEditing={postGPTAPI}
-                placeholder="Input your demand"
-                className="relative z-50 bg-white h-8 pl-3 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"
-              ></TextInput>
-            </View>
-          </View>
-        </View>
-      </Modal> */}
     </Pressable>
   );
 };
 
 const AddDemandForm: FC<{
-  createDemand: (arg: TDemand) => void;
   demandStatus: TDemandStatus;
-  postGPTAPI: (
+  addDemandBinder: (
     demandText: string,
     title: string,
     imageUrl: string
   ) => Promise<TDemand | undefined>;
   setOpen: (arg: boolean) => void;
   onClose: () => void;
-}> = ({ setOpen, postGPTAPI, createDemand, onClose, demandStatus }) => {
+}> = ({ setOpen, addDemandBinder, onClose, demandStatus }) => {
   const titleRef = useRef<TextInput>(null!);
   const textAreaRef = useRef<TextInput>(null!);
   const [imageUrl, setImageUrl] = useState<string>("");
@@ -240,7 +192,7 @@ const AddDemandForm: FC<{
       return;
     }
 
-    await postGPTAPI(demandText, title, imageUrl);
+    await addDemandBinder(demandText, title, imageUrl);
   };
   return (
     <Box className="w-full h-full bg-[#f2f5fa] rounded-t-3xl pt-5 px-8">
@@ -274,7 +226,7 @@ const AddDemandForm: FC<{
         <Stack className="mb-6">
           <Text className="text-2xl mb-2">Image</Text>
           <Pressable onPress={onUploadImage}>
-            <View className="bg-white border border-gray-400 border-dashed h-20 flex items-center justify-center">
+            <View className="bg-white border border-gray-400 border-dashed h-20 w-20 flex items-center justify-center">
               {imageUrl ? (
                 <Image
                   w="full"
@@ -305,12 +257,7 @@ const AddDemandForm: FC<{
           onPress={uploadDemand}
         >
           {demandStatus === "Pending" ? (
-            <MaterialIcons
-              className="animate-spin"
-              name="rotate-right"
-              size={35}
-              color={"#fff"}
-            ></MaterialIcons>
+            <Spinner color={"#fff"}></Spinner>
           ) : (
             "Confirm"
           )}

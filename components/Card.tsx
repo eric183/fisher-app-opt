@@ -18,10 +18,11 @@ import useCommonStore, { TRequestChat } from "../store/common";
 import { IChat } from "../store/chat";
 import { TextInput } from "react-native";
 import useRequest from "../hooks/request";
+import useDemands, { TDemand } from "../store/demand";
 
-export interface IDemandCard {
+export interface IDemandCard extends TDemand {
   image?: string;
-  title?: string;
+  title: string;
   desc: string;
 }
 
@@ -165,28 +166,84 @@ export const ContactCard: FC<
   );
 };
 
-export const DemandCard: FC<IDemandCard> = ({ title, image, desc }) => {
+export const DemandCard: FC<IDemandCard> = ({
+  id,
+  title,
+  image,
+  desc,
+  status,
+}) => {
+  const router = useRouter();
+  const { updateDemandStatus } = useRequest();
+  const { setSingleDemand } = useDemands();
+  const goChat = () => {
+    router.push("/chat");
+  };
+
+  const getCategoryImage = () => {
+    return image
+      ? image
+      : "https://cdn.sanity.io/images/9waxcbcw/image/738bd4e8479d91ccb536c4db2f11418abf196340-2756x3640.jpg";
+  };
+
+  const setDemandStatus = async () => {
+    const demand = await updateDemandStatus(
+      id,
+      status === "OPEN" ? "CLOSED" : "OPEN"
+    );
+
+    updateDemandsToAll(demand);
+  };
+
+  const updateDemandsToAll = async (demand?: TDemand) => {
+    if (demand) {
+      setSingleDemand(demand);
+    }
+  };
+
   return (
-    <Box className="w-full flex flex-row pt-10 pb-6 border-b-2 border-gray-300 bg-[#F2F5FA] relative">
-      <Image
-        className="mr-4 rounded-md"
-        source={{ uri: image }}
-        w={42}
-        h={42}
-        alt="placeImage"
-      />
-      <VStack>
-        <Text className="font-extrabold text-base">{title}</Text>
-        <Text className="font-sm text-gray-500">{desc}</Text>
-      </VStack>
-      <View className="absolute right-2 top-0 bg-red-400 h-full">
-        <MaterialIcons
-          name="play-circle-fill"
-          color="rgb(107 114 128)"
-          size={22}
-        ></MaterialIcons>
-      </View>
-    </Box>
+    // <Pressable onPress={goChat}>
+    <Pressable>
+      <Box className="w-full flex flex-row pt-10 pb-6 border-b-2 border-gray-300 bg-[#F2F5FA] relative">
+        <Image
+          className="mr-4 rounded-md"
+          source={{
+            uri: getCategoryImage(),
+          }}
+          w={42}
+          h={42}
+          alt="placeImage"
+        />
+        <VStack>
+          <Text className="font-extrabold text-base text-gray-600">{title}</Text>
+          <Text className="font-sm text-gray-500">{desc}</Text>
+        </VStack>
+        {/* bg-red-400 */}
+
+        <Pressable
+          onPress={setDemandStatus}
+          className="absolute right-2 top-10 h-full flex items-center justify-center w-10"
+        >
+          {/* <Stack> */}
+          {status === "OPEN" && (
+            <MaterialIcons
+              name="pause-circle-filled"
+              color="rgb(107 114 128)"
+              size={22}
+            ></MaterialIcons>
+          )}
+
+          {status !== "OPEN" && (
+            <MaterialIcons
+              name="play-circle-fill"
+              color="rgb(107 114 128)"
+              size={22}
+            ></MaterialIcons>
+          )}
+          {/* </Stack> */}
+        </Pressable>
+      </Box>
+    </Pressable>
   );
 };
 

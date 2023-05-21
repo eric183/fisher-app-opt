@@ -35,14 +35,14 @@ export default function Index() {
 
   const onUploadPhoto = async () => {
     const document = await uploadPhoto();
-    console.log(document?.url, "!!!");
+    // console.log(document?.url, "!!!");
 
     if (document?.url) {
       await updateUserAvatar(document.url);
     }
   };
 
-  console.log(alldemands);
+  // console.log(alldemands);
   return (
     <Box className="h-full">
       <View className="flex flex-1 bg-[#49809F] justify-center pt-3">
@@ -77,6 +77,7 @@ export default function Index() {
             .map((demand, index) => (
               <Pressable key={index} onPress={() => goChat(demand)}>
                 <DemandCard
+                  {...demand}
                   title={demand.title}
                   desc={demand.English.trim() ? demand.English : demand.Chinese}
                   image={demand.image}

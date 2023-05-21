@@ -18,6 +18,7 @@ interface IDemandState {
   setDemandStatus: (status: TDemandStatus) => void;
   alldemands: TDemand[];
   setAllDemands: (demands: TDemand[]) => void;
+  setSingleDemand: (demand: TDemand) => void;
   pushDemand: (demand: TDemand) => void;
   pendingDemand?: TDemand;
   setPendingDemand: (demand: TDemand) => void;
@@ -27,6 +28,19 @@ const useDemands = create<IDemandState>()((set) => ({
   demandStatus: "IDLE",
   setDemandStatus: (demandStatus) => set(() => ({ demandStatus })),
   alldemands: [],
+  setSingleDemand: (demand) =>
+    set(({ alldemands }) => {
+      const _allDemand = [...alldemands];
+
+      _allDemand.forEach((_demand) => {
+        if (demand.id === _demand.id) {
+          _demand.status = demand.status;
+        }
+      });
+      return {
+        alldemands: [..._allDemand],
+      };
+    }),
   setAllDemands: (demands) =>
     set(() => ({
       alldemands: demands,
