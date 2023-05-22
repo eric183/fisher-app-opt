@@ -5,11 +5,22 @@ export interface TDemand {
   created_time: string;
   English: string;
   Chinese: string;
-  demandRole: string;
+  demandRole: "NEED" | "SERVER" | "FREE";
   userId: string;
-  image?: string;
+  images: string[];
   title: string;
   place?: string;
+  categoryType:
+    | "Social"
+    | "Work"
+    | "Home"
+    | "Health"
+    | "Shopping"
+    | "Travel"
+    | "Learning"
+    | "Entertainment"
+    | "Transportation"
+    | "Finance";
   status: "CLOSED" | "OPEN" | "PENDING" | "COMPLETED";
 }
 

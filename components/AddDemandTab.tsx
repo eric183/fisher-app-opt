@@ -15,26 +15,30 @@ import useDemandState, { TDemand } from "../store/demand";
 import { gptAPI } from "../utils/gpt";
 import { useAxios } from "../store/axios";
 import useUser, { TUser } from "../store/user";
-import { Box, Stack, TextArea, Button, Image, Spinner } from "native-base";
+import {
+  Box,
+  Stack,
+  TextArea,
+  Button,
+  Image,
+  Spinner,
+  VStack,
+  HStack,
+} from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import uploadPhoto from "../utils/upload";
 import useRequest from "../hooks/request";
+import { ISanityDocument } from "sanity-uploader/typing";
 
-const AddDemandTab = ({ children, onPress }: any) => {
-  const { user, setUser } = useUser();
+const AddDemandTab = ({ children }: any) => {
+  const { user } = useUser();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const inputRef = useRef<TextInput>(null!);
   const [fetching, setFetching] = useState<boolean>(false);
   // const [demandStatus, setDemandStatus] = useState<TDemandStatus>("IDLE")
   const { createDemand } = useRequest();
   const [open, setOpen] = useState<boolean>(false);
-  const {
-    demandStatus,
-    setDemandStatus,
-    setPendingDemand,
-    pendingDemand,
-    pushDemand,
-  } = useDemandState();
+  const { demandStatus, setDemandStatus, setAllDemands, alldemands } =
+    useDemandState();
 
   const Tasks = [
     `上面字段可以放到如下哪个分类里，并赋值给current_category：["Social","Work","Home","Health","Shopping","Travel","Learning","Entertainment","Transportation","Finance"];`,
@@ -62,11 +66,9 @@ const AddDemandTab = ({ children, onPress }: any) => {
     const prompt = value.trim();
 
     try {
-      const { choices, created, id, model, object, usage } = await gptAPI(
-        embeddingPrompt(prompt)
-      );
-
       console.log(prompt.slice(0, 10), ".... pendding to gpt,");
+      const { choices } = await gptAPI(embeddingPrompt(prompt));
+
       const context = getJSONFormatFromGPT(choices[0].message.content);
       console.log(prompt.slice(0, 10), ".... response from gpt,");
 
@@ -79,11 +81,11 @@ const AddDemandTab = ({ children, onPress }: any) => {
   const addDemandBinder = async (
     text: string,
     title: string,
-    image: string
+    images: string[]
   ): Promise<TDemand | undefined> => {
     setDemandStatus("Pending");
     setModalVisible(false);
-    console.log("pedding....");
+    // console.log("pedding....");
     if (text.trim().length > 0) {
       try {
         setFetching(true);
@@ -98,16 +100,18 @@ const AddDemandTab = ({ children, onPress }: any) => {
 
         const _demand = {
           title,
-          image,
+          images,
           status: "OPEN",
           ...requestData,
           userId: user?.id,
         } as TDemand;
 
-        await createDemand(_demand);
+        const newDemand = await createDemand(_demand);
+
         setDemandStatus("Registed");
+        setAllDemands([...alldemands, newDemand]);
         onClose();
-        return _demand;
+        return newDemand;
       } catch (error) {
         setFetching(false);
 
@@ -155,7 +159,7 @@ const AddDemandForm: FC<{
   addDemandBinder: (
     demandText: string,
     title: string,
-    imageUrl: string
+    imageUrl: string[]
   ) => Promise<TDemand | undefined>;
   setOpen: (arg: boolean) => void;
   onClose: () => void;
@@ -163,14 +167,15 @@ const AddDemandForm: FC<{
   const titleRef = useRef<TextInput>(null!);
   const textAreaRef = useRef<TextInput>(null!);
   const [imageUrl, setImageUrl] = useState<string>("");
-  const closeAdd = () => {
-    setOpen(false);
-  };
+
+  const [imageList, setImageList] = useState<string[]>([]);
+  const [imageUplooading, setImageUplooading] = useState<boolean>(false);
   const onUploadImage = async () => {
-    const document = await uploadPhoto();
-    if (document?.url) {
-      setImageUrl(document?.url);
-    }
+    const document: ISanityDocument[] = await uploadPhoto({
+      multiple: true,
+    });
+
+    setImageList((state) => [...state, ...document.map((link) => link.url)]);
   };
 
   const uploadDemand = async () => {
@@ -192,7 +197,7 @@ const AddDemandForm: FC<{
       return;
     }
 
-    await addDemandBinder(demandText, title, imageUrl);
+    await addDemandBinder(demandText, title, imageList);
   };
   return (
     <Box className="w-full h-full bg-[#f2f5fa] rounded-t-3xl pt-5 px-8">
@@ -225,26 +230,26 @@ const AddDemandForm: FC<{
         </Stack>
         <Stack className="mb-6">
           <Text className="text-2xl mb-2">Image</Text>
-          <Pressable onPress={onUploadImage}>
-            <View className="bg-white border border-gray-400 border-dashed h-20 w-20 flex items-center justify-center">
-              {imageUrl ? (
+          <HStack>
+            {imageList.length > 0 &&
+              imageList.map((i, index) => (
                 <Image
+                  className="w-20 h-20 mr-0.5 border border-dashed"
+                  key={index}
                   w="full"
                   h="full"
                   source={{
-                    uri: imageUrl,
+                    uri: i,
                   }}
                   alt="Demand Image"
                 />
-              ) : (
-                <MaterialIcons
-                  name="add"
-                  size={50}
-                  color="gray"
-                ></MaterialIcons>
-              )}
-            </View>
-          </Pressable>
+              ))}
+            <Pressable onPress={onUploadImage}>
+              <View className="bg-white border border-gray-400 border-dashed h-20 w-20 flex items-center justify-center">
+                <MaterialIcons name="add" size={50} color="gray" />
+              </View>
+            </Pressable>
+          </HStack>
         </Stack>
       </Box>
 
@@ -268,36 +273,3 @@ const AddDemandForm: FC<{
 };
 
 export default AddDemandTab;
-
-const styles = StyleSheet.create({
-  modalOverlay: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    width: "100%",
-    height: "100%",
-    zIndex: 15,
-  },
-
-  modalContent: {
-    position: "relative",
-    zIndex: 20,
-    minWidth: "30%",
-  },
-
-  modal: {
-    width: "100%",
-    height: "100%",
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 10,
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 20,
-  },
-});

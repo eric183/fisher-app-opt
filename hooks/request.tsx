@@ -102,6 +102,24 @@ const useRequest = () => {
     return response?.data;
   };
 
+  // const getAllSelfDemands = async () => {
+  //   const demandResponse = await instance?.get(`/demand/${user?.id}`);
+
+  //   if (demandResponse?.status === 200) {
+  //     setUser({
+  //       ...(user as TUser),
+  //       demands: demandResponse.data,
+  //     });
+  //   }
+  // };
+
+  const createDemand = async (demandInfo: TDemand): Promise<TDemand> => {
+    console.log(demandInfo, "demandInfo");
+    const response = await instance?.post("/demand/create", demandInfo);
+    return response?.data;
+    // await getAllSelfDemands();
+  };
+
   return {
     getUser,
     startChat,
@@ -109,6 +127,7 @@ const useRequest = () => {
     updateUserAvatar,
     updateUserContact,
     updateDemandStatus,
+    createDemand,
   };
 };
 

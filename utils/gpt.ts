@@ -28,21 +28,20 @@ export interface OpenAIStreamPayload {
 }
 
 export async function gptAPI(prompt: string): Promise<OpenAIResponse> {
-      
   const role = "user";
   const payload = {
-      model: "gpt-3.5-turbo",
-      stream: false,
-      // temperature: 0.7,
-      temperature: 0,
-      max_tokens: 1500,
-      // stop: "\n",
-      // top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-      // user: body?.user,
-      n: 1,
-      messages: [
+    model: "gpt-3.5-turbo",
+    stream: false,
+    // temperature: 0.7,
+    temperature: 0,
+    max_tokens: 1500,
+    // stop: "\n",
+    // top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    // user: body?.user,
+    n: 1,
+    messages: [
       {
         role,
         content: prompt, // 4096
@@ -51,13 +50,17 @@ export async function gptAPI(prompt: string): Promise<OpenAIResponse> {
   } as OpenAIStreamPayload;
 
   delete payload.prompt;
-  const res = await axios.post("https://api.openai.com/v1/chat/completions", payload, {
-    headers: {
-      "Content-Type": "application/json",
-      // 'Authorization': `Bearer `
-      'Authorization': `Bearer ${api_configuration.apiKey}`
+  const res = await axios.post(
+    "https://api.openai.com/v1/chat/completions",
+    payload,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        // 'Authorization': `Bearer `
+        Authorization: `Bearer ${api_configuration.apiKey}`,
+      },
     }
-  })
-  console.log(res,'!!!');
+  );
+  console.log(res, "!!!");
   return res.data;
 }

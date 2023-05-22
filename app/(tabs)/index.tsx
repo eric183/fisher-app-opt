@@ -16,26 +16,31 @@ import { SanityUploader } from "sanity-uploader";
 import { useAxios } from "../../store/axios";
 import uploadPhoto from "../../utils/upload";
 import useRequest from "../../hooks/request";
+import useMatch from "../../store/match";
+import { ISanityDocument } from "sanity-uploader/typing";
 
 // import { createReadStream } from "fs";
 
 export default function Index() {
   const demand = useIndexState((state) => state.demand);
   const alldemands = useDemands((state) => state.alldemands);
+  const setPendingDemand = useDemands((state) => state.setPendingDemand);
 
   const { user } = useUser();
   const router = useRouter();
   const { init, instance, loginStatus } = useAxios();
   const { updateUserAvatar, startChat } = useRequest();
 
-  const goChat = async (_demand: TDemand) => {
-    await startChat(_demand, "请求聊天");
-    router.push("chat");
+  const setPendingMatch = async (_demand: TDemand) => {
+    // await startChat(_demand, "请求聊天");
+
+    console.log("_setmand", _demand);
+    setPendingDemand(_demand);
+    // router.push("chat");
   };
 
   const onUploadPhoto = async () => {
-    const document = await uploadPhoto();
-    // console.log(document?.url, "!!!");
+    const document: ISanityDocument = await uploadPhoto();
 
     if (document?.url) {
       await updateUserAvatar(document.url);
@@ -75,12 +80,12 @@ export default function Index() {
           {alldemands
             .filter((_demand) => _demand.userId === user?.id)
             .map((demand, index) => (
-              <Pressable key={index} onPress={() => goChat(demand)}>
+              <Pressable key={index} onPress={() => setPendingMatch(demand)}>
                 <DemandCard
                   {...demand}
                   title={demand.title}
                   desc={demand.English.trim() ? demand.English : demand.Chinese}
-                  image={demand.image}
+                  images={demand.images as string[]}
                 />
               </Pressable>
             ))}
