@@ -7,9 +7,11 @@ import {
   StyleSheet,
   TextInput,
   Alert,
+  SafeAreaView,
+  LogBox,
 } from "react-native";
 import Colors from "../constants/Colors";
-import { FC, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import useDemandState, { TDemand } from "../store/demand";
 import { gptAPI } from "../utils/gpt";
 import { useAxios } from "../store/axios";
@@ -23,17 +25,22 @@ import {
   Spinner,
   VStack,
   HStack,
+  ScrollView,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import uploadPhoto from "../utils/upload";
 import useRequest from "../hooks/request";
 import { ISanityDocument } from "sanity-uploader/typing";
 import MapView from "react-native-maps";
+
 import {
   GooglePlacesAutocomplete,
   GooglePlaceData,
   GooglePlaceDetail,
 } from "react-native-google-places-autocomplete";
+LogBox.ignoreLogs([
+  "VirtualizedLists should never be nested inside plain ScrollViews with the same orientation - use another VirtualizedList-backed container instead.",
+]);
 
 const AddDemandTab = ({ children }: any) => {
   const { user } = useUser();
@@ -134,7 +141,7 @@ const AddDemandTab = ({ children }: any) => {
     )}`;
 
   const openClass =
-    "absolute h-screen w-full top-[-75vh] rounded-t-3xl bg-red-300 z-10";
+    "absolute h-screen w-full top-[-80vh] rounded-t-3xl bg-red-300 z-10";
   const unOpenClass =
     "relative w-[64px] h-[64px] bg-[#ff904b] !rounded-t-none rounded-full top-[-40]";
   return (
@@ -151,6 +158,7 @@ const AddDemandTab = ({ children }: any) => {
 
       {open ? (
         <AddDemandForm
+          open={open}
           setOpen={setOpen}
           addDemandBinder={addDemandBinder}
           onClose={onClose}
@@ -163,6 +171,7 @@ const AddDemandTab = ({ children }: any) => {
 
 const AddDemandForm: FC<{
   demandStatus: TDemandStatus;
+  open: boolean;
   addDemandBinder: (
     demandText: string,
     title: string,
@@ -171,7 +180,7 @@ const AddDemandForm: FC<{
   ) => Promise<TDemand | undefined>;
   setOpen: (arg: boolean) => void;
   onClose: () => void;
-}> = ({ setOpen, addDemandBinder, onClose, demandStatus }) => {
+}> = ({ setOpen, addDemandBinder, onClose, demandStatus, open }) => {
   const titleRef = useRef<TextInput>(null!);
   const textAreaRef = useRef<TextInput>(null!);
   const [imageUrl, setImageUrl] = useState<string>("");
@@ -181,7 +190,7 @@ const AddDemandForm: FC<{
 
   const mapViewRef = useRef<MapView>(null!);
   const [placeInfo, setPlaceInfo] = useState<TDemand["place"]>(null!);
-
+  const [placeStyle, setPlaceStyle] = useState<any>(null!);
   const onUploadImage = async () => {
     const document: ISanityDocument[] = await uploadPhoto({
       multiple: true,
@@ -245,26 +254,25 @@ const AddDemandForm: FC<{
   };
 
   return (
-    <Box className="w-full h-5/6 bg-[#f2f5fa] rounded-t-3xl pt-5 px-8 overflow-hidden pb-12 flex-col">
-      <Box className="w-full">
+    <Box className="w-full h-[92%] bg-[#f2f5fa] rounded-t-3xl pt-5 px-8 overflow-hidden pb-12 flex-col">
+      <Box className="flex flex-col flex-1">
         <Text className="text-center text-3xl font-extrabold mb-4">
           New Task
         </Text>
-
-        <Stack className="mb-6">
-          <Text className="text-2xl mb-2">Title</Text>
-          <TextInput
-            ref={titleRef}
-            onChangeText={(text) => (titleRef.current.context = text)}
-            className="drop-shadow-xl rounded-xl bg-[#fff] py-3 px-3 text-[#447592]"
-            placeholder="Input the title"
-          ></TextInput>
-        </Stack>
         <Stack className="mb-6">
           <Text className="text-2xl mb-2">Area</Text>
 
-          {/* className="h-56 w-full" */}
           <MapView
+            onLayout={() =>
+              setPlaceStyle({
+                // container: {
+                textInput: {
+                  marginTop: 10,
+                  marginLeft: 20,
+                  marginRight: 20,
+                },
+              })
+            }
             className="h-56 w-full"
             ref={mapViewRef}
             onRegionChange={onRegionChange}
@@ -279,14 +287,7 @@ const AddDemandForm: FC<{
               fetchDetails
               placeholder="Search"
               onPress={onLocationSelected}
-              styles={{
-                container: {
-                  padding: 20,
-                },
-                textInput: {
-                  marginTop: 20,
-                },
-              }}
+              styles={placeStyle ? placeStyle : {}}
               query={{
                 type: "(regions)",
                 key: process.env.GOOGLE_MAP_SDK,
@@ -295,39 +296,51 @@ const AddDemandForm: FC<{
             />
           </MapView>
         </Stack>
-        <Stack className="mb-6">
-          <Text className="text-2xl mb-2">Task</Text>
-          <TextArea
-            ref={textAreaRef}
-            bg="#fff"
-            autoCompleteType={undefined}
-            placeholder="Describe your task detail"
-            onChangeText={(text) => (textAreaRef.current.context = text)}
-          ></TextArea>
-        </Stack>
-        <Stack className="mb-6">
-          <Text className="text-2xl mb-2">Image</Text>
-          <HStack>
-            {imageList.length > 0 &&
-              imageList.map((i, index) => (
-                <Image
-                  className="w-20 h-20 mr-0.5"
-                  key={index}
-                  w="full"
-                  h="full"
-                  source={{
-                    uri: i,
-                  }}
-                  alt="Demand Image"
-                />
-              ))}
-            <Pressable onPress={onUploadImage}>
-              <View className="bg-white border border-gray-400 border-dashed h-20 w-20 flex items-center justify-center">
-                <MaterialIcons name="add" size={50} color="gray" />
-              </View>
-            </Pressable>
-          </HStack>
-        </Stack>
+
+        <ScrollView className="flex-2">
+          <Stack className="mb-6">
+            <Text className="text-2xl mb-2">Title</Text>
+            <TextInput
+              ref={titleRef}
+              onChangeText={(text) => (titleRef.current.context = text)}
+              className="drop-shadow-xl rounded-xl bg-[#fff] py-3 px-3 text-[#447592]"
+              placeholder="Input the title"
+            ></TextInput>
+          </Stack>
+          <Stack className="mb-6">
+            <Text className="text-2xl mb-2">Task</Text>
+            <TextArea
+              ref={textAreaRef}
+              bg="#fff"
+              autoCompleteType={undefined}
+              placeholder="Describe your task detail"
+              onChangeText={(text) => (textAreaRef.current.context = text)}
+            ></TextArea>
+          </Stack>
+          <Stack className="mb-6">
+            <Text className="text-2xl mb-2">Image</Text>
+            <HStack>
+              {imageList.length > 0 &&
+                imageList.map((i, index) => (
+                  <Image
+                    className="w-20 h-20 mr-0.5"
+                    key={index}
+                    w="full"
+                    h="full"
+                    source={{
+                      uri: i,
+                    }}
+                    alt="Demand Image"
+                  />
+                ))}
+              <Pressable onPress={onUploadImage}>
+                <View className="bg-white border border-gray-400 border-dashed h-20 w-20 flex items-center justify-center">
+                  <MaterialIcons name="add" size={50} color="gray" />
+                </View>
+              </Pressable>
+            </HStack>
+          </Stack>
+        </ScrollView>
       </Box>
 
       <Stack direction="row" justifyContent="space-between">

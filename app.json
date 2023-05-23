@@ -17,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.erickuang.fisherappopt",
+      "bundleIdentifier": "com.erickuang.fisherappopt"
     },
     "android": {
       "adaptiveIcon": {
@@ -25,10 +25,6 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.erickuang.fisherappopt"
-    },
-    "web": {
-      "bundler": "metro",
-      "favicon": "./assets/images/favicon.png"
     },
     "extra": {
       "eas": {
