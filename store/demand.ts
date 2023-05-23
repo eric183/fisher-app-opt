@@ -9,7 +9,11 @@ export interface TDemand {
   userId: string;
   images: string[];
   title: string;
-  place?: string;
+  place?: {
+    name: string;
+    latitude: number;
+    longitude: number;
+  };
   categoryType:
     | "Social"
     | "Work"
