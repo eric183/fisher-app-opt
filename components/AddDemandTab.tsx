@@ -7,11 +7,9 @@ import {
   StyleSheet,
   TextInput,
   Alert,
-  ScrollView,
 } from "react-native";
 import Colors from "../constants/Colors";
 import { FC, useRef, useState } from "react";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import useDemandState, { TDemand } from "../store/demand";
 import { gptAPI } from "../utils/gpt";
 import { useAxios } from "../store/axios";
@@ -30,7 +28,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import uploadPhoto from "../utils/upload";
 import useRequest from "../hooks/request";
 import { ISanityDocument } from "sanity-uploader/typing";
-import MapView, { Region, Details, Marker } from "react-native-maps";
+import MapView from "react-native-maps";
 import {
   GooglePlacesAutocomplete,
   GooglePlaceData,
@@ -110,7 +108,7 @@ const AddDemandTab = ({ children }: any) => {
           title,
           images,
           status: "OPEN",
-          placeInfo,
+          place: placeInfo,
           ...requestData,
           userId: user?.id,
         } as TDemand;
@@ -214,7 +212,7 @@ const AddDemandForm: FC<{
     await addDemandBinder(demandText, title, imageList, placeInfo);
   };
 
-  const onRegionChange = async (region: Region, details: Details) => {
+  const onRegionChange = async (region: any, details: any) => {
     // const add = await mapViewRef.current.addressForCoordinate({
     //   latitude: region.latitude,
     //   longitude: region.longitude,
@@ -245,9 +243,10 @@ const AddDemandForm: FC<{
       setPlaceInfo(location_params);
     }
   };
+
   return (
-    <Box className="w-full h-full bg-[#f2f5fa] rounded-t-3xl pt-5 px-8 overflow-hidden pb-10 flex-col">
-      <ScrollView className="w-full flex-1" nestedScrollEnabled>
+    <Box className="w-full h-5/6 bg-[#f2f5fa] rounded-t-3xl pt-5 px-8 overflow-hidden pb-12 flex-col">
+      <Box className="w-full">
         <Text className="text-center text-3xl font-extrabold mb-4">
           New Task
         </Text>
@@ -261,12 +260,13 @@ const AddDemandForm: FC<{
             placeholder="Input the title"
           ></TextInput>
         </Stack>
-        <Stack>
+        <Stack className="mb-6">
           <Text className="text-2xl mb-2">Area</Text>
 
+          {/* className="h-56 w-full" */}
           <MapView
-            ref={mapViewRef}
             className="h-56 w-full"
+            ref={mapViewRef}
             onRegionChange={onRegionChange}
             initialRegion={{
               latitude: 37.78825,
@@ -275,18 +275,18 @@ const AddDemandForm: FC<{
               longitudeDelta: 0.0421,
             }}
           >
-            <Marker
-              coordinate={{
-                latitude: 37.78825,
-                longitude: -122.4324,
-              }}
-              title={"test"}
-              // description={marker.description}
-            />
             <GooglePlacesAutocomplete
               fetchDetails
               placeholder="Search"
               onPress={onLocationSelected}
+              styles={{
+                container: {
+                  padding: 20,
+                },
+                textInput: {
+                  marginTop: 20,
+                },
+              }}
               query={{
                 type: "(regions)",
                 key: process.env.GOOGLE_MAP_SDK,
@@ -311,7 +311,7 @@ const AddDemandForm: FC<{
             {imageList.length > 0 &&
               imageList.map((i, index) => (
                 <Image
-                  className="w-20 h-20 mr-0.5 border border-dashed"
+                  className="w-20 h-20 mr-0.5"
                   key={index}
                   w="full"
                   h="full"
@@ -328,7 +328,7 @@ const AddDemandForm: FC<{
             </Pressable>
           </HStack>
         </Stack>
-      </ScrollView>
+      </Box>
 
       <Stack direction="row" justifyContent="space-between">
         <Button className="w-[45%] py-4 rounded-xl" onPress={onClose}>

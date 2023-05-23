@@ -17,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.erickuang.fisherappopt"
+      "bundleIdentifier": "com.erickuang.fisherappopt",
     },
     "android": {
       "adaptiveIcon": {
