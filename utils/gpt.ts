@@ -61,6 +61,5 @@ export async function gptAPI(prompt: string): Promise<OpenAIResponse> {
       },
     }
   );
-  console.log(res, "!!!");
   return res.data;
 }

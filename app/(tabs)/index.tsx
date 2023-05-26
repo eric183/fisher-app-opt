@@ -34,7 +34,6 @@ export default function Index() {
   const setPendingMatch = async (_demand: TDemand) => {
     // await startChat(_demand, "请求聊天");
 
-    console.log("_setmand", _demand);
     setPendingDemand(_demand);
     // router.push("chat");
   };

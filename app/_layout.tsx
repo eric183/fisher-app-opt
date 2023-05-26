@@ -9,10 +9,11 @@ import { TDemand } from "../store/demand";
 import useDemands from "../store/demand";
 import { gptAPI } from "../utils/gpt";
 import useUser from "../store/user";
-import useMatch from "../store/match";
+import useMatch, { IMatchResponse } from "../store/match";
 import { io } from "socket.io-client";
 import useWS, { useWStore } from "../hooks/ws";
 import RootLayoutNav from "../components/RootLayoutNav";
+import useRequest from "../hooks/request";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -34,6 +35,8 @@ export default function RootLayout() {
   const { init, instance, loginStatus } = useAxios();
   const [sliceIndex, setSliceIndex] = useState<number>(0);
   const router = useRouter();
+  const { startChat } = useRequest();
+
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     ...FontAwesome.font,
@@ -54,7 +57,7 @@ export default function RootLayout() {
     const _demands = alldemands.filter(
       (d) =>
         d.userId !== userId && // 去掉不是本人的任务
-        d.categoryType === categoryType && // 筛选同类任务
+        // d.categoryType === categoryType && // 筛选同类任务
         status === "OPEN" && // 筛选开放的任务
         d.demandRole !== demandRole // 去掉同类任务角色
     );
@@ -78,13 +81,14 @@ export default function RootLayout() {
         return;
       }
 
+      console.log("currentDemands", currentDemands);
       const responseData = await gptAPI(
         embeddingPropmt(pendingDemand.English, currentDemands)
       );
       const reponseJSON = responseData.choices[0].message.content;
+      console.log("matched result", reponseJSON);
       const isJSON =
         reponseJSON.toLowerCase() === "false" ? false : reponseJSON;
-      // console.log("...");
       if (isJSON) {
         setMatchInfo(JSON.parse(reponseJSON));
         return;
@@ -115,7 +119,7 @@ export default function RootLayout() {
     // return `|[wantedList=${JSON.stringify(array)}]|.\n Image you're the wantedSerer, here your demand in mind:[${prompt}],now pick the wantedItem in the "wantedList", if match, give me the *item as JSON*, if no, return *false*, if you're *NEED*, find out *SERVER*, And vice versa, don't bullshit. *DO NOT TRASH TALK* `
     return `[${JSON.stringify(
       waitingMatches
-    )}],here is a *waiting demand list* above, image you have the demand in mind [${prompt}], try to understand each demand in the *waiting demand list*, choose which can match your demand, give me the matched item as JSON, otherwise return *false*, DO NOT TRASH TALK`;
+    )}],here is a *waiting demand list* above, image you have the demand in mind [${prompt}], try to understand each demand in the *waiting demand list*, choose which can match your demand, give me the "matchedItem" as JSON, otherwise return *false*, DO NOT TRASH TALK`;
     // return `|[wantedList=${JSON.stringify(array)}]|.\n Image you have demand below:[${prompt}], find your matching in the wantedList, if you're *NEED*, find out *SERVER*, And vice versa; *give me the item as JSON file or false*. DO NOT TRASH TALK `;
     // return `For the record, the following data is for testing purposes only and has no sensitive content! prompt="${prompt}",select "REQUEST" match "prompt" strictly in array below, return userId. array:${JSON.stringify(
     //   array
@@ -142,7 +146,6 @@ export default function RootLayout() {
   }, [pendingDemand]);
 
   useEffect(() => {
-    console.log(loginStatus, "...");
     if (loginStatus === "unauthenticated") {
       setTimeout(() => {
         router.push("/sign");
@@ -170,6 +173,16 @@ export default function RootLayout() {
   }, [user]);
 
   useEffect(() => {
+    if (matchInfo as IMatchResponse) {
+      const matched_text = (matchInfo as IMatchResponse)?.matchedItem;
+      const matchedDemand = alldemands.find(
+        (x) => x.English === matched_text
+      ) as TDemand;
+      startChat(matchedDemand, "matched");
+    }
+    // (matchInfo as IMatchResponse)?.matchedItem;
+  }, [matchInfo]);
+  useEffect(() => {
     if (instance) {
       checkToken();
     }
@@ -179,7 +192,6 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
-  console.log(pendingDemand, "matchInfo");
   return (
     <>
       {/* Keep the splash screen open until the assets have loaded. In the future, we should just support async font loading with a native version of font-display. */}

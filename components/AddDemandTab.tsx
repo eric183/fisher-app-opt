@@ -105,8 +105,6 @@ const AddDemandTab = ({ children }: any) => {
 
         const requestData = await callOpenAI(text);
 
-        console.log(requestData, ".!...!");
-
         setFetching(false);
 
         if (!requestData) return;

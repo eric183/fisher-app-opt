@@ -8,7 +8,6 @@ interface IAxiosState {
   instance: AxiosInstance | null;
   init: () => void;
 }
-console.log(process.env.APP_ORIGIN_URL, "!!!");
 export const useAxios = create<IAxiosState>()((set) => ({
   loginStatus: "authenticated",
   instance: null,

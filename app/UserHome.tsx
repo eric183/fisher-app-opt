@@ -42,7 +42,6 @@ const ProfileHeader = ({ profile }: any) => {
 
   const updateDemand = async () => {
     setModalVisible(true);
-    console.log(inputRef);
     setTimeout(() => {
       inputRef?.current?.focus();
     }, 5);
@@ -50,7 +49,6 @@ const ProfileHeader = ({ profile }: any) => {
 
   const usernameBinder = async ({ nativeEvent }: any) => {
     setShowTextInput(false);
-    console.log(nativeEvent.text);
 
     instance?.patch(`/users/${user?.id}/usename`, {
       username: nativeEvent.text,

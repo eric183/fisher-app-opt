@@ -98,7 +98,6 @@ const useWS = () => {
       chatList = chatStack[`${data.toUserId}.${data.fromUserId}`];
     }
 
-    // console.log()
     setChatStack(stackId ? stackId : `${data.fromUserId}.${data.toUserId}`, [
       ...chatList,
       {

@@ -8,7 +8,7 @@ import { NativeBaseProvider, Progress, AlertDialog, Button } from "native-base";
 import { useState, useRef, useEffect } from "react";
 import { useColorScheme } from "react-native";
 import useDemandState from "../store/demand";
-import useMatch from "../store/match";
+import useMatch, { IMatchResponse } from "../store/match";
 
 const RootLayoutNav = () => {
   const colorScheme = useColorScheme();

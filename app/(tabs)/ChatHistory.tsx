@@ -20,9 +20,6 @@ export default function ChatHistory() {
   const { chatStack } = chatStore();
 
   console.log(requestUsersWithChats);
-  // console.log(chatStack);
-
-  // Object.entries(chatStack)
 
   return (
     <Box className="h-full">

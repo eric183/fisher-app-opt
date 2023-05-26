@@ -32,8 +32,8 @@ const useRequest = () => {
 
   const startChat = async (_demand: TDemand, message: string) => {
     const toUserId = _demand.userId;
+    console.log(toUserId, "toUser!!!");
     const toUser = await getUser(toUserId);
-
     if (user && toUser) {
       setChatInfo({
         message,
