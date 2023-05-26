@@ -8,6 +8,7 @@ import useUser, { TUser } from "../store/user";
 import useCommonStore from "../store/common";
 import { TDemand } from "../store/demand";
 import { useWStore } from "./ws";
+import usePendingChat from "../store/pendingChat";
 
 export interface IRegister {
   email: string;
@@ -16,24 +17,22 @@ export interface IRegister {
 
 const useRequest = () => {
   const instance = useAxios((state) => state.instance);
-  const { setChatInfo } = useCommonStore();
+  const { setChatInfo } = usePendingChat();
   const { setUser, user } = useUser();
   // const { ws } = useWStore();
 
   const getUser = async (userId: string): Promise<TUser | undefined> => {
+    console.log(userId, "toUser!!!");
+
     const response = await instance?.get<TUser>(`/users/single/${userId}`);
 
     return response?.data;
   };
 
-  const getUsers = async () => {
-    await instance?.get(`user/`);
-  };
-
   const startChat = async (_demand: TDemand, message: string) => {
     const toUserId = _demand.userId;
-    console.log(toUserId, "toUser!!!");
     const toUser = await getUser(toUserId);
+
     if (user && toUser) {
       setChatInfo({
         message,
@@ -42,18 +41,10 @@ const useRequest = () => {
         type: "demand",
       });
 
-      // ws?.emit("startChat", {
-      //   fromUserId: user?.id,
-      //   toUserId: toUser.id,
-      //   demandId: _demand.id,
-      //   message: "请求聊天",
-      //   type: "demand",
-      // });
-      // return;
-
-      throw new Error("user not exsit");
+      return;
     }
 
+    throw new Error("user not exsit");
     // this,updateUserContact();
   };
 

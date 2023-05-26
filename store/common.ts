@@ -14,8 +14,7 @@ export type TRequestChat = {
 interface ICommonState {
   contacts: TUser[];
   setContacts: (user: TUser) => void;
-  chatInfo?: TRequestChat;
-  setChatInfo: (arg: TRequestChat) => void;
+
   // chattingUser: TUser;
   // pickChatUserWithDemand: (u: any) => void;
   requestUsersWithChats: TRequestChat[];
@@ -30,11 +29,7 @@ const useCommonStore = create<ICommonState>()(
         set(({ contacts }) => ({
           contacts: [...contacts, _user],
         })),
-      chatInfo: undefined,
-      setChatInfo: (_demand) =>
-        set(() => ({
-          chatInfo: _demand,
-        })),
+
       requestUsersWithChats: [],
       setUsersWithChats: (_request) =>
         set(({ requestUsersWithChats }) => {
@@ -46,24 +41,6 @@ const useCommonStore = create<ICommonState>()(
     {
       name: "common-store",
       storage: createJSONStorage(() => AsyncStorage),
-    }
-  )
-);
-
-const useCommon = create<{
-  contacts: any;
-  setContacts: (info: any) => void;
-}>()(
-  persist(
-    (set) => ({
-      contacts: [],
-      setContacts: (_user) =>
-        set(({ contacts }) => ({
-          contacts: [...contacts, _user],
-        })),
-    }),
-    {
-      name: "bear-storage",
     }
   )
 );

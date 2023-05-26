@@ -14,6 +14,9 @@ import { io } from "socket.io-client";
 import useWS, { useWStore } from "../hooks/ws";
 import RootLayoutNav from "../components/RootLayoutNav";
 import useRequest from "../hooks/request";
+import { chatStore } from "../store/chat";
+import useCommonStore from "../store/common";
+import usePendingChat from "../store/pendingChat";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -26,16 +29,18 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-  const { setWebsocket } = useWStore();
+  const { chatInfo } = usePendingChat();
+  const { setWebsocket, ws } = useWStore();
   const { setAllDemands, alldemands, pendingDemand, setDemandStatus } =
     useDemands();
   const { user } = useUser();
+
   const { setMatchInfo, matchInfo } = useMatch();
   const { checkToken } = useAuth();
   const { init, instance, loginStatus } = useAxios();
   const [sliceIndex, setSliceIndex] = useState<number>(0);
-  const router = useRouter();
   const { startChat } = useRequest();
+  const router = useRouter();
 
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
@@ -182,6 +187,20 @@ export default function RootLayout() {
     }
     // (matchInfo as IMatchResponse)?.matchedItem;
   }, [matchInfo]);
+
+  useEffect(() => {
+    if (chatInfo) {
+      console.log(chatInfo, "...!!!");
+
+      ws?.emit("startChat", {
+        fromUserId: user?.id as string,
+        toUserId: chatInfo?.user.id as string,
+        demandId: chatInfo?.demandId,
+        message: "请求聊天",
+        type: "demand",
+      });
+    }
+  }, [chatInfo]);
   useEffect(() => {
     if (instance) {
       checkToken();
