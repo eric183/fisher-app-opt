@@ -7,5 +7,4 @@ function isJSON(obj: any) {
   }
 }
 
-
 export default isJSON;

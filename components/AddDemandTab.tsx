@@ -1,21 +1,8 @@
-import {
-  Modal,
-  Pressable,
-  Text,
-  TouchableHighlight,
-  View,
-  StyleSheet,
-  TextInput,
-  Alert,
-  SafeAreaView,
-  LogBox,
-} from "react-native";
-import Colors from "../constants/Colors";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { Pressable, Text, View, TextInput, Alert, LogBox } from "react-native";
+import { FC, useRef, useState } from "react";
 import useDemandState, { TDemand } from "../store/demand";
 import { gptAPI } from "../utils/gpt";
-import { useAxios } from "../store/axios";
-import useUser, { TUser } from "../store/user";
+import useUser from "../store/user";
 import {
   Box,
   Stack,
@@ -23,9 +10,9 @@ import {
   Button,
   Image,
   Spinner,
-  VStack,
   HStack,
   ScrollView,
+  KeyboardAvoidingView,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import uploadPhoto from "../utils/upload";
@@ -44,8 +31,8 @@ LogBox.ignoreLogs([
 
 const AddDemandTab = ({ children }: any) => {
   const { user } = useUser();
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [fetching, setFetching] = useState<boolean>(false);
+  const [, setModalVisible] = useState<boolean>(false);
+  const [, setFetching] = useState<boolean>(false);
   // const [demandStatus, setDemandStatus] = useState<TDemandStatus>("IDLE")
   const { createDemand } = useRequest();
   const [open, setOpen] = useState<boolean>(false);
@@ -178,7 +165,7 @@ const AddDemandForm: FC<{
   ) => Promise<TDemand | undefined>;
   setOpen: (arg: boolean) => void;
   onClose: () => void;
-}> = ({ setOpen, addDemandBinder, onClose, demandStatus, open }) => {
+}> = ({ addDemandBinder, onClose, demandStatus }) => {
   const titleRef = useRef<TextInput>(null!);
   const textAreaRef = useRef<TextInput>(null!);
   const [imageUrl, setImageUrl] = useState<string>("");
@@ -187,8 +174,12 @@ const AddDemandForm: FC<{
   const [imageUplooading, setImageUplooading] = useState<boolean>(false);
 
   const mapViewRef = useRef<MapView>(null!);
+  const mapRef = useRef<any>(null!);
+  const completeRef = useRef<any>(null!);
   const [placeInfo, setPlaceInfo] = useState<TDemand["place"]>(null!);
   const [placeStyle, setPlaceStyle] = useState<any>(null!);
+  const [mapInput, setMapInput] = useState<boolean>(null!);
+
   const onUploadImage = async () => {
     const document: ISanityDocument[] = await uploadPhoto({
       multiple: true,
@@ -219,7 +210,7 @@ const AddDemandForm: FC<{
     await addDemandBinder(demandText, title, imageList, placeInfo);
   };
 
-  const onRegionChange = async (region: any, details: any) => {
+  const onRegionChange = async () => {
     // const add = await mapViewRef.current.addressForCoordinate({
     //   latitude: region.latitude,
     //   longitude: region.longitude,
@@ -248,11 +239,19 @@ const AddDemandForm: FC<{
       });
 
       setPlaceInfo(location_params);
+
+      setMapInput(false);
     }
   };
 
   return (
-    <Box className="w-full h-[92%] bg-[#f2f5fa] rounded-t-3xl pt-5 px-8 overflow-hidden pb-12 flex-col">
+    <KeyboardAvoidingView
+      behavior={"padding"}
+      // contentContainerStyle={{
+      //   paddingBottom: "48px",
+      // }}
+      className="w-full h-[92%] bg-[#f2f5fa] rounded-t-3xl pt-5 px-8 overflow-hidden pb-12 flex-col"
+    >
       <Box className="flex flex-col flex-1">
         <Text className="text-center text-3xl font-extrabold mb-4">
           New Task
@@ -271,7 +270,7 @@ const AddDemandForm: FC<{
                 },
               })
             }
-            className="h-56 w-full"
+            className={`h-56 w-full ${mapInput ? "visible" : "hidden"}`}
             ref={mapViewRef}
             onRegionChange={onRegionChange}
             initialRegion={{
@@ -282,17 +281,33 @@ const AddDemandForm: FC<{
             }}
           >
             <GooglePlacesAutocomplete
+              ref={completeRef}
               fetchDetails
               placeholder="Search"
               onPress={onLocationSelected}
               styles={placeStyle ? placeStyle : {}}
               query={{
-                type: "(regions)",
+                type: "administrative_area_level_1",
                 key: process.env.GOOGLE_MAP_SDK,
                 language: "en",
+                // components: "country:cn",
               }}
             />
           </MapView>
+
+          <TextInput
+            ref={mapRef}
+            onChangeText={(text) => (titleRef.current.context = text)}
+            onFocus={() => {
+              setMapInput(true);
+              completeRef.current.focus();
+            }}
+            value={placeInfo?.name.split(",")[0]}
+            className={`drop-shadow-xl rounded-xl bg-[#fff] py-3 px-3 text-[#447592] ${
+              mapInput ? "hidden" : "visible"
+            }`}
+            placeholder="Input the title"
+          ></TextInput>
         </Stack>
 
         <ScrollView className="flex-2">
@@ -356,7 +371,7 @@ const AddDemandForm: FC<{
           )}
         </Button>
       </Stack>
-    </Box>
+    </KeyboardAvoidingView>
   );
 };
 

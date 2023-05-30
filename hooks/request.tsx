@@ -22,8 +22,7 @@ const useRequest = () => {
   // const { ws } = useWStore();
 
   const getUser = async (userId: string): Promise<TUser | undefined> => {
-    console.log(userId, "toUser!!!");
-
+    console.log(userId, "!!!");
     const response = await instance?.get<TUser>(`/users/single/${userId}`);
 
     return response?.data;
@@ -31,6 +30,8 @@ const useRequest = () => {
 
   const startChat = async (_demand: TDemand, message: string) => {
     const toUserId = _demand.userId;
+
+    console.log(toUserId, "demand userId......");
     const toUser = await getUser(toUserId);
 
     if (user && toUser) {

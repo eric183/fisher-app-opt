@@ -75,7 +75,7 @@ const RootLayoutNav = () => {
         <ThemeProvider value={DefaultTheme}>
           {showProgress && <Progress value={progressMove()} />}
 
-          <AlertDialog
+          {/* <AlertDialog
             leastDestructiveRef={cancelRef}
             isOpen={alertOpen}
             onClose={onClose}
@@ -99,7 +99,7 @@ const RootLayoutNav = () => {
                 </Button>
               </AlertDialog.Footer>
             </AlertDialog.Content>
-          </AlertDialog>
+          </AlertDialog> */}
 
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
