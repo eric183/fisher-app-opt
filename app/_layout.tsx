@@ -15,6 +15,7 @@ import useWS, { useWStore } from "../hooks/ws";
 import RootLayoutNav from "../components/RootLayoutNav";
 import useRequest from "../hooks/request";
 import usePendingChat from "../store/pendingChat";
+import { Alert } from "react-native";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -36,7 +37,7 @@ export default function RootLayout() {
 
   const { setMatchInfo, matchInfo } = useMatch();
   const { checkToken } = useAuth();
-  const { init, instance, loginStatus } = useAxios();
+  const { init, instance, loginStatus, errorInfo } = useAxios();
   const [sliceIndex, setSliceIndex] = useState<number>(0);
   const { startChat } = useRequest();
   const router = useRouter();
@@ -216,6 +217,12 @@ export default function RootLayout() {
   useEffect(() => {
     if (error) throw error;
   }, [error]);
+
+  useEffect(() => {
+    if (errorInfo) {
+      Alert.alert("Error", errorInfo.message);
+    }
+  }, [errorInfo]);
 
   return (
     <>

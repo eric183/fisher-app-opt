@@ -5,12 +5,21 @@ import useUser, { TUser } from "./user";
 
 interface IAxiosState {
   loginStatus: LoginStatus;
+  errorInfo?: {
+    code: number;
+    message: string;
+  };
+  setErrorInfo: (
+    errorInfo: { code: number; message: string } | undefined
+  ) => void;
   instance: AxiosInstance | null;
   init: () => void;
 }
 export const useAxios = create<IAxiosState>()((set) => ({
   loginStatus: "authenticated",
   instance: null,
+  errorInfo: undefined,
+  setErrorInfo: (errorInfo) => set(() => ({ errorInfo })),
   init: () => {
     const instance = axios.create({
       baseURL: process.env.APP_ORIGIN_URL,
@@ -54,10 +63,25 @@ export const useAxios = create<IAxiosState>()((set) => ({
           return Promise.reject(error);
         }
 
+        if (error.response.status === 400) {
+          set({
+            loginStatus: "pendingVerification",
+            errorInfo: {
+              code: error.response.status,
+              message: error.response.data.message,
+            },
+          });
+          return Promise.reject(error.response.data);
+        }
+
         if (error?.response?.status === 401) {
           // handle 401 error
           set({
             loginStatus: "unauthenticated",
+            errorInfo: {
+              code: error.response.status,
+              message: error.response.data.message,
+            },
           });
           return Promise.reject(error.response.data);
         } else {

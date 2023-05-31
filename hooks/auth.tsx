@@ -10,13 +10,25 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export interface IRegister {
   email: string;
   password: string;
+  username: string;
+  avatar?: string;
 }
 
 const useAuth = () => {
   const instance = useAxios((state) => state.instance);
   const { setUser, user } = useUser();
 
-  const signIn = async ({ email, password }: IRegister) => {
+  const sendEmailVerification = async (email: string) => {
+    const data = await instance?.post(`/auth/sendMailVerification`, {
+      email: email.trim(),
+    });
+    return data;
+  };
+
+  const signIn = async ({
+    email,
+    password,
+  }: Pick<IRegister, "email" | "password">) => {
     const data = await instance
       ?.post(`/auth/login`, {
         email: email.trim(),
@@ -61,10 +73,12 @@ const useAuth = () => {
     }
   };
 
-  const register = async ({ email, password }: IRegister) => {
+  const register = async ({ email, password, username, avatar }: IRegister) => {
     const postUser = {
       email: email.trim(),
       password: password.trim(),
+      username: username.trim(),
+      avatar: avatar,
     };
 
     const response = await instance?.post(`/auth/register`, postUser);
@@ -75,7 +89,14 @@ const useAuth = () => {
     // console.log("isRegisted:", data)
   };
 
-  return { signIn, signOut, checkToken, register, resetPassword };
+  return {
+    signIn,
+    signOut,
+    checkToken,
+    register,
+    resetPassword,
+    sendEmailVerification,
+  };
 };
 
 export default useAuth;
