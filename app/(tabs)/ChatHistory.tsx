@@ -12,15 +12,13 @@ import useCommonStore from "../../store/common";
 import { chatStore } from "../../store/chat";
 
 export default function ChatHistory() {
-  const demand = useIndexState((state) => state.demand);
-  const alldemands = useDemands((state) => state.alldemands);
-  const { user } = useUser();
+  // const demand = useIndexState((state) => state.demand);
+  // const alldemands = useDemands((state) => state.alldemands);
+  // const { user } = useUser();
   const { contacts, requestUsersWithChats } = useCommonStore();
 
   const { chatStack } = chatStore();
-
-  console.log(requestUsersWithChats);
-
+  console.log(chatStack, "chatStack .....");
   return (
     <Box className="h-full">
       <View className="flex flex-1 bg-[#49809F] justify-center pt-3">
@@ -33,30 +31,30 @@ export default function ChatHistory() {
         />
 
         <ScrollView className="pt-4">
-          {/* {requestUsersWithChats.map((_requestChat, index) => { */}
           {Object.entries(chatStack).map((_requestChat: any, index) => {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const historyUser = requestUsersWithChats.find((_c) =>
               _requestChat[0].includes(_c.user.id as string)
             )!;
+
+            console.log(requestUsersWithChats, "requestUsersWithChats , ;....");
+            console.log(historyUser, "historyUser, .....");
+
             const toUserChats = _requestChat[1].filter(
-              (u: any) => u.user.id === historyUser.user.id
+              (u: any) => u?.user?.id === historyUser?.user?.id
             );
+            console.log(_requestChat[1], " _requestChat[1] ..");
 
             const lastestContent = toUserChats[toUserChats.length - 1];
 
+            console.log(lastestContent, "lastestContent ..");
             const _user = {
               ...historyUser,
               content: lastestContent.content,
             };
 
-            // _requestChat[0].find((chat: string)=> chat.includes())
             return <ContactCard key={index} {..._user} isChat />;
           })}
-
-          {/* {contacts.map((demand, index) => (
-            <ContactCard key={index} />
-          ))} */}
         </ScrollView>
       </SplitCardViewBottom>
     </Box>

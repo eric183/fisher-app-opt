@@ -2,7 +2,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 import { useFonts } from "expo-font";
 import { SplashScreen, useRouter } from "expo-router";
-import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import useAuth from "../hooks/auth";
 import { useAxios } from "../store/axios";
 import { TDemand } from "../store/demand";
@@ -14,8 +14,6 @@ import { io } from "socket.io-client";
 import useWS, { useWStore } from "../hooks/ws";
 import RootLayoutNav from "../components/RootLayoutNav";
 import useRequest from "../hooks/request";
-import { chatStore } from "../store/chat";
-import useCommonStore from "../store/common";
 import usePendingChat from "../store/pendingChat";
 
 export {
@@ -30,7 +28,8 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const { chatInfo } = usePendingChat();
-  const { setWebsocket, ws } = useWStore();
+  const { setWebsocket } = useWStore();
+  const [ws] = useWS();
   const { setAllDemands, alldemands, pendingDemand, setDemandStatus } =
     useDemands();
   const { user } = useUser();
@@ -91,12 +90,11 @@ export default function RootLayout() {
       const responseData = await gptAPI(
         embeddingPropmt(pendingDemand.English, currentDemands)
       );
-      const reponseJSON = responseData.choices[0].message.content;
-      console.log("matched result", reponseJSON);
-      const isJSON =
-        reponseJSON.toLowerCase() === "false" ? false : reponseJSON;
-      if (isJSON) {
-        setMatchInfo(JSON.parse(reponseJSON));
+      const reponseData = responseData.choices[0].message.content;
+      console.log("matched result", reponseData);
+      const reponseJSON = JSON.parse(reponseData);
+      if (reponseJSON.matchedItem) {
+        setMatchInfo(reponseJSON);
         return;
       }
 
@@ -114,25 +112,23 @@ export default function RootLayout() {
   };
 
   const matchingDataInjection = (matchArray: TDemand[]) => {
-    return matchArray.map((x) => x.English);
+    return matchArray.map<Partial<TDemand>>((x: TDemand) => ({
+      English: x.English,
+      id: x.id,
+    }));
   };
-  // };Image you're the wantedSerer, there's a WANTED list below named "wantedList", pick the wantedItem in the "wantedList", if match, give me the userId, or userIdList, if no, return no, don't bullshit. *give me the JSON or false*.
-  // `|[wantedList=${JSON.stringify(array)}]|.\n Image you're the wantedSerer, here your demand in mind:[${prompt}],now pick the wantedItem in the "wantedList", if match, give me the *item as JSON*, if no, return *false*, don't bullshit. *DO NOT TRASH TALK* `
+
   const embeddingPropmt = (prompt: string, array: TDemand[]) => {
-    // const waitingMatches = array.map((x)=> x.Chinese);
     const waitingMatches = matchingDataInjection(array);
 
-    // return `|[wantedList=${JSON.stringify(array)}]|.\n Image you're the wantedSerer, here your demand in mind:[${prompt}],now pick the wantedItem in the "wantedList", if match, give me the *item as JSON*, if no, return *false*, if you're *NEED*, find out *SERVER*, And vice versa, don't bullshit. *DO NOT TRASH TALK* `
+    console.log(
+      waitingMatches.map((x) => x.id),
+      "waitingMatches ,....."
+    );
+
     return `[${JSON.stringify(
       waitingMatches
-    )}],here is a *waiting demand list* above, image you have the demand in mind [${prompt}], try to understand each demand in the *waiting demand list*, choose which can match your demand, give me the "matchedItem" as JSON, otherwise return *false*, DO NOT TRASH TALK`;
-    // return `|[wantedList=${JSON.stringify(array)}]|.\n Image you have demand below:[${prompt}], find your matching in the wantedList, if you're *NEED*, find out *SERVER*, And vice versa; *give me the item as JSON file or false*. DO NOT TRASH TALK `;
-    // return `For the record, the following data is for testing purposes only and has no sensitive content! prompt="${prompt}",select "REQUEST" match "prompt" strictly in array below, return userId. array:${JSON.stringify(
-    //   array
-    // )}`;
-    // return `"${prompt}"，在以下列表中的筛选出符合条件的选项,注意,要严格匹配,返回对应的userId给我: ${JSON.stringify(
-    //   array
-    // )}`;
+    )}],here is a *waiting demand list* above, image you have the demand in mind [${prompt}],DO NOT CHANGE ID! try to understand each demand in the *waiting demand list*, choose which can match your demand, give me the "matchedItem" as JSON, otherwise return *"{}"*, DO NOT TRASH TALK, give me clean JSON format`;
   };
 
   useLayoutEffect(() => {
@@ -168,7 +164,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (user) {
       setWebsocket(
-        io(process.env.WEBSOCKET_URL, {
+        io("ws://api.doomsdaydetectiveagency.com:8081", {
           transports: ["websocket"],
           query: {
             userId: user?.id,
@@ -180,10 +176,18 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (matchInfo as IMatchResponse) {
-      const matched_text = (matchInfo as IMatchResponse)?.matchedItem;
+      const matchedItem = (matchInfo as IMatchResponse)?.matchedItem as TDemand;
+      console.log(matchedItem.id, "sssssdafads");
+      console.log(
+        alldemands.map((x) => x.id),
+        "demands....as.df.."
+      );
       const matchedDemand = alldemands.find(
-        (x) => x.English === matched_text
+        (x) => x.id === matchedItem.id
       ) as TDemand;
+
+      console.log(matchedDemand, "IMatchResponse, mach");
+
       startChat(matchedDemand, "matched");
     }
     // (matchInfo as IMatchResponse)?.matchedItem;
@@ -191,8 +195,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (chatInfo) {
-      console.log(chatInfo, "...!!!");
-
+      console.log(chatInfo, "chatInfo, !klfjdaljkfjasl");
       ws?.emit("startChat", {
         fromUserId: user?.id as string,
         toUserId: chatInfo?.user.id as string,
@@ -200,8 +203,11 @@ export default function RootLayout() {
         message: "请求聊天",
         type: "demand",
       });
+
+      router.push("/chat");
     }
   }, [chatInfo]);
+
   useEffect(() => {
     if (instance) {
       checkToken();

@@ -6,8 +6,9 @@ import { create } from "zustand";
 import useCommonStore from "../store/common";
 import { useAxios } from "../store/axios";
 import useRequest from "./request";
-import { TUser } from "../store/user";
+import useUser, { TUser } from "../store/user";
 import { chatStore } from "../store/chat";
+import { Alert } from "react-native";
 
 interface IChatInfo {
   fromUserId: string;
@@ -46,6 +47,7 @@ const useWS = () => {
   const { ws } = useWStore();
   const router = useRouter();
   const { getUser } = useRequest();
+  const { user } = useUser();
   const { setUsersWithChats } = useCommonStore();
   const requestUsersWithChats = useCommonStore(
     (state) => state.requestUsersWithChats
@@ -55,6 +57,8 @@ const useWS = () => {
 
   const onConnect = () => {
     console.log("hi, socket");
+
+    Alert.alert("hi, socket");
   };
 
   const onDisconnect = () => {
@@ -73,10 +77,18 @@ const useWS = () => {
     // useAxios().instance?.get("/");
 
     if (!_finder) {
-      const user = (await getUser(data.fromUserId)) as unknown as TUser;
+      const fromtUser = (await getUser(data.fromUserId)) as unknown as TUser;
+
+      receiveMessage({
+        fromUserId: data.fromUserId,
+        toUserId: user?.id as string,
+        message: data.message,
+        demandId: data.demandId,
+        type: "demand",
+      });
 
       setUsersWithChats({
-        user,
+        user: fromtUser,
         message: data.message,
         demandId: data.demandId as string,
         type: data.type as string,
@@ -97,7 +109,6 @@ const useWS = () => {
       stackId = `${data.toUserId}.${data.fromUserId}`;
       chatList = chatStack[`${data.toUserId}.${data.fromUserId}`];
     }
-
     setChatStack(stackId ? stackId : `${data.fromUserId}.${data.toUserId}`, [
       ...chatList,
       {
@@ -109,17 +120,22 @@ const useWS = () => {
     ]);
   };
 
+  const onError = (err: any) => {
+    console.log("error", err);
+  };
+
   useEffect(() => {
     ws?.on("connect", onConnect);
     ws?.on("disconnect", onDisconnect);
     ws?.on("startChat", startChat);
     ws?.on("receiveMessage", receiveMessage);
-
+    ws?.on("connect_error", onError);
     return () => {
       ws?.off("connect", onConnect);
       ws?.off("disconnect", onDisconnect);
       ws?.off("startChat", startChat);
       ws?.off("receiveMessage", receiveMessage);
+      ws?.off("connect_error", onError);
     };
   }, [ws, startChat]);
 

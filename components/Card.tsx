@@ -19,6 +19,7 @@ import { IChat } from "../store/chat";
 import { TextInput } from "react-native";
 import useRequest from "../hooks/request";
 import useDemands, { TDemand } from "../store/demand";
+import usePendingChat from "../store/pendingChat";
 
 export interface IDemandCard extends TDemand {
   images: string[];
@@ -113,7 +114,7 @@ export const ContactCard: FC<
   const { classname } = props;
 
   const { user } = useUser();
-  const { setChatInfo } = useCommonStore();
+  const { setChatInfo } = usePendingChat();
   const _user = {
     ...user,
     ...props,

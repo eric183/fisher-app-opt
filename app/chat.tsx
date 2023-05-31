@@ -2,10 +2,7 @@ import { StyleSheet, TextInput } from "react-native";
 import {
   Box,
   View,
-  Text,
   ScrollView,
-  Stack,
-  Input,
   Pressable,
   KeyboardAvoidingView,
 } from "native-base";
@@ -14,15 +11,12 @@ import { useNavigation, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { SplitCardViewBottom } from "../components/SplitCardView";
 import { MaterialIcons } from "@expo/vector-icons";
-import { create } from "zustand";
 import useUser, { TUser } from "../store/user";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { InterfaceScrollViewProps } from "native-base/lib/typescript/components/basic/ScrollView/types";
-import { useWStore } from "../hooks/ws";
-import useCommonStore from "../store/common";
+import useWS, { useWStore } from "../hooks/ws";
 import { IChat, chatStore } from "../store/chat";
 import { shallow } from "zustand/shallow";
 import useDebounce from "../hooks/debounce";
+import usePendingChat from "../store/pendingChat";
 
 const Chat = () => {
   const navigation = useNavigation();
@@ -33,10 +27,10 @@ const Chat = () => {
     (state) => ({ chatStack: state.chatStack }),
     shallow
   );
+  const { chatInfo } = usePendingChat();
   const { user } = useUser();
   const router = useRouter();
-  const { ws } = useWStore();
-  const { chatInfo } = useCommonStore();
+  const [ws] = useWS();
 
   const [chatList, setChatList] = useState<IChat[]>([]);
 
@@ -45,7 +39,7 @@ const Chat = () => {
   const getStackIdWidthList = () => {
     let stackId = "";
     let chatList: any[] = [];
-
+    console.log(chatStack, "chatStack.....");
     if (chatStack[`${user?.id}.${chatInfo?.user.id}`]) {
       stackId = `${user?.id}.${chatInfo?.user.id}`;
       chatList = chatStack[`${user?.id}.${chatInfo?.user.id}`];
@@ -71,11 +65,13 @@ const Chat = () => {
 
   useEffect(() => {
     // requestForChat();
+    console.log(chatInfo, "info!!");
   }, [chatInfo]);
 
   useEffect(() => {
     const [stackId, _chatList] = getStackIdWidthList();
 
+    // console.log(_chatList, "_chatList,././...");
     setChatList([..._chatList]);
 
     setTimeout(() => {
@@ -84,9 +80,12 @@ const Chat = () => {
   }, [chatStack]);
 
   const sendMessage = () => {
+    // return;
     const context = inputRef.current.context as string;
     const [stackId] = getStackIdWidthList();
 
+    console.log(stackId, "stackId,sdafdasafa");
+    // return;
     if (context.trim()) {
       ws?.emit("sendMessage", {
         fromUserId: user?.id as string,
@@ -129,7 +128,15 @@ const Chat = () => {
             />
           </View>
         </Pressable>
-        <AvartarCard classname="ml-16" />
+        <AvartarCard
+          classname="ml-16"
+          avatar={chatInfo?.user?.avatar}
+          username={
+            chatInfo?.user?.username
+              ? chatInfo?.user?.username
+              : chatInfo?.user?.id
+          }
+        />
       </View>
       <SplitCardViewBottom
         classname="px-6 pt-12 pb-2 bg-[#F2F5FA] overflow-hidden"
