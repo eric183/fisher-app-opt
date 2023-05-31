@@ -12,6 +12,7 @@ import useAuth, { IRegister } from "../hooks/auth";
 import { useLayoutEffect, useState } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import { Alert } from "react-native";
 
 const Sign = () => {
   const [siupLoading, setSignLoading] = useState<boolean>(false);
@@ -27,6 +28,24 @@ const Sign = () => {
   const router = useRouter();
 
   const signUpForm = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+
+    // const _emailRegex = /^[a-zA-Z0-9._%_-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (!emailRegex.test(formData.email)) {
+      Alert.alert("Invalid email format");
+      return;
+    }
+
+    if (!passwordRegex.test(formData.password)) {
+      Alert.alert(
+        "Invalid password format",
+        "Password must contain at least 8 characters, one uppercase, one lowercase and one number."
+      );
+      return;
+    }
+
     if (siupLoading) {
       return;
     }
@@ -50,12 +69,13 @@ const Sign = () => {
     setLoginLoading(true);
     try {
       const response = await signIn(formData);
-      await checkToken();
       if (response) {
+        await checkToken();
         router.back();
       }
       // if(response)
-    } catch (error) {
+    } catch (error: any) {
+      Alert.alert(error.message);
       setLoginLoading(false);
     }
   };

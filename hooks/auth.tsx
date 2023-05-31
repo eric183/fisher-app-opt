@@ -17,10 +17,14 @@ const useAuth = () => {
   const { setUser, user } = useUser();
 
   const signIn = async ({ email, password }: IRegister) => {
-    const data = await instance?.post(`/auth/login`, {
-      email: email.trim(),
-      password: password.trim(),
-    });
+    const data = await instance
+      ?.post(`/auth/login`, {
+        email: email.trim(),
+        password: password.trim(),
+      })
+      .catch((err) => {
+        return Promise.reject(err);
+      });
     return data;
   };
 

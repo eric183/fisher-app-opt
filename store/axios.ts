@@ -59,6 +59,7 @@ export const useAxios = create<IAxiosState>()((set) => ({
           set({
             loginStatus: "unauthenticated",
           });
+          return Promise.reject(error.response.data);
         } else {
           return Promise.reject(error);
         }
