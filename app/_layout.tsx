@@ -163,7 +163,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (user) {
       setWebsocket(
-        io("ws://api.doomsdaydetectiveagency.com:8081", {
+        io(process.env.WEBSOCKET_URL, {
           transports: ["websocket"],
           query: {
             userId: user?.id,

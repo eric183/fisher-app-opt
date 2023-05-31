@@ -57,8 +57,6 @@ const useWS = () => {
 
   const onConnect = () => {
     console.log("hi, socket");
-
-    Alert.alert("hi, socket");
   };
 
   const onDisconnect = () => {

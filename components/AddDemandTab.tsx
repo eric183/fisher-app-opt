@@ -247,12 +247,13 @@ const AddDemandForm: FC<{
   return (
     <KeyboardAvoidingView
       behavior={"padding"}
-      // contentContainerStyle={{
-      //   paddingBottom: "48px",
-      // }}
+      contentContainerStyle={{
+        height: "92%",
+        paddingBottom: "40px",
+      }}
       className="w-full h-[92%] bg-[#f2f5fa] rounded-t-3xl pt-5 px-8 overflow-hidden pb-12 flex-col"
     >
-      <Box className="flex flex-col flex-1">
+      <Box className="flex flex-col">
         <Text className="text-center text-3xl font-extrabold mb-4">
           New Task
         </Text>
@@ -315,6 +316,7 @@ const AddDemandForm: FC<{
             <Text className="text-2xl mb-2">Title</Text>
             <TextInput
               ref={titleRef}
+              onFocus={() => setMapInput(false)}
               onChangeText={(text) => (titleRef.current.context = text)}
               className="drop-shadow-xl rounded-xl bg-[#fff] py-3 px-3 text-[#447592]"
               placeholder="Input the title"
@@ -323,9 +325,10 @@ const AddDemandForm: FC<{
           <Stack className="mb-6">
             <Text className="text-2xl mb-2">Task</Text>
             <TextArea
-              ref={textAreaRef}
               bg="#fff"
+              ref={textAreaRef}
               autoCompleteType={undefined}
+              onFocus={() => setMapInput(false)}
               placeholder="Describe your task detail"
               onChangeText={(text) => (textAreaRef.current.context = text)}
             ></TextArea>
@@ -356,7 +359,7 @@ const AddDemandForm: FC<{
         </ScrollView>
       </Box>
 
-      <Stack direction="row" justifyContent="space-between">
+      <Stack className="my-6" direction="row" justifyContent="space-between">
         <Button className="w-[45%] py-4 rounded-xl" onPress={onClose}>
           Cancel
         </Button>
