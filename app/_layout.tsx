@@ -62,6 +62,7 @@ export default function RootLayout() {
     const _demands = alldemands.filter(
       (d) =>
         d.userId !== userId && // 去掉不是本人的任务
+        d.place?.name !== place?.name && // 地址一样
         // d.categoryType === categoryType && // 筛选同类任务
         status === "OPEN" && // 筛选开放的任务
         d.demandRole !== demandRole // 去掉同类任务角色
