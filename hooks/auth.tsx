@@ -25,6 +25,17 @@ const useAuth = () => {
     return data;
   };
 
+  const checkEmail = async (email: string) => {
+    const data = await instance
+      ?.post(`/auth/checkEmail`, {
+        email: email.trim(),
+      })
+      .catch((err) => {
+        return Promise.reject(err);
+      });
+    return data;
+  };
+
   const signIn = async ({
     email,
     password,
@@ -93,6 +104,7 @@ const useAuth = () => {
     signIn,
     signOut,
     checkToken,
+    checkEmail,
     register,
     resetPassword,
     sendEmailVerification,

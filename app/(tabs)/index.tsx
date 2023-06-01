@@ -51,7 +51,7 @@ export default function Index() {
     <Box className="h-full">
       <View className="flex flex-1 bg-[#49809F] justify-center pt-3">
         <AvartarCard classname="ml-12" onUploadPhoto={onUploadPhoto} />
-        {/* <Button
+        <Button
           className="absolute w-30 height-10 right-44 top-32"
           onPress={() => {
             router.push("/sign");
@@ -69,7 +69,7 @@ export default function Index() {
           }}
         >
           清除缓存 - 调试
-        </Button> */}
+        </Button>
       </View>
       <SplitCardViewBottom classname="px-6" height={"75%"}>
         <Text className="title" style={styles.taskTitle}>

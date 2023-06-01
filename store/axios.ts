@@ -59,6 +59,7 @@ export const useAxios = create<IAxiosState>()((set) => ({
         return response;
       },
       (error) => {
+        console.log(error.response.data, "error.response.....");
         if (error.code === "ERR_NETWORK") {
           return Promise.reject(error);
         }

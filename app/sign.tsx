@@ -25,8 +25,14 @@ const Sign = () => {
   const [pageIndex, setPageIndex] = useState<number>(0);
 
   const navigation = useNavigation();
-  const { register, signIn, resetPassword, checkToken, sendEmailVerification } =
-    useAuth();
+  const {
+    register,
+    checkEmail,
+    signIn,
+    resetPassword,
+    checkToken,
+    sendEmailVerification,
+  } = useAuth();
 
   const [formData, setFormData] = useState<IRegister>({
     email: "",
@@ -39,7 +45,10 @@ const Sign = () => {
 
   const goInputUsername = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[,.:;?!'"-])\S{8,}$/;
+    // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])\S{8,}$/;
+    // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])\S{8,}$/;
 
     // const _emailRegex = /^[a-zA-Z0-9._%_-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -56,7 +65,15 @@ const Sign = () => {
       return;
     }
 
-    setPageIndex(1);
+    try {
+      const data = await checkEmail(formData.email);
+
+      const pass = data?.data;
+
+      setPageIndex(1);
+    } catch (err: any) {
+      Alert.alert("User already exists");
+    }
   };
 
   const signUpForm = async () => {
@@ -67,7 +84,7 @@ const Sign = () => {
     setSignLoading(true);
 
     const data = await register(formData);
-    await checkToken();
+    // await checkToken();
     setSignLoading(false);
 
     if (data?.data.access_token) {
