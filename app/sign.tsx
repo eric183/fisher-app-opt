@@ -44,13 +44,12 @@ const Sign = () => {
   const router = useRouter();
 
   const goInputUsername = async () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[,.:;?!'"-])\S{8,}$/;
-    // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])\S{8,}$/;
-    // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])\S{8,}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; //邮箱
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)\S{8,}$/; //数字加字母
 
-    // const _emailRegex = /^[a-zA-Z0-9._%_-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[,.:;?!'"-])\S{8,}$/; //数字加字母加标点符号
+    // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])\S{8,}$/; // 数字加字母加特殊字符
+    // const _emailRegex = /^[a-zA-Z0-9._%_-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; //
 
     if (!emailRegex.test(formData.email)) {
       Alert.alert("Invalid email format");
@@ -292,7 +291,14 @@ const Sign = () => {
             <Text className="font-semibold"> {formData.email} </Text>
             to finish your account setup
           </Text>
-          <Button onPress={() => router.replace("/")}>GO back to home</Button>
+          <Button
+            onPress={() => {
+              router.replace("/");
+              signIn(formData);
+            }}
+          >
+            GO back to home
+          </Button>
         </View>
       )}
     </Box>
