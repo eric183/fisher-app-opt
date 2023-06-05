@@ -9,7 +9,9 @@ import useCommonStore from "../store/common";
 import { TDemand } from "../store/demand";
 import { useWStore } from "./ws";
 import usePendingChat from "../store/pendingChat";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { IAuthResponse, IGoogleUser } from "../typings/auth";
+import * as Google from "expo-auth-session/providers/google";
 export interface IRegister {
   email: string;
   password: string;
@@ -20,6 +22,54 @@ const useRequest = () => {
   const { setChatInfo } = usePendingChat();
   const { setUser, user } = useUser();
   // const { ws } = useWStore();
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    expoClientId:
+      // "823168178672-f0h9frh08lb3k8knspigmthq0fcccfjs.apps.googleusercontent.com",
+      "550771065328-4n6ifetk14ipohju31nph1f6uq5qft6u.apps.googleusercontent.com",
+    // expoClientkey: "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",
+    scopes: ["openid", "profile", "email"],
+    iosClientId:
+      "550771065328-4n6ifetk14ipohju31nph1f6uq5qft6u.apps.googleusercontent.com",
+    // redirectUri: "com.erickuang.fisherappopt:/oauth2redirect/google",
+
+    // redirectUri: makeRedirectUri({e
+    //   scheme:
+    //     // "expo-development-client/?url=https://u.expo.dev/86fa0b0f-8462-458c-a245-9198c618f45a?channel-name=preview",
+    //     "leapqr",
+    //   path: "redirect",
+    // }),
+  });
+  const googleAuthSignUp = async () => {
+    const data = (await promptAsync()) as IAuthResponse;
+
+    if (data?.type === "success") {
+      await AsyncStorage.setItem(
+        "accessToken",
+        data?.authentication.accessToken
+      );
+      return Promise.resolve(data);
+    }
+    return Promise.reject();
+  };
+
+  const googleAuthLogin = async () => {
+    const token = await AsyncStorage.getItem("accessToken");
+    try {
+      const response = await axios<Promise<IGoogleUser>>(
+        "https://www.googleapis.com/userinfo/v2/me",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const user = await response.data;
+
+      console.log(JSON.stringify(user), "...");
+    } catch (error) {
+      // Add your own error handler here
+    }
+  };
 
   const getUser = async (userId: string): Promise<TUser | undefined> => {
     console.log(userId, "!!!");
@@ -120,6 +170,8 @@ const useRequest = () => {
     updateUserContact,
     updateDemandStatus,
     createDemand,
+    googleAuthLogin,
+    googleAuthSignUp,
   };
 };
 

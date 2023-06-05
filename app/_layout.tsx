@@ -16,6 +16,7 @@ import RootLayoutNav from "../components/RootLayoutNav";
 import useRequest from "../hooks/request";
 import usePendingChat from "../store/pendingChat";
 import { Alert } from "react-native";
+import * as WebBrowser from "expo-web-browser";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -26,6 +27,8 @@ export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: "(tabs)",
 };
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function RootLayout() {
   const { chatInfo } = usePendingChat();

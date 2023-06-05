@@ -8,7 +8,6 @@ import {
   Text,
   PresenceTransition,
 } from "native-base";
-import * as Google from "expo-auth-session/providers/google";
 
 import { View } from "../components/Themed";
 import useAuth, { IRegister } from "../hooks/auth";
@@ -20,10 +19,11 @@ import { set } from "lodash";
 import { AvartarCard } from "../components/Card";
 import { ISanityDocument } from "sanity-uploader/typing";
 import uploadPhoto from "../utils/upload";
-import * as WebBrowser from "expo-web-browser";
+
 import { makeRedirectUri } from "expo-auth-session";
-import { IAuthResponse } from "../typings/auth";
-WebBrowser.maybeCompleteAuthSession();
+import { IAuthResponse, IGoogleUser } from "../typings/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import useRequest from "../hooks/request";
 
 const Sign = () => {
   const [siupLoading, setSignLoading] = useState<boolean>(false);
@@ -40,29 +40,12 @@ const Sign = () => {
     sendEmailVerification,
   } = useAuth();
 
+  const { googleAuthLogin, googleAuthSignUp } = useRequest();
   const [formData, setFormData] = useState<IRegister>({
     email: "",
     password: "",
     username: "",
     avatar: "",
-  });
-
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId:
-      // "823168178672-f0h9frh08lb3k8knspigmthq0fcccfjs.apps.googleusercontent.com",
-      "550771065328-4n6ifetk14ipohju31nph1f6uq5qft6u.apps.googleusercontent.com",
-    // expoClientkey: "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",
-    scopes: ["openid", "profile", "email"],
-    iosClientId:
-      "550771065328-4n6ifetk14ipohju31nph1f6uq5qft6u.apps.googleusercontent.com",
-    // redirectUri: "com.erickuang.fisherappopt:/oauth2redirect/google",
-
-    // redirectUri: makeRedirectUri({e
-    //   scheme:
-    //     // "expo-development-client/?url=https://u.expo.dev/86fa0b0f-8462-458c-a245-9198c618f45a?channel-name=preview",
-    //     "leapqr",
-    //   path: "redirect",
-    // }),
   });
 
   const router = useRouter();
@@ -115,13 +98,12 @@ const Sign = () => {
     }
   };
 
-  const googleAuthLogin = async () => {
-    const data = (await promptAsync()) as IAuthResponse;
-
-    console.log(data.authentication.accessToken);
-  };
   const LoginForm = async () => {
-    googleAuthLogin();
+    const { authentication } = await googleAuthSignUp();
+
+    if (authentication?.accessToken) {
+      googleAuthLogin();
+    }
     return;
 
     if (loginLoading) {
