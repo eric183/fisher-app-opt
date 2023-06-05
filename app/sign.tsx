@@ -7,7 +7,9 @@ import {
   WarningOutlineIcon,
   Text,
   PresenceTransition,
+  Image,
 } from "native-base";
+import Svg, { Circle, Rect, Path, G } from "react-native-svg";
 
 import { View } from "../components/Themed";
 import useAuth, { IRegister } from "../hooks/auth";
@@ -98,14 +100,26 @@ const Sign = () => {
     }
   };
 
-  const LoginForm = async () => {
+  const googleAuthBinder = async () => {
     const { authentication } = await googleAuthSignUp();
 
+    console.log(authentication, "middle");
     if (authentication?.accessToken) {
-      googleAuthLogin();
+      const response = await googleAuthLogin();
+      if (response?.id) {
+        response?.email;
+        setFormData({
+          email: response.email,
+          password: "",
+          username: response.name,
+          avatar: response.picture,
+        });
+        setPageIndex(2);
+      }
     }
-    return;
+  };
 
+  const LoginForm = async () => {
     if (loginLoading) {
       return;
     }
@@ -240,6 +254,19 @@ const Sign = () => {
               Login
             </Button>
           </View>
+
+          <Button
+            onPress={googleAuthBinder}
+            className="w-[94%] rounded-2xl bg-blue-500 text-white font-extrabold text-lg h-10 relative mt-5 py-3"
+          >
+            {/* google svg */}
+            <Image
+              rounded="2xl"
+              className="flex-shrink-0 w-[32px] h-[32px]"
+              source={require("../assets/images/google/google-48.png")}
+              alt="left"
+            />
+          </Button>
         </>
       )}
       {pageIndex === 1 && (

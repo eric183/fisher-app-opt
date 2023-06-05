@@ -34,7 +34,7 @@ export const useAxios = create<IAxiosState>()((set) => ({
           loginStatus: "pendingVerification",
         });
 
-        const bearerToken = await AsyncStorage.getItem("token");
+        const bearerToken = await AsyncStorage.getItem("accessToken");
 
         config.headers.Authorization = `Bearer ${bearerToken}`;
 
@@ -51,7 +51,7 @@ export const useAxios = create<IAxiosState>()((set) => ({
           AsyncStorage.setItem("userInfo", JSON.stringify(response.data));
         }
         if (response.data.access_token) {
-          AsyncStorage.setItem("token", response.data.access_token);
+          AsyncStorage.setItem("accessToken", response.data.access_token);
           set({
             loginStatus: "authenticated",
           });

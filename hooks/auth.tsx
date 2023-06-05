@@ -12,6 +12,9 @@ export interface IRegister {
   password: string;
   username: string;
   avatar?: string;
+  openId?: string;
+  authToken?: string;
+  authExpiresAt?: any;
 }
 
 const useAuth = () => {
@@ -84,12 +87,19 @@ const useAuth = () => {
     }
   };
 
-  const register = async ({ email, password, username, avatar }: IRegister) => {
+  const register = async ({
+    email,
+    password,
+    username,
+    avatar,
+    openId,
+  }: IRegister) => {
     const postUser = {
       email: email.trim(),
       password: password.trim(),
       username: username.trim(),
       avatar: avatar,
+      openId: openId ? openId : "",
     };
 
     const response = await instance?.post(`/auth/register`, postUser);
@@ -100,8 +110,6 @@ const useAuth = () => {
     // console.log("isRegisted:", data)
   };
 
-
-  
   return {
     signIn,
     signOut,

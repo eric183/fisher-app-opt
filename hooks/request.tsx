@@ -12,15 +12,13 @@ import usePendingChat from "../store/pendingChat";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IAuthResponse, IGoogleUser } from "../typings/auth";
 import * as Google from "expo-auth-session/providers/google";
-export interface IRegister {
-  email: string;
-  password: string;
-}
+import useAuth from "./auth";
 
 const useRequest = () => {
   const instance = useAxios((state) => state.instance);
   const { setChatInfo } = usePendingChat();
   const { setUser, user } = useUser();
+  const { register } = useAuth();
   // const { ws } = useWStore();
 
   const [request, response, promptAsync] = Google.useAuthRequest({
@@ -43,32 +41,53 @@ const useRequest = () => {
   const googleAuthSignUp = async () => {
     const data = (await promptAsync()) as IAuthResponse;
 
-    if (data?.type === "success") {
+    if (data?.authentication.accessToken) {
       await AsyncStorage.setItem(
         "accessToken",
         data?.authentication.accessToken
       );
+
+      await AsyncStorage.setItem(
+        "accessTokenExpiresIn",
+        data?.authentication.expiresIn
+      );
+
       return Promise.resolve(data);
     }
     return Promise.reject();
   };
 
-  const googleAuthLogin = async () => {
+  const googleAuthLogin = async (): Promise<IGoogleUser | undefined> => {
     const token = await AsyncStorage.getItem("accessToken");
-    try {
-      const response = await axios<Promise<IGoogleUser>>(
-        "https://www.googleapis.com/userinfo/v2/me",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+    const accessTokenExpiresIn = await AsyncStorage.getItem(
+      "accessTokenExpiresIn"
+    );
 
-      const user = await response.data;
+    const response = await axios.get<Promise<IGoogleUser>>(
+      "https://www.googleapis.com/userinfo/v2/me",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
-      console.log(JSON.stringify(user), "...");
-    } catch (error) {
-      // Add your own error handler here
+    const userInfo = await response?.data;
+
+    console.log(userInfo, "userInfo");
+
+    if (userInfo) {
+      register({
+        email: userInfo.email,
+        // ramdom password
+        password: "123456",
+        username: userInfo.name,
+        avatar: userInfo.picture,
+        openId: userInfo.id,
+        authExpiresAt: accessTokenExpiresIn,
+        authToken: token as string,
+      });
     }
+
+    return response?.data;
   };
 
   const getUser = async (userId: string): Promise<TUser | undefined> => {
