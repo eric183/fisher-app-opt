@@ -22,6 +22,7 @@ import { ISanityDocument } from "sanity-uploader/typing";
 import uploadPhoto from "../utils/upload";
 import * as WebBrowser from "expo-web-browser";
 import { makeRedirectUri } from "expo-auth-session";
+import { IAuthResponse } from "../typings/auth";
 WebBrowser.maybeCompleteAuthSession();
 
 const Sign = () => {
@@ -114,10 +115,13 @@ const Sign = () => {
     }
   };
 
-  const LoginForm = async () => {
-    const data = await promptAsync();
+  const googleAuthLogin = async () => {
+    const data = (await promptAsync()) as IAuthResponse;
 
-    console.log(JSON.stringify(data));
+    console.log(data.authentication.accessToken);
+  };
+  const LoginForm = async () => {
+    googleAuthLogin();
     return;
 
     if (loginLoading) {
