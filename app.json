@@ -2,13 +2,14 @@
   "expo": {
     "name": "fisher-app-opt",
     "slug": "fisher-app-opt",
+    "originalFullName": "@erickuang/fisher-app-opt",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "leapql",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/bouncing-loading-loop.gif",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
