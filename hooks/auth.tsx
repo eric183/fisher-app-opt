@@ -76,6 +76,9 @@ const useAuth = () => {
     const demandResponse = await instance?.get(
       `/demand/${profileResponse.data.id}`
     );
+
+    // console.log(demandResponse, "demandResponse");
+
     // const demandResponse = await instance?.get(`/demand/count/${data.id}`)!;
 
     if (profileResponse?.status === 200) {
@@ -108,6 +111,7 @@ const useAuth = () => {
 
     const response = await instance?.post(`/auth/googleAuth`, postUser);
 
+    return response?.data;
     // if (response?.data === true) {
     //   return signIn(postUser);
     // }

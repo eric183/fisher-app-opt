@@ -18,6 +18,7 @@ import uploadPhoto from "../../utils/upload";
 import useRequest from "../../hooks/request";
 import useMatch from "../../store/match";
 import { ISanityDocument } from "sanity-uploader/typing";
+import ProfileController from "../../components/ProfileController";
 
 // import { createReadStream } from "fs";
 
@@ -51,25 +52,8 @@ export default function Index() {
     <Box className="h-full">
       <View className="flex flex-1 bg-[#49809F] justify-center pt-3">
         <AvartarCard classname="ml-12" onUploadPhoto={onUploadPhoto} />
-        <Button
-          className="absolute w-30 height-10 right-44 top-32"
-          onPress={() => {
-            router.push("/sign");
-            // alert("clear!!");
-          }}
-        >
-          切换用户 - 调试
-        </Button>
-        <Button
-          className="absolute w-30 height-10 right-10 top-32"
-          onPress={() => {
-            AsyncStorage.clear();
-            Alert.alert("clear!!");
-            // alert("clear!!");
-          }}
-        >
-          清除缓存 - 调试
-        </Button>
+
+        <ProfileController />
       </View>
       <SplitCardViewBottom classname="px-6" height={"75%"}>
         <Text className="title" style={styles.taskTitle}>

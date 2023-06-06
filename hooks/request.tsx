@@ -70,10 +70,7 @@ const useRequest = () => {
       }
     );
 
-    console.log(token, "token");
     const userInfo = await response?.data;
-
-    console.log(userInfo, "userInfo");
 
     if (userInfo) {
       const gAuth = await googleAuth({
@@ -87,7 +84,7 @@ const useRequest = () => {
         authToken: token as string,
       });
 
-      console.log(gAuth);
+      setUser(gAuth);
     }
 
     return response?.data;

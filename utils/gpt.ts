@@ -50,6 +50,11 @@ export async function gptAPI(prompt: string): Promise<OpenAIResponse> {
   } as OpenAIStreamPayload;
 
   delete payload.prompt;
+
+  console.log(
+    process.env.CHATGPT_PLUS_API_TOKEN,
+    "process.env.CHATGPT_PLUS_API_TOKEN"
+  );
   const res = await axios.post(
     "https://api.openai.com/v1/chat/completions",
     payload,

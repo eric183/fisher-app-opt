@@ -214,7 +214,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (instance) {
-      // checkToken();
+      checkToken();
     }
   }, [instance]);
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.

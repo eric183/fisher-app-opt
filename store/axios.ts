@@ -15,6 +15,7 @@ interface IAxiosState {
   instance: AxiosInstance | null;
   init: () => void;
 }
+
 export const useAxios = create<IAxiosState>()((set) => ({
   loginStatus: "authenticated",
   instance: null,
@@ -52,6 +53,7 @@ export const useAxios = create<IAxiosState>()((set) => ({
         }
         if (response.data.access_token) {
           AsyncStorage.setItem("accessToken", response.data.access_token);
+
           set({
             loginStatus: "authenticated",
           });
@@ -59,8 +61,8 @@ export const useAxios = create<IAxiosState>()((set) => ({
         return response;
       },
       (error) => {
-        console.log(error.response.data, "error.response.....");
         if (error.code === "ERR_NETWORK") {
+          // console.log(error, "...");
           return Promise.reject(error);
         }
 

@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Box, CheckIcon, Select } from "native-base";
+import { Box, Button, CheckIcon, Select } from "native-base";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
@@ -9,11 +9,15 @@ import {
   Text,
   TouchableHighlight,
   TextInput,
+  Alert,
+  DevSettings,
 } from "react-native";
 import { useAxios } from "../store/axios";
 import useDemands, { TDemand } from "../store/demand";
 import useUser from "../store/user";
 import useRequest from "../hooks/request";
+import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProfileHeader = ({ profile }: any) => {
   const { user, setUser } = useUser();
@@ -150,7 +154,8 @@ const UserPosts = ({ profile }: any) => {
   );
 };
 
-const UserHome = () => {
+const Settings = () => {
+  const router = useRouter();
   const [profile, setProfile] = useState({
     username: "sample_user",
     followers: 10000,
@@ -165,13 +170,35 @@ const UserHome = () => {
 
   return (
     <View style={styles.container}>
+      <Button
+        className="absolute w-30 height-10 right-28 top-5 z-50"
+        onPress={async () => {
+          await AsyncStorage.setItem("access_Token", "");
+          console.log(await AsyncStorage.getItem("access_Token"));
+          // DevSettings.reload();
+          // router.push("/sign");
+          // alert("clear!!");
+        }}
+      >
+        切换用户
+      </Button>
+      <Button
+        className="absolute w-30 height-10 right-5 top-5 z-50"
+        onPress={() => {
+          AsyncStorage.clear();
+          Alert.alert("clear!!");
+          // alert("clear!!");
+        }}
+      >
+        清除缓存
+      </Button>
       <ProfileHeader profile={profile} />
       <UserPosts profile={profile} />
     </View>
   );
 };
 
-export default UserHome;
+export default Settings;
 
 const styles = StyleSheet.create({
   container: {

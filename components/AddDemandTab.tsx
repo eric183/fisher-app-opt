@@ -66,7 +66,9 @@ const AddDemandTab = ({ children }: any) => {
 
     try {
       console.log(prompt.slice(0, 10), ".... pendding to gpt,");
-      const { choices } = await gptAPI(embeddingPrompt(prompt));
+      const embeddedPrompt = embeddingPrompt(prompt);
+      console.log(embeddedPrompt, "test");
+      const { choices } = await gptAPI(embeddedPrompt);
 
       const context = getJSONFormatFromGPT(choices[0].message.content);
       console.log(prompt.slice(0, 10), ".... response from gpt,");
@@ -91,7 +93,6 @@ const AddDemandTab = ({ children }: any) => {
         setFetching(true);
 
         const requestData = await callOpenAI(text);
-
         setFetching(false);
 
         if (!requestData) return;
