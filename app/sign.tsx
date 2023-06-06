@@ -106,6 +106,8 @@ const Sign = () => {
     console.log(authentication, "middle");
     if (authentication?.accessToken) {
       const response = await googleAuthLogin();
+
+      console.log(response, "response");
       if (response?.id) {
         response?.email;
         setFormData({
@@ -335,7 +337,7 @@ const Sign = () => {
           <Button
             onPress={() => {
               router.replace("/");
-              signIn(formData);
+              // signIn(formData);
             }}
           >
             GO back to home

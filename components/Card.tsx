@@ -92,7 +92,7 @@ export const AvartarCard: FC<{
         <TextInput
           ref={nameInput}
           className={`${showTextInput ? "visible" : "hidden"} text-white`}
-          defaultValue={user?.username ? user.username : user?.id.toString()}
+          defaultValue={user?.username ? user?.username : ""}
           onSubmitEditing={usernameBinder}
         ></TextInput>
         {/* <Text className="text-white">

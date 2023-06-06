@@ -87,12 +87,14 @@ const useAuth = () => {
     }
   };
 
-  const register = async ({
+  const googleAuth = async ({
     email,
     password,
     username,
     avatar,
     openId,
+    authExpiresAt,
+    authToken,
   }: IRegister) => {
     const postUser = {
       email: email.trim(),
@@ -100,6 +102,34 @@ const useAuth = () => {
       username: username.trim(),
       avatar: avatar,
       openId: openId ? openId : "",
+      authExpiresAt,
+      authToken,
+    };
+
+    const response = await instance?.post(`/auth/googleAuth`, postUser);
+
+    // if (response?.data === true) {
+    //   return signIn(postUser);
+    // }
+  };
+
+  const register = async ({
+    email,
+    password,
+    username,
+    avatar,
+    openId,
+    authExpiresAt,
+    authToken,
+  }: IRegister) => {
+    const postUser = {
+      email: email.trim(),
+      password: password.trim(),
+      username: username.trim(),
+      avatar: avatar,
+      openId: openId ? openId : "",
+      authExpiresAt,
+      authToken,
     };
 
     const response = await instance?.post(`/auth/register`, postUser);
@@ -118,6 +148,7 @@ const useAuth = () => {
     register,
     resetPassword,
     sendEmailVerification,
+    googleAuth,
   };
 };
 

@@ -18,7 +18,7 @@ const useRequest = () => {
   const instance = useAxios((state) => state.instance);
   const { setChatInfo } = usePendingChat();
   const { setUser, user } = useUser();
-  const { register } = useAuth();
+  const { googleAuth } = useAuth();
   // const { ws } = useWStore();
 
   const [request, response, promptAsync] = Google.useAuthRequest({
@@ -43,12 +43,12 @@ const useRequest = () => {
 
     if (data?.authentication.accessToken) {
       await AsyncStorage.setItem(
-        "accessToken",
+        "googleToken",
         data?.authentication.accessToken
       );
 
       await AsyncStorage.setItem(
-        "accessTokenExpiresIn",
+        "googleTokenExpiresIn",
         data?.authentication.expiresIn
       );
 
@@ -58,9 +58,9 @@ const useRequest = () => {
   };
 
   const googleAuthLogin = async (): Promise<IGoogleUser | undefined> => {
-    const token = await AsyncStorage.getItem("accessToken");
+    const token = await AsyncStorage.getItem("googleToken");
     const accessTokenExpiresIn = await AsyncStorage.getItem(
-      "accessTokenExpiresIn"
+      "googleTokenExpiresIn"
     );
 
     const response = await axios.get<Promise<IGoogleUser>>(
@@ -70,12 +70,13 @@ const useRequest = () => {
       }
     );
 
+    console.log(token, "token");
     const userInfo = await response?.data;
 
     console.log(userInfo, "userInfo");
 
     if (userInfo) {
-      register({
+      const gAuth = await googleAuth({
         email: userInfo.email,
         // ramdom password
         password: "123456",
@@ -85,6 +86,8 @@ const useRequest = () => {
         authExpiresAt: accessTokenExpiresIn,
         authToken: token as string,
       });
+
+      console.log(gAuth);
     }
 
     return response?.data;
