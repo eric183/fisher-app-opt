@@ -2,7 +2,7 @@
   "expo": {
     "name": "fisher-app-opt",
     "slug": "fisher-app-opt",
-    "originalFullName": "@erickuang/fisher-app-opt",
+    "originalFullName": "@fish-hunter/fisher-app-opt",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
