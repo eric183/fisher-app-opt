@@ -16,7 +16,6 @@ import RootLayoutNav from "../components/RootLayoutNav";
 import useRequest from "../hooks/request";
 import usePendingChat from "../store/pendingChat";
 import { Alert } from "react-native";
-import * as WebBrowser from "expo-web-browser";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -28,7 +27,7 @@ export const unstable_settings = {
   initialRouteName: "(tabs)",
 };
 
-WebBrowser.maybeCompleteAuthSession();
+// WebBrowser.maybeCompleteAuthSession();
 
 export default function RootLayout() {
   const { chatInfo } = usePendingChat();
@@ -181,11 +180,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (matchInfo as IMatchResponse) {
       const matchedItem = (matchInfo as IMatchResponse)?.matchedItem as TDemand;
-      console.log(matchedItem.id, "sssssdafads");
-      console.log(
-        alldemands.map((x) => x.id),
-        "demands....as.df.."
-      );
+
       const matchedDemand = alldemands.find(
         (x) => x.id === matchedItem.id
       ) as TDemand;

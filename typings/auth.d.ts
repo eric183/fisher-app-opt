@@ -41,3 +41,18 @@ export interface IGoogleUser {
   picture: string;
   locale: string;
 }
+
+export interface I0Uath {
+  authentication: Authentication;
+  error: null;
+  errorCode: null;
+  params: {
+    authuser: string;
+    code: string;
+    prompt: string;
+    scope: string;
+    state: string;
+  };
+  type: string;
+  url: string;
+}

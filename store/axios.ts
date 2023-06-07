@@ -16,6 +16,9 @@ interface IAxiosState {
   init: () => void;
 }
 
+console.log(process.env.APP_ORIGIN_URL, "APP_ORIGIN_URL");
+console.log(process.env.GOOGLE_MAP_SDK, "");
+
 export const useAxios = create<IAxiosState>()((set) => ({
   loginStatus: "authenticated",
   instance: null,
@@ -42,6 +45,7 @@ export const useAxios = create<IAxiosState>()((set) => ({
         return config;
       },
       (error) => {
+        console.log(error.response.data);
         return Promise.reject(error);
       }
     );
@@ -61,8 +65,11 @@ export const useAxios = create<IAxiosState>()((set) => ({
         return response;
       },
       (error) => {
+        console.log("url..", error.request._url, error.response.data);
+
         if (error.code === "ERR_NETWORK") {
           // console.log(error, "...");
+
           return Promise.reject(error);
         }
 
@@ -74,6 +81,7 @@ export const useAxios = create<IAxiosState>()((set) => ({
               message: error.response.data.message,
             },
           });
+
           return Promise.reject(error.response.data);
         }
 
@@ -86,6 +94,7 @@ export const useAxios = create<IAxiosState>()((set) => ({
               message: error.response.data.message,
             },
           });
+
           return Promise.reject(error.response.data);
         } else {
           return Promise.reject(error);

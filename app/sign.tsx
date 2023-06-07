@@ -13,7 +13,7 @@ import Svg, { Circle, Rect, Path, G } from "react-native-svg";
 
 import { View } from "../components/Themed";
 import useAuth, { IRegister } from "../hooks/auth";
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Alert } from "react-native";
@@ -26,12 +26,15 @@ import { makeRedirectUri } from "expo-auth-session";
 import { IAuthResponse, IGoogleUser } from "../typings/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useRequest from "../hooks/request";
+import * as WebBrowser from "expo-web-browser";
+import useUser from "../store/user";
 
+WebBrowser.maybeCompleteAuthSession();
 const Sign = () => {
   const [siupLoading, setSignLoading] = useState<boolean>(false);
   const [loginLoading, setLoginLoading] = useState<boolean>(false);
   const [pageIndex, setPageIndex] = useState<number>(0);
-
+  const { user } = useUser();
   const navigation = useNavigation();
   const {
     register,
@@ -42,7 +45,7 @@ const Sign = () => {
     sendEmailVerification,
   } = useAuth();
 
-  const { googleAuthLogin, googleAuthSignUp } = useRequest();
+  const { googleAuthPromptAsync } = useRequest();
   const [formData, setFormData] = useState<IRegister>({
     email: "",
     password: "",
@@ -100,27 +103,6 @@ const Sign = () => {
     }
   };
 
-  const googleAuthBinder = async () => {
-    const { authentication } = await googleAuthSignUp();
-
-    console.log(authentication, "middle");
-    if (authentication?.accessToken) {
-      const response = await googleAuthLogin();
-
-      console.log(response, "response");
-      if (response?.id) {
-        response?.email;
-        setFormData({
-          email: response.email,
-          password: "",
-          username: response.name,
-          avatar: response.picture,
-        });
-        setPageIndex(2);
-      }
-    }
-  };
-
   const LoginForm = async () => {
     if (loginLoading) {
       return;
@@ -163,6 +145,17 @@ const Sign = () => {
     });
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        email: user.email,
+        password: "",
+        username: user.username as string,
+        avatar: user.avatar as string,
+      });
+      setPageIndex(2);
+    }
+  }, [user?.authToken]);
   return (
     <Box
       alignItems="center"
@@ -258,7 +251,7 @@ const Sign = () => {
           </View>
 
           <Button
-            onPress={googleAuthBinder}
+            onPress={() => googleAuthPromptAsync()}
             className="w-[94%] rounded-2xl bg-blue-500 text-white font-extrabold text-lg h-10 relative mt-5 py-3"
           >
             {/* google svg */}

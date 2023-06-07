@@ -10,6 +10,8 @@ export type TUser = {
   id: string;
   demandCount?: number;
   demands?: TDemand[];
+  authToken?: string;
+  authExpiresAt?: string;
 };
 
 export interface TUserState {

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import OriginURL from "../constants/OriginURL";
 // import request from "../utils/request";
 import { Link, useRouter, useSegments } from "expo-router";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useAxios } from "../store/axios";
 import useUser, { TUser } from "../store/user";
 import useCommonStore from "../store/common";
@@ -10,9 +10,10 @@ import { TDemand } from "../store/demand";
 import { useWStore } from "./ws";
 import usePendingChat from "../store/pendingChat";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { IAuthResponse, IGoogleUser } from "../typings/auth";
+import { I0Uath, IAuthResponse, IGoogleUser } from "../typings/auth";
 import * as Google from "expo-auth-session/providers/google";
 import useAuth from "./auth";
+import { AuthSessionResult } from "expo-auth-session";
 
 const useRequest = () => {
   const instance = useAxios((state) => state.instance);
@@ -21,9 +22,8 @@ const useRequest = () => {
   const { googleAuth } = useAuth();
   // const { ws } = useWStore();
 
-  const [request, response, promptAsync] = Google.useAuthRequest({
+  const [request, response, googleAuthPromptAsync] = Google.useAuthRequest({
     expoClientId:
-      // "823168178672-f0h9frh08lb3k8knspigmthq0fcccfjs.apps.googleusercontent.com",
       "550771065328-4n6ifetk14ipohju31nph1f6uq5qft6u.apps.googleusercontent.com",
     // expoClientkey: "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",
     scopes: ["openid", "profile", "email"],
@@ -39,41 +39,50 @@ const useRequest = () => {
     //   path: "redirect",
     // }),
   });
-  const googleAuthSignUp = async () => {
-    const data = (await promptAsync()) as IAuthResponse;
 
-    if (data?.authentication.accessToken) {
-      await AsyncStorage.setItem(
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { authentication } = response;
+
+      // console.log(authentication, "authentication");
+      AsyncStorage.setItem(
         "googleToken",
-        data?.authentication.accessToken
+        authentication?.accessToken as string
       );
-
-      await AsyncStorage.setItem(
+      AsyncStorage.setItem(
         "googleTokenExpiresIn",
-        data?.authentication.expiresIn
+        authentication?.expiresIn?.toString() as string
       );
 
-      return Promise.resolve(data);
+      googleAuthLogin(response);
     }
-    return Promise.reject();
-  };
+  }, [response]);
+  // const googleAuthSignUp = async () => {
 
-  const googleAuthLogin = async (): Promise<IGoogleUser | undefined> => {
+  //   console.log(response, "reponse,;;;a;ds;f");
+  // };
+
+  const googleAuthLogin = async (
+    authResponse: any
+  ): Promise<IGoogleUser | undefined> => {
     const token = await AsyncStorage.getItem("googleToken");
     const accessTokenExpiresIn = await AsyncStorage.getItem(
       "googleTokenExpiresIn"
     );
 
-    const response = await axios.get<Promise<IGoogleUser>>(
-      "https://www.googleapis.com/userinfo/v2/me",
-      {
+    const response = await axios
+      .get<Promise<IGoogleUser>>("https://www.googleapis.com/userinfo/v2/me", {
         headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+      })
+      .catch((error: AxiosError) => {
+        console.log(error?.response?.data, "error");
+      });
 
     const userInfo = await response?.data;
 
     if (userInfo) {
+      // console.log(userInfo, "userInfo.....");
+
       const gAuth = await googleAuth({
         email: userInfo.email,
         // ramdom password
@@ -176,7 +185,7 @@ const useRequest = () => {
   // };
 
   const createDemand = async (demandInfo: TDemand): Promise<TDemand> => {
-    console.log(demandInfo, "demandInfo");
+    // console.log(demandInfo, "demandInfo");
     const response = await instance?.post("/demand/create", demandInfo);
     return response?.data;
     // await getAllSelfDemands();
@@ -190,8 +199,8 @@ const useRequest = () => {
     updateUserContact,
     updateDemandStatus,
     createDemand,
-    googleAuthLogin,
-    googleAuthSignUp,
+    // googleAuthLogin,
+    googleAuthPromptAsync,
   };
 };
 

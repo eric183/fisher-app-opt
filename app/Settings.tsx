@@ -176,7 +176,7 @@ const Settings = () => {
           await AsyncStorage.setItem("access_Token", "");
           console.log(await AsyncStorage.getItem("access_Token"));
           // DevSettings.reload();
-          // router.push("/sign");
+          router.push("/sign");
           // alert("clear!!");
         }}
       >
