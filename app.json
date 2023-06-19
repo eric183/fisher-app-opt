@@ -3,7 +3,7 @@
     "name": "Leapqr",
     "slug": "leapqr",
     "scheme": "leapqr",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "originalFullName": "@fish-hunter/leapqr",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
