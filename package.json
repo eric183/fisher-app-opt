@@ -1,5 +1,5 @@
 {
-  "name": "fisher-app-opt",
+  "name": "leapql",
   "version": "1.0.0",
   "scripts": {
     "client": "expo start --dev-client",

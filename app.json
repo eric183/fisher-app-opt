@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "fisher-app-opt",
-    "slug": "fisher-app-opt",
+    "name": "leapql",
+    "slug": "leapql",
     "scheme": "leapql",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,7 +17,12 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.erickuang.fisherappopt"
+      "bundleIdentifier": "com.erickuang.fisherappopt",
+      "config": {
+        "googleSignIn": {
+          "reservedClientId": "com.googleusercontent.apps.550771065328-atnp8mu1i608tf3shsq571i25brjat1g"
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -32,7 +37,7 @@
       }
     },
     "runtimeVersion": {
-      "policy": "appVersion"
+      "policy": "sdkVersion"
     },
     "updates": {
       "url": "https://u.expo.dev/86fa0b0f-8462-458c-a245-9198c618f45a"
