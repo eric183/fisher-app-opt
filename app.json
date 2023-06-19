@@ -1,9 +1,10 @@
 {
   "expo": {
-    "name": "leapql",
-    "slug": "leapql",
-    "scheme": "leapql",
-    "version": "1.0.0",
+    "name": "Leapqr",
+    "slug": "leapqr",
+    "scheme": "leapqr",
+    "version": "1.0.2",
+    "originalFullName": "@fish-hunter/leapqr",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
@@ -17,7 +18,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.erickuang.fisherappopt",
+      "bundleIdentifier": "com.erickuang.leapqr",
       "config": {
         "googleSignIn": {
           "reservedClientId": "com.googleusercontent.apps.550771065328-atnp8mu1i608tf3shsq571i25brjat1g"
@@ -29,11 +30,11 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.erickuang.fisherappopt"
+      "package": "com.erickuang.leapqr"
     },
     "extra": {
       "eas": {
-        "projectId": "86fa0b0f-8462-458c-a245-9198c618f45a"
+        "projectId": "6b0e6ba0-b654-40b5-9216-d6eb1755c3c4"
       }
     },
     "runtimeVersion": {

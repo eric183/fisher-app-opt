@@ -28,7 +28,7 @@ const useRequest = () => {
     // expoClientkey: "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",
     scopes: ["openid", "profile", "email"],
     iosClientId:
-      "550771065328-atnp8mu1i608tf3shsq571i25brjat1g.apps.googleusercontent.com",
+      "823168178672-3p6ro5eoor5edsosccnkcvdff364qmqf.apps.googleusercontent.com",
     // ...{ useProxy: true },
     // redirectUri: "com.erickuang.fisherappopt:/oauth2redirect/google",
 
