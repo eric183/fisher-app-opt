@@ -47,11 +47,10 @@ export default function Index() {
     }
   };
 
-  // console.log(alldemands);
   return (
     <Box className="h-full">
       <View className="flex flex-1 bg-[#49809F] justify-center pt-3">
-        <Text>{process.env.APP_ORIGIN_URL}</Text>
+        {/* <Text>{process.env.APP_ORIGIN_URL}</Text> */}
         <AvartarCard classname="ml-12" onUploadPhoto={onUploadPhoto} />
 
         <ProfileController />

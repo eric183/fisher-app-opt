@@ -3,10 +3,10 @@
     "name": "Leapqr",
     "slug": "leapqr",
     "scheme": "leapqr",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "originalFullName": "@fish-hunter/leapqr",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/AppIcons/leapqr.png",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/bouncing-loading-loop.gif",
@@ -23,7 +23,8 @@
         "googleSignIn": {
           "reservedClientId": "com.googleusercontent.apps.550771065328-atnp8mu1i608tf3shsq571i25brjat1g"
         }
-      }
+      },
+      "buildNumber": "3"
     },
     "android": {
       "adaptiveIcon": {

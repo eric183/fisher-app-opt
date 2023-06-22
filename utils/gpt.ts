@@ -55,16 +55,16 @@ export async function gptAPI(prompt: string): Promise<OpenAIResponse> {
     process.env.CHATGPT_PLUS_API_TOKEN,
     "process.env.CHATGPT_PLUS_API_TOKEN"
   );
-  const res = await axios.post(
-    "https://api.openai.com/v1/chat/completions",
-    payload,
-    {
+  const res = await axios
+    .post("https://api.openai.com/v1/chat/completions", payload, {
       headers: {
         "Content-Type": "application/json",
         // 'Authorization': `Bearer `
         Authorization: `Bearer ${api_configuration.apiKey}`,
       },
-    }
-  );
-  return res.data;
+    })
+    .catch((err) => {
+      console.log(err.response.data);
+    });
+  return res?.data;
 }

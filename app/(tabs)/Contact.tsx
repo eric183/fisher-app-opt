@@ -9,6 +9,7 @@ import { Box, Input, View } from "native-base";
 import { SplitCardViewBottom } from "../../components/SplitCardView";
 import { AvartarCard, ContactCard, DemandCard } from "../../components/Card";
 import useCommonStore from "../../store/common";
+import ProfileController from "../../components/ProfileController";
 
 export default function Contact() {
   const demand = useIndexState((state) => state.demand);
@@ -19,6 +20,7 @@ export default function Contact() {
     <Box className="h-full">
       <View className="flex flex-1 bg-[#49809F] justify-center pt-3">
         <AvartarCard classname="ml-12" />
+        <ProfileController />
       </View>
       <SplitCardViewBottom classname="px-6 bg-red pt-4" height={"75%"}>
         <TextInput

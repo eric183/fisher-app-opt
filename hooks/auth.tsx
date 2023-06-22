@@ -69,8 +69,15 @@ const useAuth = () => {
   };
 
   const checkToken = async () => {
-    const profileResponse = await instance?.get("/auth/profile");
+    const profileResponse = await instance
+      ?.get("/auth/profile")
+      .catch((err) => {
+        console.log("checkToken", err);
 
+        return Promise.reject(err);
+      });
+
+    // console.log(profileResponse, "profileResponse");
     if (!profileResponse) return;
 
     const demandResponse = await instance?.get(
@@ -87,6 +94,7 @@ const useAuth = () => {
         demands: demandResponse?.data,
         // demandCount: demandResponse.data.length
       });
+      return true;
     }
   };
 

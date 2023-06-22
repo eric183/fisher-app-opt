@@ -42,8 +42,8 @@ export default function RootLayout() {
   const { init, instance, loginStatus, errorInfo } = useAxios();
   const [sliceIndex, setSliceIndex] = useState<number>(0);
   const { startChat } = useRequest();
+  const [hasLogin, setHasLogin] = useState<boolean>(false);
   const router = useRouter();
-
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     ...FontAwesome.font,
@@ -209,7 +209,14 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (instance) {
-      checkToken();
+      checkToken()
+        .then((error) => {
+          setHasLogin(true);
+        })
+        .catch((error) => {
+          console.log("checkToken", error);
+          setHasLogin(true);
+        });
     }
   }, [instance]);
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
@@ -219,16 +226,17 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (errorInfo) {
-      Alert.alert("Error", errorInfo.message);
+      // Alert.alert("Error", errorInfo.message);
     }
   }, [errorInfo]);
 
+  console.log(hasLogin, "hasLogin");
   return (
     <>
       {/* <SplashScreen /> */}
       {/* Keep the splash screen open until the assets have loaded. In the future, we should just support async font loading with a native version of font-display. */}
-      {!loaded && <SplashScreen />}
-      {loaded && <RootLayoutNav />}
+      {!hasLogin && <SplashScreen />}
+      {hasLogin && <RootLayoutNav />}
     </>
   );
 }

@@ -73,7 +73,7 @@ const RootLayoutNav = () => {
     <>
       <NativeBaseProvider>
         <ThemeProvider value={DefaultTheme}>
-          {showProgress && <Progress value={progressMove()} />}
+          {/* {showProgress && <Progress value={progressMove()} />} */}
 
           {/* <AlertDialog
             leastDestructiveRef={cancelRef}

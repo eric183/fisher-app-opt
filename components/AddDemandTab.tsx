@@ -13,6 +13,7 @@ import {
   HStack,
   ScrollView,
   KeyboardAvoidingView,
+  Input,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import uploadPhoto from "../utils/upload";
@@ -297,7 +298,7 @@ const AddDemandForm: FC<{
             />
           </MapView>
 
-          <TextInput
+          <Input
             ref={mapRef}
             onChangeText={(text) => (titleRef.current.context = text)}
             onFocus={() => {
@@ -308,25 +309,26 @@ const AddDemandForm: FC<{
             className={`drop-shadow-xl rounded-xl bg-[#fff] py-3 px-3 text-[#447592] ${
               mapInput ? "hidden" : "visible"
             }`}
-            placeholder="Input the title"
-          ></TextInput>
+            placeholder="Input the area"
+          ></Input>
         </Stack>
 
         <ScrollView className="flex-2">
           <Stack className="mb-6">
             <Text className="text-2xl mb-2">Title</Text>
-            <TextInput
+            <Input
               ref={titleRef}
               onFocus={() => setMapInput(false)}
               onChangeText={(text) => (titleRef.current.context = text)}
               className="drop-shadow-xl rounded-xl bg-[#fff] py-3 px-3 text-[#447592]"
               placeholder="Input the title"
-            ></TextInput>
+            ></Input>
           </Stack>
           <Stack className="mb-6">
             <Text className="text-2xl mb-2">Task</Text>
             <TextArea
               bg="#fff"
+              color="#447592"
               ref={textAreaRef}
               autoCompleteType={undefined}
               onFocus={() => setMapInput(false)}

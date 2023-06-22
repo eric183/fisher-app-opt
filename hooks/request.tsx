@@ -24,7 +24,7 @@ const useRequest = () => {
 
   const [request, response, googleAuthPromptAsync] = Google.useAuthRequest({
     expoClientId:
-      "550771065328-4n6ifetk14ipohju31nph1f6uq5qft6u.apps.googleusercontent.com",
+      "823168178672-f0h9frh08lb3k8knspigmthq0fcccfjs.apps.googleusercontent.com",
     // expoClientkey: "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",
     scopes: ["openid", "profile", "email"],
     iosClientId:
