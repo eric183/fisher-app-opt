@@ -4,7 +4,13 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
-import { NativeBaseProvider, Progress, AlertDialog, Button } from "native-base";
+import {
+  NativeBaseProvider,
+  Progress,
+  AlertDialog,
+  Button,
+  Text,
+} from "native-base";
 import { useState, useRef, useEffect } from "react";
 import { useColorScheme } from "react-native";
 import useDemandState from "../store/demand";
@@ -63,10 +69,6 @@ const RootLayoutNav = () => {
     if (typeof matchInfo === "boolean") {
       setAlertOpen(true);
     }
-
-    if (typeof matchInfo === "object") {
-      setAlertOpen(true);
-    }
   }, [matchInfo]);
 
   return (
@@ -75,18 +77,18 @@ const RootLayoutNav = () => {
         <ThemeProvider value={DefaultTheme}>
           {/* {showProgress && <Progress value={progressMove()} />} */}
 
-          {/* <AlertDialog
+          <AlertDialog
             leastDestructiveRef={cancelRef}
             isOpen={alertOpen}
             onClose={onClose}
           >
             <AlertDialog.Content>
               <AlertDialog.CloseButton />
-              <AlertDialog.Header>匹配结果</AlertDialog.Header>
+              <AlertDialog.Header>Error</AlertDialog.Header>
               <AlertDialog.Body textAlign="center">
-                {matchInfo
-                  ? JSON.stringify(matchInfo)
-                  : "抱歉没有匹配结果，请返回修改或者下次再来"}
+                <Text textAlign="center">
+                  Not a matched, please try once later
+                </Text>
               </AlertDialog.Body>
               <AlertDialog.Footer justifyContent="center">
                 <Button
@@ -95,11 +97,11 @@ const RootLayoutNav = () => {
                   onPress={onClose}
                   ref={cancelRef}
                 >
-                  Got it!
+                  Close
                 </Button>
               </AlertDialog.Footer>
             </AlertDialog.Content>
-          </AlertDialog> */}
+          </AlertDialog>
 
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

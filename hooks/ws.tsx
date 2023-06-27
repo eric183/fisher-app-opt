@@ -97,7 +97,7 @@ const useWS = () => {
   const receiveMessage = async (data: IChatInfo) => {
     let stackId = "";
     let chatList = [];
-
+    // console.log("receiveMessage", data);
     if (chatStack[`${data.fromUserId}.${data.toUserId}`]) {
       stackId = `${data.fromUserId}.${data.toUserId}`;
       chatList = chatStack[`${data.fromUserId}.${data.toUserId}`];
@@ -107,6 +107,8 @@ const useWS = () => {
       stackId = `${data.toUserId}.${data.fromUserId}`;
       chatList = chatStack[`${data.toUserId}.${data.fromUserId}`];
     }
+
+    console.log("stackId", stackId, chatList, "stackId", user?.username);
     setChatStack(stackId ? stackId : `${data.fromUserId}.${data.toUserId}`, [
       ...chatList,
       {

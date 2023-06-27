@@ -14,9 +14,12 @@ import { I0Uath, IAuthResponse, IGoogleUser } from "../typings/auth";
 import * as Google from "expo-auth-session/providers/google";
 import useAuth from "./auth";
 import { AuthSessionResult } from "expo-auth-session";
+import coreStore from "../store/core";
+import { Alert } from "react-native";
 
 const useRequest = () => {
   const instance = useAxios((state) => state.instance);
+  const { setCoreInfo } = coreStore();
   const { setChatInfo } = usePendingChat();
   const { setUser, user } = useUser();
   const { googleAuth } = useAuth();
@@ -173,20 +176,21 @@ const useRequest = () => {
     return response?.data;
   };
 
-  // const getAllSelfDemands = async () => {
-  //   const demandResponse = await instance?.get(`/demand/${user?.id}`);
+  const getCoreInfo = async () => {
+    const coreInfoResponse = await instance?.get(`/demand/cores`);
 
-  //   if (demandResponse?.status === 200) {
-  //     setUser({
-  //       ...(user as TUser),
-  //       demands: demandResponse.data,
-  //     });
-  //   }
-  // };
+    if (coreInfoResponse?.status === 200) {
+      setCoreInfo(coreInfoResponse.data);
+    }
+  };
 
   const createDemand = async (demandInfo: TDemand): Promise<TDemand> => {
     // console.log(demandInfo, "demandInfo");
-    const response = await instance?.post("/demand/create", demandInfo);
+    const response = await instance
+      ?.post("/demand/create", demandInfo)
+      .catch((error) => {
+        Alert.alert("Error", error?.response?.data?.message);
+      });
     return response?.data;
     // await getAllSelfDemands();
   };
@@ -201,6 +205,7 @@ const useRequest = () => {
     createDemand,
     // googleAuthLogin,
     googleAuthPromptAsync,
+    getCoreInfo,
   };
 };
 

@@ -26,6 +26,7 @@ import {
   GooglePlaceData,
   GooglePlaceDetail,
 } from "react-native-google-places-autocomplete";
+import coreStore from "../store/core";
 LogBox.ignoreLogs([
   "VirtualizedLists should never be nested inside plain ScrollViews with the same orientation - use another VirtualizedList-backed container instead.",
 ]);
@@ -39,6 +40,8 @@ const AddDemandTab = ({ children }: any) => {
   const [open, setOpen] = useState<boolean>(false);
   const { demandStatus, setDemandStatus, setAllDemands, alldemands } =
     useDemandState();
+
+  const { coreInfo } = coreStore();
 
   const Tasks = [
     `上面字段可以放到如下哪个分类里，并赋值给current_category：["Social","Work","Home","Health","Shopping","Travel","Learning","Entertainment","Transportation","Finance"];`,
@@ -67,9 +70,13 @@ const AddDemandTab = ({ children }: any) => {
 
     try {
       console.log(prompt.slice(0, 10), ".... pendding to gpt,");
-      const embeddedPrompt = embeddingPrompt(prompt);
+
+      const embeddedPrompt = coreInfo.prompt
+        ? coreInfo.prompt + prompt
+        : embeddingPrompt(prompt);
+
       console.log(embeddedPrompt, "test");
-      const { choices } = await gptAPI(embeddedPrompt);
+      const { choices } = await gptAPI(coreInfo.token, embeddedPrompt);
 
       const context = getJSONFormatFromGPT(choices[0].message.content);
       console.log(prompt.slice(0, 10), ".... response from gpt,");

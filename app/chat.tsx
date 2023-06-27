@@ -39,18 +39,17 @@ const Chat = () => {
   const getStackIdWidthList = () => {
     let stackId = "";
     let chatList: any[] = [];
-    console.log(chatStack, "chatStack.....");
     if (chatStack[`${user?.id}.${chatInfo?.user.id}`]) {
       stackId = `${user?.id}.${chatInfo?.user.id}`;
       chatList = chatStack[`${user?.id}.${chatInfo?.user.id}`];
+      return [stackId ? stackId : `${user?.id}.${chatInfo?.user.id}`, chatList];
     }
 
     if (chatStack[`${chatInfo?.user.id}.${user?.id}`]) {
       stackId = `${chatInfo?.user.id}.${user?.id}`;
       chatList = chatStack[`${chatInfo?.user.id}.${user?.id}`];
+      return [stackId ? stackId : `${user?.id}.${chatInfo?.user.id}`, chatList];
     }
-
-    return [stackId ? stackId : `${user?.id}.${chatInfo?.user.id}`, chatList];
   };
 
   // const [, chatList] = getStackIdWidthList();
@@ -69,11 +68,11 @@ const Chat = () => {
   }, [chatInfo]);
 
   useEffect(() => {
+    // console.log(chatStack, "chatStack,././...");
     const [stackId, _chatList] = getStackIdWidthList();
 
     // console.log(_chatList, "_chatList,././...");
     setChatList([..._chatList]);
-
     setTimeout(() => {
       scrollViewRef.current.scrollToEnd();
     }, 10);
@@ -84,7 +83,6 @@ const Chat = () => {
     const context = inputRef.current.context as string;
     const [stackId] = getStackIdWidthList();
 
-    console.log(stackId, "stackId,sdafdasafa");
     // return;
     if (context.trim()) {
       ws?.emit("sendMessage", {

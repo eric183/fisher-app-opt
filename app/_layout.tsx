@@ -16,6 +16,7 @@ import RootLayoutNav from "../components/RootLayoutNav";
 import useRequest from "../hooks/request";
 import usePendingChat from "../store/pendingChat";
 import { Alert } from "react-native";
+import coreStore from "../store/core";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -41,7 +42,9 @@ export default function RootLayout() {
   const { checkToken } = useAuth();
   const { init, instance, loginStatus, errorInfo } = useAxios();
   const [sliceIndex, setSliceIndex] = useState<number>(0);
-  const { startChat } = useRequest();
+  const { startChat, getCoreInfo } = useRequest();
+
+  const { coreInfo } = coreStore();
   const [hasLogin, setHasLogin] = useState<boolean>(false);
   const router = useRouter();
   const [loaded, error] = useFonts({
@@ -63,13 +66,13 @@ export default function RootLayout() {
     const { userId, status, demandRole, place, categoryType } = pendingDemand;
     const _demands = alldemands.filter(
       (d) =>
-        d.userId !== userId && // 去掉不是本人的任务
-        d.place?.name !== place?.name && // 地址一样
-        // d.categoryType === categoryType && // 筛选同类任务
-        status === "OPEN" && // 筛选开放的任务
-        d.demandRole !== demandRole // 去掉同类任务角色
+        d.userId !== userId && // 去掉不是本人的任务 : Manual
+        d.place?.name === place?.name // 地址一样 : Google Place API
+      // status === "OPEN" // 筛选开放的任务 : Manual
+      // d.demandRole !== demandRole // 去掉同类任务角色 : AI
+      // d.categoryType === categoryType && // 筛选同类任务 ： AI
     );
-
+    console.log(_demands, "matchDemandsFilter");
     return _demands;
   };
   // TO FIXED AND TO REFINE LOGIC  -- 需要优化！！！
@@ -77,20 +80,28 @@ export default function RootLayout() {
   const onDemandsMatching = async (pendingDemand: TDemand) => {
     // promptVal = promptVal.trim();
     // promptVal = "我想找一个网球教练帮我训练网球技术";
-
+    // console.log("pendingDemand。。。。。。。。", pendingDemand);
     if (pendingDemand.English) {
       const currentDemands = matchDemandsFilter(
         alldemands,
         pendingDemand
       ).slice(sliceIndex, sliceIndex + 10);
 
+      // console.log(
+      //   "currentDemands...........",
+      //   currentDemands
+      //   // sliceIndex,
+      //   // alldemands
+      // );
+
       if (currentDemands.length === 0) {
+        console.log("no maching!!!!");
         setMatchInfo(false);
         return;
       }
 
-      console.log("currentDemands", currentDemands);
       const responseData = await gptAPI(
+        coreInfo.token,
         embeddingPropmt(pendingDemand.English, currentDemands)
       );
       const reponseData = responseData.choices[0].message.content;
@@ -128,10 +139,11 @@ export default function RootLayout() {
       waitingMatches.map((x) => x.id),
       "waitingMatches ,....."
     );
-
-    return `[${JSON.stringify(
-      waitingMatches
-    )}],here is a *waiting demand list* above, image you have the demand in mind [${prompt}],DO NOT CHANGE ID! try to understand each demand in the *waiting demand list*, choose which can match your demand, give me the "matchedItem" as JSON, otherwise return *"{}"*, DO NOT TRASH TALK, give me clean JSON format`;
+    return coreInfo.matchingPrompt
+      ? coreInfo.matchingPrompt + prompt
+      : `[${JSON.stringify(
+          waitingMatches
+        )}],here is a *waiting demand list* above, image you have the demand in mind [${prompt}],DO NOT CHANGE ID! try to understand each demand in the *waiting demand list*, choose which can match your demand, give me the "matchedItem" as JSON, otherwise return *"{}"*, DO NOT TRASH TALK, give me clean JSON format`;
   };
 
   useLayoutEffect(() => {
@@ -144,6 +156,7 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
+    // console.log("pendingDemand......", pendingDemand);
     if (pendingDemand) {
       setDemandStatus("Matching");
       onDemandsMatching(pendingDemand);
@@ -160,6 +173,7 @@ export default function RootLayout() {
 
     if (loginStatus === "authenticated" && instance) {
       getAllDemands();
+      getCoreInfo();
     }
     // signIn();
   }, [loginStatus, instance]);
@@ -194,7 +208,6 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (chatInfo) {
-      console.log(chatInfo, "chatInfo, !klfjdaljkfjasl");
       ws?.emit("startChat", {
         fromUserId: user?.id as string,
         toUserId: chatInfo?.user.id as string,

@@ -1,5 +1,7 @@
 import axios from "axios";
 import { OpenAIResponse } from "../typings/openAI";
+import { Alert } from "react-native";
+import { Configuration, OpenAIApi } from "openai";
 
 export const api_configuration = {
   apiKey: process.env.CHATGPT_PLUS_API_TOKEN,
@@ -27,14 +29,17 @@ export interface OpenAIStreamPayload {
   n: number;
 }
 
-export async function gptAPI(prompt: string): Promise<OpenAIResponse> {
+export async function gptAPI(
+  token: string,
+  prompt: string
+): Promise<OpenAIResponse | any> {
   const role = "user";
   const payload = {
-    model: "gpt-3.5-turbo",
+    model: "gpt-3.5-turbo-16k-0613",
     stream: false,
     // temperature: 0.7,
-    temperature: 0,
-    max_tokens: 1500,
+    temperature: 0.1,
+    max_tokens: 5000,
     // stop: "\n",
     // top_p: 1,
     frequency_penalty: 0,
@@ -51,20 +56,18 @@ export async function gptAPI(prompt: string): Promise<OpenAIResponse> {
 
   delete payload.prompt;
 
-  console.log(
-    process.env.CHATGPT_PLUS_API_TOKEN,
-    "process.env.CHATGPT_PLUS_API_TOKEN"
-  );
+  console.log(token, "process.env.CHATGPT_PLUS_API_TOKEN");
   const res = await axios
     .post("https://api.openai.com/v1/chat/completions", payload, {
       headers: {
         "Content-Type": "application/json",
         // 'Authorization': `Bearer `
-        Authorization: `Bearer ${api_configuration.apiKey}`,
+        Authorization: `Bearer ${token}`,
       },
     })
     .catch((err) => {
-      console.log(err.response.data);
+      Alert.alert(err.response.data.message);
     });
+
   return res?.data;
 }

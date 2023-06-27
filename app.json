@@ -19,12 +19,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.erickuang.leapqr",
-      "config": {
-        "googleSignIn": {
-          "reservedClientId": "com.googleusercontent.apps.550771065328-atnp8mu1i608tf3shsq571i25brjat1g"
-        }
-      },
-      "buildNumber": "3"
+      "buildNumber": "5"
     },
     "android": {
       "adaptiveIcon": {
@@ -42,7 +37,7 @@
       "policy": "sdkVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/86fa0b0f-8462-458c-a245-9198c618f45a"
+      "url": "https://u.expo.dev/6b0e6ba0-b654-40b5-9216-d6eb1755c3c4"
     },
     "owner": "fish-hunter"
   }

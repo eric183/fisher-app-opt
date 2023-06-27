@@ -39,17 +39,17 @@ export default function ChatHistory() {
               _requestChat[0].includes(_c.user.id as string)
             )!;
 
-            console.log(requestUsersWithChats, "requestUsersWithChats , ;....");
-            console.log(historyUser, "historyUser, .....");
+            // console.log(requestUsersWithChats, "requestUsersWithChats , ;....");
+            // console.log(historyUser, "historyUser, .....");
 
             const toUserChats = _requestChat[1].filter(
               (u: any) => u?.user?.id === historyUser?.user?.id
             );
-            console.log(_requestChat[1], " _requestChat[1] ..");
+            // console.log(_requestChat[1], " _requestChat[1] ..");
 
             const lastestContent = toUserChats[toUserChats.length - 1];
 
-            console.log(lastestContent, "lastestContent ..");
+            // console.log(lastestContent, "lastestContent ..");
             const _user = {
               ...historyUser,
               content: lastestContent.content,

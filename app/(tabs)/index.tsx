@@ -19,6 +19,7 @@ import useRequest from "../../hooks/request";
 import useMatch from "../../store/match";
 import { ISanityDocument } from "sanity-uploader/typing";
 import ProfileController from "../../components/ProfileController";
+import coreStore from "../../store/core";
 
 // import { createReadStream } from "fs";
 
@@ -31,12 +32,9 @@ export default function Index() {
   const router = useRouter();
   const { init, instance, loginStatus } = useAxios();
   const { updateUserAvatar, startChat } = useRequest();
-
+  const { coreInfo } = coreStore();
   const setPendingMatch = async (_demand: TDemand) => {
-    // await startChat(_demand, "请求聊天");
-
-    setPendingDemand(_demand);
-    // router.push("chat");
+    setPendingDemand({ ..._demand });
   };
 
   const onUploadPhoto = async () => {
@@ -50,7 +48,7 @@ export default function Index() {
   return (
     <Box className="h-full">
       <View className="flex flex-1 bg-[#49809F] justify-center pt-3">
-        {/* <Text>{process.env.APP_ORIGIN_URL}</Text> */}
+        {/* <Text>{coreInfo.token}</Text> */}
         <AvartarCard classname="ml-12" onUploadPhoto={onUploadPhoto} />
 
         <ProfileController />
